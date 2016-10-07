@@ -54,9 +54,9 @@ app.get('/', (req, res) => {
         console.log("token", text);
         renderFile("./index.html", {
           token: text.split('"')[1],
-          title: req.cookies.settings.title, 
-          secret: req.cookies.settings.secret,
-          allowMessagesFrom: req.cookies.settings.allowMessagesFrom
+          title: req.cookies.settings && req.cookies.settings.title, 
+          secret: req.cookies.settings && req.cookies.settings.secret,
+          allowMessagesFrom: req.cookies.settings && req.cookies.settings.allowMessagesFrom
         }, (err, str) => {
           if (err)
             console.log("ejs error", err);
