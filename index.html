@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Bot Chat Embed Test</title>
+        <script>
+            function sendMessage(message) {
+                console.log("Sending message", message);
+                window.frames["botchat"].postMessage(message, "http://localhost:3000");
+            }
+        </script>
+
+    </head>
+    <body>
+        <div>
+            <div style="width:320px; float:left;">
+                <h1>Config</h1>
+                <form method="post" action=".">
+                    <p>
+                        <label for="secret">App Secret</label>
+                        <input id="secret" name="secret" type="text" style="width:300px;" value="<%= secret %>" placeholder="leave blank for featurebot"/>
+                    </p>
+                    <p>
+                        <label for="title">Title</label>
+                        <input id="title" name="title" type="text" style="width:300px;" value="<%= title %>" placeholder="leave blank for default"/>
+                    </p>
+                    <p>
+                        <label for="allowMessagesFrom">Allow messages from websites hosted at: </label>
+                        <input id="allowMessagesFrom" name="allowMessagesFrom" type="text" style="width:300px;" value="<%= allowMessagesFrom %>" placeholder="http://localhost:3000, http://bill.barnacle.org"/>
+                    </p>
+                    <p>
+                        <input type="submit"/>
+                    </p>
+                </form>
+                <h1>Messaging</h1>
+                <textarea id="message" rows="5" cols="40"></textarea>
+                <button onclick="sendMessage(document.getElementById('message').value)">Send Message To Bot</button>
+            </div>
+            <div style="margin-left: 320px;">
+                <iframe id="botchat" src="/botchat/?t=<%= token %>" width="320" height="500"/>
+            </div>
+            <div style="clear:both;"/>
+        </div>
+    </body>
+</html>

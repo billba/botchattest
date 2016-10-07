@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Bot Chat</title>
+        <link href="botchat.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div id="BotChatGoesHere"></div>
+        <script src="https://fb.me/react-15.2.1.min.js"></script>
+        <script src="https://fb.me/react-dom-15.2.1.min.js"></script>
+        <script src="botchat.js"></script>
+        <script>
+            var params = {};
+            location
+                .search
+                .substring(1)
+                .split("&")
+                .forEach(function (pair) {
+                    var p = pair.split("=");
+                    params[p[0]] = p[1];
+                });
+
+            ReactDOM.render(React.createElement(BotChat.UI, {
+                appSecret: params['s'],
+                token: params['t'],
+                debug: params['debug']
+                // ADD MORE CONFIG HERE
+            }), document.getElementById("BotChatGoesHere"));
+        </script>
+    </body>
+</html>
