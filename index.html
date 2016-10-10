@@ -6,7 +6,8 @@
         <script>
             function sendMessage(message) {
                 console.log("Sending message", message);
-                window.frames["botchat"].postMessage(message, "http://localhost:3000");
+                console.log("")
+                window.frames["botchat"].postMessage(message, window.location.origin);
             }
         </script>
 
