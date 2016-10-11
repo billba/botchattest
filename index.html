@@ -5,9 +5,8 @@
         <title>Bot Chat Embed Test</title>
         <script>
             function sendMessage(message) {
-                console.log("Sending message", message);
-                console.log("")
-                window.frames["botchat"].postMessage(message, window.location.origin);
+                console.log("Sending backchannel message to botchat", message);
+                window.frames["botchat"].postMessage({ type: 'send', contents: message }, window.location.origin);
             }
         </script>
 
