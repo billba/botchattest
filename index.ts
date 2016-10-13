@@ -51,7 +51,7 @@ app.get('/', (req, res) => {
       Authorization: `BotConnector ${appSecret}`
     }}).then(response => {
       response.text().then(text => {
-        console.log("token", text);
+        console.log("token", text, "retrieved at", new Date());
         renderFile("./index.html", {
           token: text.split('"')[1],
           title: req.cookies.settings && req.cookies.settings.title, 
