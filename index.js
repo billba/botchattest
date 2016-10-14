@@ -10,22 +10,24 @@ const app = express();
 app.use(cookieParser());
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+const guid = () => {
+    const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+};
 app.get('/botchat', (req, res) => {
     fs_1.readFile('./botchat/index.html', (err, data) => {
         const contents = data.toString();
+        let settings = "";
+        settings += `, user: { id: "${guid()}", name: "your name here" }`;
         if (req.cookies.settings) {
             console.log("cookie", req.cookies.settings);
-            let settings = "";
             if (req.cookies.settings.title)
                 settings += `, title: "${req.cookies.settings.title}"`;
             if (req.cookies.settings.allowMessagesFrom)
                 settings += `, allowMessagesFrom: ['${req.cookies.settings.allowMessagesFrom.replace(" ", "").replace(",", "','")}']`;
-            console.log("settings", settings);
-            res.send(contents.replace("// ADD MORE CONFIG HERE", settings));
         }
-        else {
-            res.send(contents);
-        }
+        console.log("settings", settings);
+        res.send(contents.replace("// ADD MORE CONFIG HERE", settings));
     });
 });
 app.use('/botchat', express.static('botchat'));
