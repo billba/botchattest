@@ -53,109 +53,50 @@ var BotChat =
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var __assign = (this && this.__assign) || Object.assign || function(t) {
+	    for (var s, i = 1, n = arguments.length; i < n; i++) {
+	        s = arguments[i];
+	        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+	            t[p] = s[p];
+	    }
+	    return t;
+	};
+	var React = __webpack_require__(2);
+	var Chat_1 = __webpack_require__(3);
+	exports.App = function (props) {
+	    return React.createElement("div", {className: "wc-app"}, 
+	        React.createElement("div", {className: "wc-app-left-container"}, 
+	            React.createElement(Chat_1.Chat, __assign({}, props))
+	        )
+	    );
+	};
+
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+	module.exports = React;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
 	var __extends = (this && this.__extends) || function (d, b) {
 	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var React = __webpack_require__(2);
-	var redux_1 = __webpack_require__(3);
-	var directLine_1 = __webpack_require__(18);
-	var browserLine_1 = __webpack_require__(365);
-	var History_1 = __webpack_require__(366);
-	var Shell_1 = __webpack_require__(374);
-	var DebugView_1 = __webpack_require__(375);
-	var connection = function (state, action) {
-	    if (state === void 0) { state = {
-	        connected: false,
-	        botConnection: undefined,
-	        user: undefined,
-	        host: undefined
-	    }; }
-	    switch (action.type) {
-	        case 'Start_Connection':
-	            return { connected: false, botConnection: action.botConnection, user: action.user, host: state.host };
-	        case 'Connected_To_Bot':
-	            return { connected: true, botConnection: state.botConnection, user: state.user, host: state.host };
-	        case 'Subscribe_Host':
-	            return { connected: state.connected, botConnection: state.botConnection, user: state.user, host: action.host };
-	        case 'Unsubscribe_Host':
-	            return { connected: state.connected, botConnection: state.botConnection, user: state.user, host: undefined };
-	        default:
-	            return state;
-	    }
-	};
-	var shell = function (state, action) {
-	    if (state === void 0) { state = {
-	        text: '',
-	        enableSend: true
-	    }; }
-	    switch (action.type) {
-	        case 'Update_Shell_Text':
-	            return { text: action.text, enableSend: true };
-	        case 'Pre_Send_Shell_Text':
-	            return { text: state.text, enableSend: false };
-	        case 'Fail_Send_Shell_Text':
-	            return { text: state.text, enableSend: true };
-	        case 'Post_Send_Shell_Text':
-	            return { text: '', enableSend: true };
-	        default:
-	            return state;
-	    }
-	};
-	var history = function (state, action) {
-	    if (state === void 0) { state = {
-	        activities: [],
-	        autoscroll: true
-	    }; }
-	    switch (action.type) {
-	        case 'Receive_Message':
-	            return { activities: state.activities.concat([action.activity]), autoscroll: state.autoscroll };
-	        case 'Send_Message':
-	            return { activities: state.activities.concat([action.activity]), autoscroll: true };
-	        case 'Set_Autoscroll':
-	            return { activities: state.activities, autoscroll: action.autoscroll };
-	        default:
-	            return state;
-	    }
-	};
-	// Visibility state of the DebugView panel 
-	(function (DebugViewState) {
-	    DebugViewState[DebugViewState["disabled"] = 0] = "disabled";
-	    DebugViewState[DebugViewState["enabled"] = 1] = "enabled";
-	    DebugViewState[DebugViewState["visible"] = 2] = "visible"; // panel and toggle control are both visible
-	})(exports.DebugViewState || (exports.DebugViewState = {}));
-	var DebugViewState = exports.DebugViewState;
-	var debug = function (state, action) {
-	    if (state === void 0) { state = {
-	        viewState: DebugViewState.disabled,
-	        selectedActivity: null
-	    }; }
-	    switch (action.type) {
-	        case 'Set_Debug':
-	            return { viewState: action.viewState, selectedActivity: state.selectedActivity };
-	        case 'Toggle_Debug':
-	            if (state.viewState === DebugViewState.enabled)
-	                return { viewState: DebugViewState.visible, selectedActivity: state.selectedActivity };
-	            else if (state.viewState === DebugViewState.visible)
-	                return { viewState: DebugViewState.enabled, selectedActivity: state.selectedActivity };
-	            else
-	                return { viewState: state.viewState, selectedActivity: state.selectedActivity };
-	        case 'Select_Activity':
-	            return { viewState: state.viewState, selectedActivity: action.activity };
-	        default:
-	            return state;
-	    }
-	};
-	exports.store = redux_1.createStore(redux_1.combineReducers({
-	    shell: shell,
-	    connection: connection,
-	    history: history,
-	    debug: debug
-	}));
-	var UI = (function (_super) {
-	    __extends(UI, _super);
-	    function UI() {
+	var directLine_1 = __webpack_require__(4);
+	var browserLine_1 = __webpack_require__(351);
+	var History_1 = __webpack_require__(352);
+	var Shell_1 = __webpack_require__(375);
+	var Store_1 = __webpack_require__(353);
+	var Chat = (function (_super) {
+	    __extends(Chat, _super);
+	    function Chat() {
 	        var _this = this;
 	        _super.call(this);
 	        this.receiveBackchannelMessageFromHostingPage = function (event) {
@@ -170,10 +111,10 @@ var BotChat =
 	            console.log("Received backchannel message", event.data, "from", event.source);
 	            switch (event.data.type) {
 	                case "subscribe":
-	                    exports.store.dispatch({ type: 'Subscribe_Host', host: event.source });
+	                    Store_1.getStore().dispatch({ type: 'Subscribe_Host', host: event.source });
 	                    break;
 	                case "unsubscribe":
-	                    exports.store.dispatch({ type: 'Unsubscribe_Host' });
+	                    Store_1.getStore().dispatch({ type: 'Unsubscribe_Host' });
 	                    break;
 	                case "send":
 	                    if (!event.data.contents) {
@@ -185,7 +126,7 @@ var BotChat =
 	                    console.log("unknown message type", event.data.type);
 	                    return;
 	            }
-	            var state = exports.store.getState();
+	            var state = Store_1.getState();
 	            state.connection.botConnection.postMessage("backchannel", state.connection.user, { backchannel: event.data })
 	                .retry(2)
 	                .subscribe(function (success) {
@@ -195,1119 +136,47 @@ var BotChat =
 	            });
 	        };
 	    }
-	    UI.prototype.componentWillMount = function () {
-	        var _this = this;
+	    Chat.prototype.componentWillMount = function () {
+	        var store = Store_1.getStore();
 	        console.log("Starting BotChat", this.props);
 	        var bc = this.props.directLineDomain === "browser" ? new browserLine_1.BrowserLine() : new directLine_1.DirectLine({ secret: this.props.secret, token: this.props.token }, this.props.directLineDomain);
-	        exports.store.dispatch({ type: 'Start_Connection', user: this.props.user, botConnection: bc });
+	        store.dispatch({ type: 'Start_Connection', user: this.props.user, botConnection: bc });
+	        if (this.props.formatOptions)
+	            store.dispatch({ type: 'Set_Format_Options', options: this.props.formatOptions });
 	        bc.connected$.filter(function (connected) { return connected === true; }).subscribe(function (connected) {
-	            exports.store.dispatch({ type: 'Connected_To_Bot' });
+	            store.dispatch({ type: 'Connected_To_Bot' });
 	        });
-	        var debug = this.props.debug && this.props.debug.toLowerCase();
-	        var debugViewState = DebugViewState.disabled;
-	        if (debug === DebugViewState[DebugViewState.enabled])
-	            debugViewState = DebugViewState.enabled;
-	        else if (debug === DebugViewState[DebugViewState.visible])
-	            debugViewState = DebugViewState.visible;
-	        exports.store.dispatch({ type: 'Set_Debug', viewState: debugViewState });
-	        bc.activities$.subscribe(function (activity) { return exports.store.dispatch({ type: 'Receive_Message', activity: activity }); }, function (error) { return console.log("errors", error); });
+	        bc.activities$.subscribe(function (activity) { return Store_1.getStore().dispatch({ type: 'Receive_Message', activity: activity }); }, function (error) { return console.log("errors", error); });
 	        if (this.props.allowMessagesFrom) {
 	            console.log("adding event listener for messages from hosting web page");
 	            window.addEventListener("message", this.receiveBackchannelMessageFromHostingPage, false);
 	        }
-	        exports.store.subscribe(function () {
-	            return _this.forceUpdate();
-	        });
 	    };
-	    UI.prototype.onClickDebug = function () {
-	        exports.store.dispatch({ type: 'Toggle_Debug' });
-	    };
-	    UI.prototype.render = function () {
-	        var state = exports.store.getState();
+	    Chat.prototype.render = function () {
+	        var state = Store_1.getState();
 	        console.log("BotChat state", state);
-	        return (React.createElement("div", {className: "wc-app"}, 
-	            React.createElement("div", {className: "wc-chatview-panel" + (state.debug.viewState === DebugViewState.visible ? " wc-withdebugview" : "")}, 
+	        var header;
+	        if (state.format.options.showHeader)
+	            header =
 	                React.createElement("div", {className: "wc-header"}, 
-	                    React.createElement("span", null, this.props.title || "WebChat"), 
-	                    React.createElement("div", {className: "wc-toggledebugview" + (state.debug.viewState !== DebugViewState.disabled ? "" : " wc-hidden"), onClick: this.onClickDebug}, 
-	                        React.createElement("svg", {width: "20", height: "20", viewBox: "0 0 1792 1792"}, 
-	                            React.createElement("rect", {id: "panel", height: "1152.159352", width: "642.020858", y: "384.053042", x: "959.042634"}), 
-	                            React.createElement("path", {id: "frame", d: "m224,1536l608,0l0,-1152l-640,0l0,1120q0,13 9.5,22.5t22.5,9.5zm1376,-32l0,-1120l-640,0l0,1152l608,0q13,0 22.5,-9.5t9.5,-22.5zm128,-1216l0,1216q0,66 -47,113t-113,47l-1344,0q-66,0 -113,-47t-47,-113l0,-1216q0,-66 47,-113t113,-47l1344,0q66,0 113,47t47,113z"}))
-	                    )), 
-	                React.createElement(History_1.History, null), 
-	                React.createElement(Shell_1.Shell, null)), 
-	            React.createElement("div", {className: "wc-debugview-panel" + (state.debug.viewState === DebugViewState.visible ? "" : " wc-hidden")}, 
-	                React.createElement("div", {className: "wc-header"}, 
-	                    React.createElement("span", null, "Debug")
-	                ), 
-	                React.createElement(DebugView_1.DebugView, {activity: state.debug.selectedActivity}))));
+	                    React.createElement("span", null, this.props.title || "Chat")
+	                );
+	        return (React.createElement("div", {className: "wc-chatview-panel"}, 
+	            header, 
+	            React.createElement(History_1.History, {allowMessageSelection: this.props.allowMessageSelection}), 
+	            React.createElement(Shell_1.Shell, null)));
 	    };
-	    return UI;
+	    return Chat;
 	}(React.Component));
-	exports.UI = UI;
+	exports.Chat = Chat;
 
-
-/***/ },
-/* 2 */
-/***/ function(module, exports) {
-
-	module.exports = React;
-
-/***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
-	
-	exports.__esModule = true;
-	exports.compose = exports.applyMiddleware = exports.bindActionCreators = exports.combineReducers = exports.createStore = undefined;
-	
-	var _createStore = __webpack_require__(5);
-	
-	var _createStore2 = _interopRequireDefault(_createStore);
-	
-	var _combineReducers = __webpack_require__(13);
-	
-	var _combineReducers2 = _interopRequireDefault(_combineReducers);
-	
-	var _bindActionCreators = __webpack_require__(15);
-	
-	var _bindActionCreators2 = _interopRequireDefault(_bindActionCreators);
-	
-	var _applyMiddleware = __webpack_require__(16);
-	
-	var _applyMiddleware2 = _interopRequireDefault(_applyMiddleware);
-	
-	var _compose = __webpack_require__(17);
-	
-	var _compose2 = _interopRequireDefault(_compose);
-	
-	var _warning = __webpack_require__(14);
-	
-	var _warning2 = _interopRequireDefault(_warning);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-	
-	/*
-	* This is a dummy function to check if the function name has been altered by minification.
-	* If the function has been minified and NODE_ENV !== 'production', warn the user.
-	*/
-	function isCrushed() {}
-	
-	if (process.env.NODE_ENV !== 'production' && typeof isCrushed.name === 'string' && isCrushed.name !== 'isCrushed') {
-	  (0, _warning2['default'])('You are currently using minified code outside of NODE_ENV === \'production\'. ' + 'This means that you are running a slower development build of Redux. ' + 'You can use loose-envify (https://github.com/zertosh/loose-envify) for browserify ' + 'or DefinePlugin for webpack (http://stackoverflow.com/questions/30030031) ' + 'to ensure you have the correct code for your production build.');
-	}
-	
-	exports.createStore = _createStore2['default'];
-	exports.combineReducers = _combineReducers2['default'];
-	exports.bindActionCreators = _bindActionCreators2['default'];
-	exports.applyMiddleware = _applyMiddleware2['default'];
-	exports.compose = _compose2['default'];
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
 /* 4 */
-/***/ function(module, exports) {
-
-	// shim for using process in browser
-	var process = module.exports = {};
-	
-	// cached from whatever global is present so that test runners that stub it
-	// don't break things.  But we need to wrap it in a try catch in case it is
-	// wrapped in strict mode code which doesn't define any globals.  It's inside a
-	// function because try/catches deoptimize in certain engines.
-	
-	var cachedSetTimeout;
-	var cachedClearTimeout;
-	
-	function defaultSetTimout() {
-	    throw new Error('setTimeout has not been defined');
-	}
-	function defaultClearTimeout () {
-	    throw new Error('clearTimeout has not been defined');
-	}
-	(function () {
-	    try {
-	        if (typeof setTimeout === 'function') {
-	            cachedSetTimeout = setTimeout;
-	        } else {
-	            cachedSetTimeout = defaultSetTimout;
-	        }
-	    } catch (e) {
-	        cachedSetTimeout = defaultSetTimout;
-	    }
-	    try {
-	        if (typeof clearTimeout === 'function') {
-	            cachedClearTimeout = clearTimeout;
-	        } else {
-	            cachedClearTimeout = defaultClearTimeout;
-	        }
-	    } catch (e) {
-	        cachedClearTimeout = defaultClearTimeout;
-	    }
-	} ())
-	function runTimeout(fun) {
-	    if (cachedSetTimeout === setTimeout) {
-	        //normal enviroments in sane situations
-	        return setTimeout(fun, 0);
-	    }
-	    // if setTimeout wasn't available but was latter defined
-	    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-	        cachedSetTimeout = setTimeout;
-	        return setTimeout(fun, 0);
-	    }
-	    try {
-	        // when when somebody has screwed with setTimeout but no I.E. maddness
-	        return cachedSetTimeout(fun, 0);
-	    } catch(e){
-	        try {
-	            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-	            return cachedSetTimeout.call(null, fun, 0);
-	        } catch(e){
-	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-	            return cachedSetTimeout.call(this, fun, 0);
-	        }
-	    }
-	
-	
-	}
-	function runClearTimeout(marker) {
-	    if (cachedClearTimeout === clearTimeout) {
-	        //normal enviroments in sane situations
-	        return clearTimeout(marker);
-	    }
-	    // if clearTimeout wasn't available but was latter defined
-	    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-	        cachedClearTimeout = clearTimeout;
-	        return clearTimeout(marker);
-	    }
-	    try {
-	        // when when somebody has screwed with setTimeout but no I.E. maddness
-	        return cachedClearTimeout(marker);
-	    } catch (e){
-	        try {
-	            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-	            return cachedClearTimeout.call(null, marker);
-	        } catch (e){
-	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-	            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-	            return cachedClearTimeout.call(this, marker);
-	        }
-	    }
-	
-	
-	
-	}
-	var queue = [];
-	var draining = false;
-	var currentQueue;
-	var queueIndex = -1;
-	
-	function cleanUpNextTick() {
-	    if (!draining || !currentQueue) {
-	        return;
-	    }
-	    draining = false;
-	    if (currentQueue.length) {
-	        queue = currentQueue.concat(queue);
-	    } else {
-	        queueIndex = -1;
-	    }
-	    if (queue.length) {
-	        drainQueue();
-	    }
-	}
-	
-	function drainQueue() {
-	    if (draining) {
-	        return;
-	    }
-	    var timeout = runTimeout(cleanUpNextTick);
-	    draining = true;
-	
-	    var len = queue.length;
-	    while(len) {
-	        currentQueue = queue;
-	        queue = [];
-	        while (++queueIndex < len) {
-	            if (currentQueue) {
-	                currentQueue[queueIndex].run();
-	            }
-	        }
-	        queueIndex = -1;
-	        len = queue.length;
-	    }
-	    currentQueue = null;
-	    draining = false;
-	    runClearTimeout(timeout);
-	}
-	
-	process.nextTick = function (fun) {
-	    var args = new Array(arguments.length - 1);
-	    if (arguments.length > 1) {
-	        for (var i = 1; i < arguments.length; i++) {
-	            args[i - 1] = arguments[i];
-	        }
-	    }
-	    queue.push(new Item(fun, args));
-	    if (queue.length === 1 && !draining) {
-	        runTimeout(drainQueue);
-	    }
-	};
-	
-	// v8 likes predictible objects
-	function Item(fun, array) {
-	    this.fun = fun;
-	    this.array = array;
-	}
-	Item.prototype.run = function () {
-	    this.fun.apply(null, this.array);
-	};
-	process.title = 'browser';
-	process.browser = true;
-	process.env = {};
-	process.argv = [];
-	process.version = ''; // empty string to avoid regexp issues
-	process.versions = {};
-	
-	function noop() {}
-	
-	process.on = noop;
-	process.addListener = noop;
-	process.once = noop;
-	process.off = noop;
-	process.removeListener = noop;
-	process.removeAllListeners = noop;
-	process.emit = noop;
-	
-	process.binding = function (name) {
-	    throw new Error('process.binding is not supported');
-	};
-	
-	process.cwd = function () { return '/' };
-	process.chdir = function (dir) {
-	    throw new Error('process.chdir is not supported');
-	};
-	process.umask = function() { return 0; };
-
-
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	exports.__esModule = true;
-	exports.ActionTypes = undefined;
-	exports['default'] = createStore;
-	
-	var _isPlainObject = __webpack_require__(6);
-	
-	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
-	
-	var _symbolObservable = __webpack_require__(10);
-	
-	var _symbolObservable2 = _interopRequireDefault(_symbolObservable);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-	
-	/**
-	 * These are private action types reserved by Redux.
-	 * For any unknown actions, you must return the current state.
-	 * If the current state is undefined, you must return the initial state.
-	 * Do not reference these action types directly in your code.
-	 */
-	var ActionTypes = exports.ActionTypes = {
-	  INIT: '@@redux/INIT'
-	};
-	
-	/**
-	 * Creates a Redux store that holds the state tree.
-	 * The only way to change the data in the store is to call `dispatch()` on it.
-	 *
-	 * There should only be a single store in your app. To specify how different
-	 * parts of the state tree respond to actions, you may combine several reducers
-	 * into a single reducer function by using `combineReducers`.
-	 *
-	 * @param {Function} reducer A function that returns the next state tree, given
-	 * the current state tree and the action to handle.
-	 *
-	 * @param {any} [preloadedState] The initial state. You may optionally specify it
-	 * to hydrate the state from the server in universal apps, or to restore a
-	 * previously serialized user session.
-	 * If you use `combineReducers` to produce the root reducer function, this must be
-	 * an object with the same shape as `combineReducers` keys.
-	 *
-	 * @param {Function} enhancer The store enhancer. You may optionally specify it
-	 * to enhance the store with third-party capabilities such as middleware,
-	 * time travel, persistence, etc. The only store enhancer that ships with Redux
-	 * is `applyMiddleware()`.
-	 *
-	 * @returns {Store} A Redux store that lets you read the state, dispatch actions
-	 * and subscribe to changes.
-	 */
-	function createStore(reducer, preloadedState, enhancer) {
-	  var _ref2;
-	
-	  if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
-	    enhancer = preloadedState;
-	    preloadedState = undefined;
-	  }
-	
-	  if (typeof enhancer !== 'undefined') {
-	    if (typeof enhancer !== 'function') {
-	      throw new Error('Expected the enhancer to be a function.');
-	    }
-	
-	    return enhancer(createStore)(reducer, preloadedState);
-	  }
-	
-	  if (typeof reducer !== 'function') {
-	    throw new Error('Expected the reducer to be a function.');
-	  }
-	
-	  var currentReducer = reducer;
-	  var currentState = preloadedState;
-	  var currentListeners = [];
-	  var nextListeners = currentListeners;
-	  var isDispatching = false;
-	
-	  function ensureCanMutateNextListeners() {
-	    if (nextListeners === currentListeners) {
-	      nextListeners = currentListeners.slice();
-	    }
-	  }
-	
-	  /**
-	   * Reads the state tree managed by the store.
-	   *
-	   * @returns {any} The current state tree of your application.
-	   */
-	  function getState() {
-	    return currentState;
-	  }
-	
-	  /**
-	   * Adds a change listener. It will be called any time an action is dispatched,
-	   * and some part of the state tree may potentially have changed. You may then
-	   * call `getState()` to read the current state tree inside the callback.
-	   *
-	   * You may call `dispatch()` from a change listener, with the following
-	   * caveats:
-	   *
-	   * 1. The subscriptions are snapshotted just before every `dispatch()` call.
-	   * If you subscribe or unsubscribe while the listeners are being invoked, this
-	   * will not have any effect on the `dispatch()` that is currently in progress.
-	   * However, the next `dispatch()` call, whether nested or not, will use a more
-	   * recent snapshot of the subscription list.
-	   *
-	   * 2. The listener should not expect to see all state changes, as the state
-	   * might have been updated multiple times during a nested `dispatch()` before
-	   * the listener is called. It is, however, guaranteed that all subscribers
-	   * registered before the `dispatch()` started will be called with the latest
-	   * state by the time it exits.
-	   *
-	   * @param {Function} listener A callback to be invoked on every dispatch.
-	   * @returns {Function} A function to remove this change listener.
-	   */
-	  function subscribe(listener) {
-	    if (typeof listener !== 'function') {
-	      throw new Error('Expected listener to be a function.');
-	    }
-	
-	    var isSubscribed = true;
-	
-	    ensureCanMutateNextListeners();
-	    nextListeners.push(listener);
-	
-	    return function unsubscribe() {
-	      if (!isSubscribed) {
-	        return;
-	      }
-	
-	      isSubscribed = false;
-	
-	      ensureCanMutateNextListeners();
-	      var index = nextListeners.indexOf(listener);
-	      nextListeners.splice(index, 1);
-	    };
-	  }
-	
-	  /**
-	   * Dispatches an action. It is the only way to trigger a state change.
-	   *
-	   * The `reducer` function, used to create the store, will be called with the
-	   * current state tree and the given `action`. Its return value will
-	   * be considered the **next** state of the tree, and the change listeners
-	   * will be notified.
-	   *
-	   * The base implementation only supports plain object actions. If you want to
-	   * dispatch a Promise, an Observable, a thunk, or something else, you need to
-	   * wrap your store creating function into the corresponding middleware. For
-	   * example, see the documentation for the `redux-thunk` package. Even the
-	   * middleware will eventually dispatch plain object actions using this method.
-	   *
-	   * @param {Object} action A plain object representing “what changed”. It is
-	   * a good idea to keep actions serializable so you can record and replay user
-	   * sessions, or use the time travelling `redux-devtools`. An action must have
-	   * a `type` property which may not be `undefined`. It is a good idea to use
-	   * string constants for action types.
-	   *
-	   * @returns {Object} For convenience, the same action object you dispatched.
-	   *
-	   * Note that, if you use a custom middleware, it may wrap `dispatch()` to
-	   * return something else (for example, a Promise you can await).
-	   */
-	  function dispatch(action) {
-	    if (!(0, _isPlainObject2['default'])(action)) {
-	      throw new Error('Actions must be plain objects. ' + 'Use custom middleware for async actions.');
-	    }
-	
-	    if (typeof action.type === 'undefined') {
-	      throw new Error('Actions may not have an undefined "type" property. ' + 'Have you misspelled a constant?');
-	    }
-	
-	    if (isDispatching) {
-	      throw new Error('Reducers may not dispatch actions.');
-	    }
-	
-	    try {
-	      isDispatching = true;
-	      currentState = currentReducer(currentState, action);
-	    } finally {
-	      isDispatching = false;
-	    }
-	
-	    var listeners = currentListeners = nextListeners;
-	    for (var i = 0; i < listeners.length; i++) {
-	      listeners[i]();
-	    }
-	
-	    return action;
-	  }
-	
-	  /**
-	   * Replaces the reducer currently used by the store to calculate the state.
-	   *
-	   * You might need this if your app implements code splitting and you want to
-	   * load some of the reducers dynamically. You might also need this if you
-	   * implement a hot reloading mechanism for Redux.
-	   *
-	   * @param {Function} nextReducer The reducer for the store to use instead.
-	   * @returns {void}
-	   */
-	  function replaceReducer(nextReducer) {
-	    if (typeof nextReducer !== 'function') {
-	      throw new Error('Expected the nextReducer to be a function.');
-	    }
-	
-	    currentReducer = nextReducer;
-	    dispatch({ type: ActionTypes.INIT });
-	  }
-	
-	  /**
-	   * Interoperability point for observable/reactive libraries.
-	   * @returns {observable} A minimal observable of state changes.
-	   * For more information, see the observable proposal:
-	   * https://github.com/zenparsing/es-observable
-	   */
-	  function observable() {
-	    var _ref;
-	
-	    var outerSubscribe = subscribe;
-	    return _ref = {
-	      /**
-	       * The minimal observable subscription method.
-	       * @param {Object} observer Any object that can be used as an observer.
-	       * The observer object should have a `next` method.
-	       * @returns {subscription} An object with an `unsubscribe` method that can
-	       * be used to unsubscribe the observable from the store, and prevent further
-	       * emission of values from the observable.
-	       */
-	      subscribe: function subscribe(observer) {
-	        if (typeof observer !== 'object') {
-	          throw new TypeError('Expected the observer to be an object.');
-	        }
-	
-	        function observeState() {
-	          if (observer.next) {
-	            observer.next(getState());
-	          }
-	        }
-	
-	        observeState();
-	        var unsubscribe = outerSubscribe(observeState);
-	        return { unsubscribe: unsubscribe };
-	      }
-	    }, _ref[_symbolObservable2['default']] = function () {
-	      return this;
-	    }, _ref;
-	  }
-	
-	  // When a store is created, an "INIT" action is dispatched so that every
-	  // reducer returns their initial state. This effectively populates
-	  // the initial state tree.
-	  dispatch({ type: ActionTypes.INIT });
-	
-	  return _ref2 = {
-	    dispatch: dispatch,
-	    subscribe: subscribe,
-	    getState: getState,
-	    replaceReducer: replaceReducer
-	  }, _ref2[_symbolObservable2['default']] = observable, _ref2;
-	}
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var getPrototype = __webpack_require__(7),
-	    isObjectLike = __webpack_require__(9);
-	
-	/** `Object#toString` result references. */
-	var objectTag = '[object Object]';
-	
-	/** Used for built-in method references. */
-	var funcProto = Function.prototype,
-	    objectProto = Object.prototype;
-	
-	/** Used to resolve the decompiled source of functions. */
-	var funcToString = funcProto.toString;
-	
-	/** Used to check objects for own properties. */
-	var hasOwnProperty = objectProto.hasOwnProperty;
-	
-	/** Used to infer the `Object` constructor. */
-	var objectCtorString = funcToString.call(Object);
-	
-	/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var objectToString = objectProto.toString;
-	
-	/**
-	 * Checks if `value` is a plain object, that is, an object created by the
-	 * `Object` constructor or one with a `[[Prototype]]` of `null`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.8.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
-	 * @example
-	 *
-	 * function Foo() {
-	 *   this.a = 1;
-	 * }
-	 *
-	 * _.isPlainObject(new Foo);
-	 * // => false
-	 *
-	 * _.isPlainObject([1, 2, 3]);
-	 * // => false
-	 *
-	 * _.isPlainObject({ 'x': 0, 'y': 0 });
-	 * // => true
-	 *
-	 * _.isPlainObject(Object.create(null));
-	 * // => true
-	 */
-	function isPlainObject(value) {
-	  if (!isObjectLike(value) || objectToString.call(value) != objectTag) {
-	    return false;
-	  }
-	  var proto = getPrototype(value);
-	  if (proto === null) {
-	    return true;
-	  }
-	  var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
-	  return (typeof Ctor == 'function' &&
-	    Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString);
-	}
-	
-	module.exports = isPlainObject;
-
-
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var overArg = __webpack_require__(8);
-	
-	/** Built-in value references. */
-	var getPrototype = overArg(Object.getPrototypeOf, Object);
-	
-	module.exports = getPrototype;
-
-
-/***/ },
-/* 8 */
-/***/ function(module, exports) {
-
-	/**
-	 * Creates a unary function that invokes `func` with its argument transformed.
-	 *
-	 * @private
-	 * @param {Function} func The function to wrap.
-	 * @param {Function} transform The argument transform.
-	 * @returns {Function} Returns the new function.
-	 */
-	function overArg(func, transform) {
-	  return function(arg) {
-	    return func(transform(arg));
-	  };
-	}
-	
-	module.exports = overArg;
-
-
-/***/ },
-/* 9 */
-/***/ function(module, exports) {
-
-	/**
-	 * Checks if `value` is object-like. A value is object-like if it's not `null`
-	 * and has a `typeof` result of "object".
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 * @example
-	 *
-	 * _.isObjectLike({});
-	 * // => true
-	 *
-	 * _.isObjectLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObjectLike(_.noop);
-	 * // => false
-	 *
-	 * _.isObjectLike(null);
-	 * // => false
-	 */
-	function isObjectLike(value) {
-	  return value != null && typeof value == 'object';
-	}
-	
-	module.exports = isObjectLike;
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__(11);
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	
-	var _ponyfill = __webpack_require__(12);
-	
-	var _ponyfill2 = _interopRequireDefault(_ponyfill);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-	
-	var root = undefined; /* global window */
-	
-	if (typeof global !== 'undefined') {
-		root = global;
-	} else if (typeof window !== 'undefined') {
-		root = window;
-	}
-	
-	var result = (0, _ponyfill2['default'])(root);
-	exports['default'] = result;
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 12 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	exports['default'] = symbolObservablePonyfill;
-	function symbolObservablePonyfill(root) {
-		var result;
-		var _Symbol = root.Symbol;
-	
-		if (typeof _Symbol === 'function') {
-			if (_Symbol.observable) {
-				result = _Symbol.observable;
-			} else {
-				result = _Symbol('observable');
-				_Symbol.observable = result;
-			}
-		} else {
-			result = '@@observable';
-		}
-	
-		return result;
-	};
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
-	
-	exports.__esModule = true;
-	exports['default'] = combineReducers;
-	
-	var _createStore = __webpack_require__(5);
-	
-	var _isPlainObject = __webpack_require__(6);
-	
-	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
-	
-	var _warning = __webpack_require__(14);
-	
-	var _warning2 = _interopRequireDefault(_warning);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-	
-	function getUndefinedStateErrorMessage(key, action) {
-	  var actionType = action && action.type;
-	  var actionName = actionType && '"' + actionType.toString() + '"' || 'an action';
-	
-	  return 'Given action ' + actionName + ', reducer "' + key + '" returned undefined. ' + 'To ignore an action, you must explicitly return the previous state.';
-	}
-	
-	function getUnexpectedStateShapeWarningMessage(inputState, reducers, action, unexpectedKeyCache) {
-	  var reducerKeys = Object.keys(reducers);
-	  var argumentName = action && action.type === _createStore.ActionTypes.INIT ? 'preloadedState argument passed to createStore' : 'previous state received by the reducer';
-	
-	  if (reducerKeys.length === 0) {
-	    return 'Store does not have a valid reducer. Make sure the argument passed ' + 'to combineReducers is an object whose values are reducers.';
-	  }
-	
-	  if (!(0, _isPlainObject2['default'])(inputState)) {
-	    return 'The ' + argumentName + ' has unexpected type of "' + {}.toString.call(inputState).match(/\s([a-z|A-Z]+)/)[1] + '". Expected argument to be an object with the following ' + ('keys: "' + reducerKeys.join('", "') + '"');
-	  }
-	
-	  var unexpectedKeys = Object.keys(inputState).filter(function (key) {
-	    return !reducers.hasOwnProperty(key) && !unexpectedKeyCache[key];
-	  });
-	
-	  unexpectedKeys.forEach(function (key) {
-	    unexpectedKeyCache[key] = true;
-	  });
-	
-	  if (unexpectedKeys.length > 0) {
-	    return 'Unexpected ' + (unexpectedKeys.length > 1 ? 'keys' : 'key') + ' ' + ('"' + unexpectedKeys.join('", "') + '" found in ' + argumentName + '. ') + 'Expected to find one of the known reducer keys instead: ' + ('"' + reducerKeys.join('", "') + '". Unexpected keys will be ignored.');
-	  }
-	}
-	
-	function assertReducerSanity(reducers) {
-	  Object.keys(reducers).forEach(function (key) {
-	    var reducer = reducers[key];
-	    var initialState = reducer(undefined, { type: _createStore.ActionTypes.INIT });
-	
-	    if (typeof initialState === 'undefined') {
-	      throw new Error('Reducer "' + key + '" returned undefined during initialization. ' + 'If the state passed to the reducer is undefined, you must ' + 'explicitly return the initial state. The initial state may ' + 'not be undefined.');
-	    }
-	
-	    var type = '@@redux/PROBE_UNKNOWN_ACTION_' + Math.random().toString(36).substring(7).split('').join('.');
-	    if (typeof reducer(undefined, { type: type }) === 'undefined') {
-	      throw new Error('Reducer "' + key + '" returned undefined when probed with a random type. ' + ('Don\'t try to handle ' + _createStore.ActionTypes.INIT + ' or other actions in "redux/*" ') + 'namespace. They are considered private. Instead, you must return the ' + 'current state for any unknown actions, unless it is undefined, ' + 'in which case you must return the initial state, regardless of the ' + 'action type. The initial state may not be undefined.');
-	    }
-	  });
-	}
-	
-	/**
-	 * Turns an object whose values are different reducer functions, into a single
-	 * reducer function. It will call every child reducer, and gather their results
-	 * into a single state object, whose keys correspond to the keys of the passed
-	 * reducer functions.
-	 *
-	 * @param {Object} reducers An object whose values correspond to different
-	 * reducer functions that need to be combined into one. One handy way to obtain
-	 * it is to use ES6 `import * as reducers` syntax. The reducers may never return
-	 * undefined for any action. Instead, they should return their initial state
-	 * if the state passed to them was undefined, and the current state for any
-	 * unrecognized action.
-	 *
-	 * @returns {Function} A reducer function that invokes every reducer inside the
-	 * passed object, and builds a state object with the same shape.
-	 */
-	function combineReducers(reducers) {
-	  var reducerKeys = Object.keys(reducers);
-	  var finalReducers = {};
-	  for (var i = 0; i < reducerKeys.length; i++) {
-	    var key = reducerKeys[i];
-	
-	    if (process.env.NODE_ENV !== 'production') {
-	      if (typeof reducers[key] === 'undefined') {
-	        (0, _warning2['default'])('No reducer provided for key "' + key + '"');
-	      }
-	    }
-	
-	    if (typeof reducers[key] === 'function') {
-	      finalReducers[key] = reducers[key];
-	    }
-	  }
-	  var finalReducerKeys = Object.keys(finalReducers);
-	
-	  if (process.env.NODE_ENV !== 'production') {
-	    var unexpectedKeyCache = {};
-	  }
-	
-	  var sanityError;
-	  try {
-	    assertReducerSanity(finalReducers);
-	  } catch (e) {
-	    sanityError = e;
-	  }
-	
-	  return function combination() {
-	    var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-	    var action = arguments[1];
-	
-	    if (sanityError) {
-	      throw sanityError;
-	    }
-	
-	    if (process.env.NODE_ENV !== 'production') {
-	      var warningMessage = getUnexpectedStateShapeWarningMessage(state, finalReducers, action, unexpectedKeyCache);
-	      if (warningMessage) {
-	        (0, _warning2['default'])(warningMessage);
-	      }
-	    }
-	
-	    var hasChanged = false;
-	    var nextState = {};
-	    for (var i = 0; i < finalReducerKeys.length; i++) {
-	      var key = finalReducerKeys[i];
-	      var reducer = finalReducers[key];
-	      var previousStateForKey = state[key];
-	      var nextStateForKey = reducer(previousStateForKey, action);
-	      if (typeof nextStateForKey === 'undefined') {
-	        var errorMessage = getUndefinedStateErrorMessage(key, action);
-	        throw new Error(errorMessage);
-	      }
-	      nextState[key] = nextStateForKey;
-	      hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
-	    }
-	    return hasChanged ? nextState : state;
-	  };
-	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
-
-/***/ },
-/* 14 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	exports.__esModule = true;
-	exports['default'] = warning;
-	/**
-	 * Prints a warning in the console if it exists.
-	 *
-	 * @param {String} message The warning message.
-	 * @returns {void}
-	 */
-	function warning(message) {
-	  /* eslint-disable no-console */
-	  if (typeof console !== 'undefined' && typeof console.error === 'function') {
-	    console.error(message);
-	  }
-	  /* eslint-enable no-console */
-	  try {
-	    // This error was thrown as a convenience so that if you enable
-	    // "break on all exceptions" in your console,
-	    // it would pause the execution at this line.
-	    throw new Error(message);
-	    /* eslint-disable no-empty */
-	  } catch (e) {}
-	  /* eslint-enable no-empty */
-	}
-
-/***/ },
-/* 15 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	exports.__esModule = true;
-	exports['default'] = bindActionCreators;
-	function bindActionCreator(actionCreator, dispatch) {
-	  return function () {
-	    return dispatch(actionCreator.apply(undefined, arguments));
-	  };
-	}
-	
-	/**
-	 * Turns an object whose values are action creators, into an object with the
-	 * same keys, but with every function wrapped into a `dispatch` call so they
-	 * may be invoked directly. This is just a convenience method, as you can call
-	 * `store.dispatch(MyActionCreators.doSomething())` yourself just fine.
-	 *
-	 * For convenience, you can also pass a single function as the first argument,
-	 * and get a function in return.
-	 *
-	 * @param {Function|Object} actionCreators An object whose values are action
-	 * creator functions. One handy way to obtain it is to use ES6 `import * as`
-	 * syntax. You may also pass a single function.
-	 *
-	 * @param {Function} dispatch The `dispatch` function available on your Redux
-	 * store.
-	 *
-	 * @returns {Function|Object} The object mimicking the original object, but with
-	 * every action creator wrapped into the `dispatch` call. If you passed a
-	 * function as `actionCreators`, the return value will also be a single
-	 * function.
-	 */
-	function bindActionCreators(actionCreators, dispatch) {
-	  if (typeof actionCreators === 'function') {
-	    return bindActionCreator(actionCreators, dispatch);
-	  }
-	
-	  if (typeof actionCreators !== 'object' || actionCreators === null) {
-	    throw new Error('bindActionCreators expected an object or a function, instead received ' + (actionCreators === null ? 'null' : typeof actionCreators) + '. ' + 'Did you write "import ActionCreators from" instead of "import * as ActionCreators from"?');
-	  }
-	
-	  var keys = Object.keys(actionCreators);
-	  var boundActionCreators = {};
-	  for (var i = 0; i < keys.length; i++) {
-	    var key = keys[i];
-	    var actionCreator = actionCreators[key];
-	    if (typeof actionCreator === 'function') {
-	      boundActionCreators[key] = bindActionCreator(actionCreator, dispatch);
-	    }
-	  }
-	  return boundActionCreators;
-	}
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	exports.__esModule = true;
-	
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-	
-	exports['default'] = applyMiddleware;
-	
-	var _compose = __webpack_require__(17);
-	
-	var _compose2 = _interopRequireDefault(_compose);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-	
-	/**
-	 * Creates a store enhancer that applies middleware to the dispatch method
-	 * of the Redux store. This is handy for a variety of tasks, such as expressing
-	 * asynchronous actions in a concise manner, or logging every action payload.
-	 *
-	 * See `redux-thunk` package as an example of the Redux middleware.
-	 *
-	 * Because middleware is potentially asynchronous, this should be the first
-	 * store enhancer in the composition chain.
-	 *
-	 * Note that each middleware will be given the `dispatch` and `getState` functions
-	 * as named arguments.
-	 *
-	 * @param {...Function} middlewares The middleware chain to be applied.
-	 * @returns {Function} A store enhancer applying the middleware.
-	 */
-	function applyMiddleware() {
-	  for (var _len = arguments.length, middlewares = Array(_len), _key = 0; _key < _len; _key++) {
-	    middlewares[_key] = arguments[_key];
-	  }
-	
-	  return function (createStore) {
-	    return function (reducer, preloadedState, enhancer) {
-	      var store = createStore(reducer, preloadedState, enhancer);
-	      var _dispatch = store.dispatch;
-	      var chain = [];
-	
-	      var middlewareAPI = {
-	        getState: store.getState,
-	        dispatch: function dispatch(action) {
-	          return _dispatch(action);
-	        }
-	      };
-	      chain = middlewares.map(function (middleware) {
-	        return middleware(middlewareAPI);
-	      });
-	      _dispatch = _compose2['default'].apply(undefined, chain)(store.dispatch);
-	
-	      return _extends({}, store, {
-	        dispatch: _dispatch
-	      });
-	    };
-	  };
-	}
-
-/***/ },
-/* 17 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	exports.__esModule = true;
-	exports["default"] = compose;
-	/**
-	 * Composes single-argument functions from right to left. The rightmost
-	 * function can take multiple arguments as it provides the signature for
-	 * the resulting composite function.
-	 *
-	 * @param {...Function} funcs The functions to compose.
-	 * @returns {Function} A function obtained by composing the argument functions
-	 * from right to left. For example, compose(f, g, h) is identical to doing
-	 * (...args) => f(g(h(...args))).
-	 */
-	
-	function compose() {
-	  for (var _len = arguments.length, funcs = Array(_len), _key = 0; _key < _len; _key++) {
-	    funcs[_key] = arguments[_key];
-	  }
-	
-	  if (funcs.length === 0) {
-	    return function (arg) {
-	      return arg;
-	    };
-	  }
-	
-	  if (funcs.length === 1) {
-	    return funcs[0];
-	  }
-	
-	  var last = funcs[funcs.length - 1];
-	  var rest = funcs.slice(0, -1);
-	  return function () {
-	    return rest.reduceRight(function (composed, f) {
-	      return f(composed);
-	    }, last.apply(undefined, arguments));
-	  };
-	}
-
-/***/ },
-/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var rxjs_1 = __webpack_require__(19);
+	var rxjs_1 = __webpack_require__(5);
 	var intervalRefreshToken = 28 * 60 * 1000;
 	var DirectLine = (function () {
 	    function DirectLine(secretOrToken, domain) {
@@ -1450,14 +319,14 @@ var BotChat =
 
 
 /***/ },
-/* 19 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(20);
+	module.exports = __webpack_require__(6);
 
 
 /***/ },
-/* 20 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1465,55 +334,62 @@ var BotChat =
 	// Subject imported before Observable to bypass circular dependency issue since
 	// Subject extends Observable and Observable references Subject in it's
 	// definition
-	var Subject_1 = __webpack_require__(21);
+	var Subject_1 = __webpack_require__(7);
 	exports.Subject = Subject_1.Subject;
 	/* tslint:enable:no-unused-variable */
-	var Observable_1 = __webpack_require__(22);
+	var Observable_1 = __webpack_require__(8);
 	exports.Observable = Observable_1.Observable;
 	// statics
 	/* tslint:disable:no-use-before-declare */
-	__webpack_require__(38);
-	__webpack_require__(42);
-	__webpack_require__(45);
-	__webpack_require__(57);
-	__webpack_require__(61);
-	__webpack_require__(64);
+	__webpack_require__(24);
+	__webpack_require__(28);
+	__webpack_require__(31);
+	__webpack_require__(43);
+	__webpack_require__(47);
+	__webpack_require__(50);
+	__webpack_require__(52);
+	__webpack_require__(55);
+	__webpack_require__(63);
 	__webpack_require__(66);
 	__webpack_require__(69);
-	__webpack_require__(77);
-	__webpack_require__(80);
-	__webpack_require__(83);
+	__webpack_require__(71);
+	__webpack_require__(73);
+	__webpack_require__(76);
 	__webpack_require__(85);
-	__webpack_require__(87);
+	__webpack_require__(88);
 	__webpack_require__(90);
-	__webpack_require__(99);
-	__webpack_require__(102);
+	__webpack_require__(94);
+	__webpack_require__(96);
+	__webpack_require__(98);
+	__webpack_require__(101);
 	__webpack_require__(104);
-	__webpack_require__(108);
+	__webpack_require__(107);
 	__webpack_require__(110);
-	__webpack_require__(112);
-	__webpack_require__(115);
-	__webpack_require__(118);
-	__webpack_require__(121);
-	__webpack_require__(124);
-	__webpack_require__(128);
+	__webpack_require__(114);
 	//dom
-	__webpack_require__(131);
-	__webpack_require__(135);
+	__webpack_require__(117);
+	__webpack_require__(121);
 	//operators
+	__webpack_require__(129);
+	__webpack_require__(131);
+	__webpack_require__(133);
+	__webpack_require__(135);
+	__webpack_require__(137);
+	__webpack_require__(139);
+	__webpack_require__(141);
 	__webpack_require__(143);
 	__webpack_require__(145);
+	__webpack_require__(146);
 	__webpack_require__(147);
 	__webpack_require__(149);
-	__webpack_require__(151);
-	__webpack_require__(153);
+	__webpack_require__(152);
 	__webpack_require__(155);
 	__webpack_require__(157);
 	__webpack_require__(159);
-	__webpack_require__(160);
 	__webpack_require__(161);
 	__webpack_require__(163);
-	__webpack_require__(166);
+	__webpack_require__(165);
+	__webpack_require__(167);
 	__webpack_require__(169);
 	__webpack_require__(171);
 	__webpack_require__(173);
@@ -1523,48 +399,48 @@ var BotChat =
 	__webpack_require__(181);
 	__webpack_require__(183);
 	__webpack_require__(185);
-	__webpack_require__(187);
-	__webpack_require__(189);
-	__webpack_require__(191);
-	__webpack_require__(193);
-	__webpack_require__(195);
-	__webpack_require__(197);
+	__webpack_require__(188);
+	__webpack_require__(190);
+	__webpack_require__(192);
+	__webpack_require__(194);
+	__webpack_require__(196);
 	__webpack_require__(199);
-	__webpack_require__(202);
 	__webpack_require__(204);
 	__webpack_require__(206);
 	__webpack_require__(208);
 	__webpack_require__(210);
-	__webpack_require__(213);
+	__webpack_require__(212);
+	__webpack_require__(214);
+	__webpack_require__(216);
 	__webpack_require__(218);
-	__webpack_require__(220);
-	__webpack_require__(222);
-	__webpack_require__(224);
+	__webpack_require__(219);
+	__webpack_require__(221);
+	__webpack_require__(223);
 	__webpack_require__(226);
+	__webpack_require__(227);
 	__webpack_require__(228);
+	__webpack_require__(229);
 	__webpack_require__(230);
 	__webpack_require__(232);
-	__webpack_require__(233);
-	__webpack_require__(235);
-	__webpack_require__(237);
+	__webpack_require__(234);
+	__webpack_require__(238);
+	__webpack_require__(239);
 	__webpack_require__(240);
-	__webpack_require__(241);
 	__webpack_require__(242);
-	__webpack_require__(243);
-	__webpack_require__(244);
-	__webpack_require__(246);
-	__webpack_require__(248);
+	__webpack_require__(245);
+	__webpack_require__(247);
+	__webpack_require__(249);
 	__webpack_require__(252);
-	__webpack_require__(253);
 	__webpack_require__(254);
 	__webpack_require__(256);
-	__webpack_require__(259);
-	__webpack_require__(261);
-	__webpack_require__(263);
+	__webpack_require__(257);
+	__webpack_require__(258);
+	__webpack_require__(260);
+	__webpack_require__(262);
+	__webpack_require__(264);
 	__webpack_require__(266);
 	__webpack_require__(268);
 	__webpack_require__(270);
-	__webpack_require__(271);
 	__webpack_require__(272);
 	__webpack_require__(274);
 	__webpack_require__(276);
@@ -1573,80 +449,73 @@ var BotChat =
 	__webpack_require__(282);
 	__webpack_require__(284);
 	__webpack_require__(286);
-	__webpack_require__(288);
-	__webpack_require__(290);
-	__webpack_require__(292);
-	__webpack_require__(294);
-	__webpack_require__(296);
-	__webpack_require__(298);
-	__webpack_require__(300);
-	__webpack_require__(308);
-	__webpack_require__(310);
-	__webpack_require__(312);
-	__webpack_require__(314);
-	__webpack_require__(316);
-	__webpack_require__(318);
-	__webpack_require__(320);
-	__webpack_require__(322);
-	__webpack_require__(324);
-	__webpack_require__(326);
-	__webpack_require__(328);
-	__webpack_require__(330);
-	__webpack_require__(332);
-	__webpack_require__(334);
-	__webpack_require__(336);
+	__webpack_require__(295);
+	__webpack_require__(297);
+	__webpack_require__(299);
+	__webpack_require__(301);
+	__webpack_require__(303);
+	__webpack_require__(305);
+	__webpack_require__(307);
+	__webpack_require__(309);
+	__webpack_require__(311);
+	__webpack_require__(313);
+	__webpack_require__(315);
+	__webpack_require__(317);
+	__webpack_require__(319);
+	__webpack_require__(321);
+	__webpack_require__(323);
+	__webpack_require__(325);
+	__webpack_require__(327);
+	__webpack_require__(329);
+	__webpack_require__(331);
+	__webpack_require__(333);
+	__webpack_require__(335);
+	__webpack_require__(337);
 	__webpack_require__(338);
-	__webpack_require__(340);
-	__webpack_require__(342);
-	__webpack_require__(344);
-	__webpack_require__(346);
-	__webpack_require__(348);
-	__webpack_require__(350);
-	__webpack_require__(351);
 	/* tslint:disable:no-unused-variable */
-	var Subscription_1 = __webpack_require__(27);
+	var Subscription_1 = __webpack_require__(13);
 	exports.Subscription = Subscription_1.Subscription;
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	exports.Subscriber = Subscriber_1.Subscriber;
-	var AsyncSubject_1 = __webpack_require__(41);
+	var AsyncSubject_1 = __webpack_require__(27);
 	exports.AsyncSubject = AsyncSubject_1.AsyncSubject;
-	var ReplaySubject_1 = __webpack_require__(138);
+	var ReplaySubject_1 = __webpack_require__(124);
 	exports.ReplaySubject = ReplaySubject_1.ReplaySubject;
-	var BehaviorSubject_1 = __webpack_require__(265);
+	var BehaviorSubject_1 = __webpack_require__(251);
 	exports.BehaviorSubject = BehaviorSubject_1.BehaviorSubject;
-	var MulticastObservable_1 = __webpack_require__(250);
+	var MulticastObservable_1 = __webpack_require__(236);
 	exports.MulticastObservable = MulticastObservable_1.MulticastObservable;
-	var ConnectableObservable_1 = __webpack_require__(251);
+	var ConnectableObservable_1 = __webpack_require__(237);
 	exports.ConnectableObservable = ConnectableObservable_1.ConnectableObservable;
-	var Notification_1 = __webpack_require__(76);
+	var Notification_1 = __webpack_require__(62);
 	exports.Notification = Notification_1.Notification;
-	var EmptyError_1 = __webpack_require__(212);
+	var EmptyError_1 = __webpack_require__(198);
 	exports.EmptyError = EmptyError_1.EmptyError;
-	var ArgumentOutOfRangeError_1 = __webpack_require__(201);
+	var ArgumentOutOfRangeError_1 = __webpack_require__(187);
 	exports.ArgumentOutOfRangeError = ArgumentOutOfRangeError_1.ArgumentOutOfRangeError;
-	var ObjectUnsubscribedError_1 = __webpack_require__(36);
+	var ObjectUnsubscribedError_1 = __webpack_require__(22);
 	exports.ObjectUnsubscribedError = ObjectUnsubscribedError_1.ObjectUnsubscribedError;
-	var UnsubscriptionError_1 = __webpack_require__(32);
+	var UnsubscriptionError_1 = __webpack_require__(18);
 	exports.UnsubscriptionError = UnsubscriptionError_1.UnsubscriptionError;
-	var timeInterval_1 = __webpack_require__(327);
+	var timeInterval_1 = __webpack_require__(314);
 	exports.TimeInterval = timeInterval_1.TimeInterval;
-	var timestamp_1 = __webpack_require__(333);
+	var timestamp_1 = __webpack_require__(320);
 	exports.Timestamp = timestamp_1.Timestamp;
-	var TestScheduler_1 = __webpack_require__(353);
+	var TestScheduler_1 = __webpack_require__(340);
 	exports.TestScheduler = TestScheduler_1.TestScheduler;
-	var VirtualTimeScheduler_1 = __webpack_require__(359);
+	var VirtualTimeScheduler_1 = __webpack_require__(346);
 	exports.VirtualTimeScheduler = VirtualTimeScheduler_1.VirtualTimeScheduler;
-	var AjaxObservable_1 = __webpack_require__(133);
+	var AjaxObservable_1 = __webpack_require__(119);
 	exports.AjaxResponse = AjaxObservable_1.AjaxResponse;
 	exports.AjaxError = AjaxObservable_1.AjaxError;
 	exports.AjaxTimeoutError = AjaxObservable_1.AjaxTimeoutError;
-	var asap_1 = __webpack_require__(303);
-	var async_1 = __webpack_require__(94);
-	var queue_1 = __webpack_require__(139);
-	var animationFrame_1 = __webpack_require__(360);
-	var rxSubscriber_1 = __webpack_require__(34);
-	var iterator_1 = __webpack_require__(55);
-	var observable_1 = __webpack_require__(35);
+	var asap_1 = __webpack_require__(289);
+	var async_1 = __webpack_require__(80);
+	var queue_1 = __webpack_require__(125);
+	var animationFrame_1 = __webpack_require__(347);
+	var rxSubscriber_1 = __webpack_require__(20);
+	var iterator_1 = __webpack_require__(41);
+	var observable_1 = __webpack_require__(21);
 	/* tslint:enable:no-unused-variable */
 	/**
 	 * @typedef {Object} Rx.Scheduler
@@ -1690,7 +559,7 @@ var BotChat =
 
 
 /***/ },
-/* 21 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1699,12 +568,12 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var Subscriber_1 = __webpack_require__(25);
-	var Subscription_1 = __webpack_require__(27);
-	var ObjectUnsubscribedError_1 = __webpack_require__(36);
-	var SubjectSubscription_1 = __webpack_require__(37);
-	var rxSubscriber_1 = __webpack_require__(34);
+	var Observable_1 = __webpack_require__(8);
+	var Subscriber_1 = __webpack_require__(11);
+	var Subscription_1 = __webpack_require__(13);
+	var ObjectUnsubscribedError_1 = __webpack_require__(22);
+	var SubjectSubscription_1 = __webpack_require__(23);
+	var rxSubscriber_1 = __webpack_require__(20);
 	/**
 	 * @class SubjectSubscriber<T>
 	 */
@@ -1855,13 +724,13 @@ var BotChat =
 
 
 /***/ },
-/* 22 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var root_1 = __webpack_require__(23);
-	var toSubscriber_1 = __webpack_require__(24);
-	var observable_1 = __webpack_require__(35);
+	var root_1 = __webpack_require__(9);
+	var toSubscriber_1 = __webpack_require__(10);
+	var observable_1 = __webpack_require__(21);
 	/**
 	 * A representation of any set of values over any amount of time. This the most basic building block
 	 * of RxJS.
@@ -2000,7 +869,7 @@ var BotChat =
 
 
 /***/ },
-/* 23 */
+/* 9 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
@@ -2021,12 +890,12 @@ var BotChat =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 24 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Subscriber_1 = __webpack_require__(25);
-	var rxSubscriber_1 = __webpack_require__(34);
+	var Subscriber_1 = __webpack_require__(11);
+	var rxSubscriber_1 = __webpack_require__(20);
 	function toSubscriber(nextOrObserver, error, complete) {
 	    if (nextOrObserver) {
 	        if (nextOrObserver instanceof Subscriber_1.Subscriber) {
@@ -2045,7 +914,7 @@ var BotChat =
 
 
 /***/ },
-/* 25 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2054,10 +923,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var isFunction_1 = __webpack_require__(26);
-	var Subscription_1 = __webpack_require__(27);
-	var Observer_1 = __webpack_require__(33);
-	var rxSubscriber_1 = __webpack_require__(34);
+	var isFunction_1 = __webpack_require__(12);
+	var Subscription_1 = __webpack_require__(13);
+	var Observer_1 = __webpack_require__(19);
+	var rxSubscriber_1 = __webpack_require__(20);
 	/**
 	 * Implements the {@link Observer} interface and extends the
 	 * {@link Subscription} class. While the {@link Observer} is the public API for
@@ -2299,7 +1168,7 @@ var BotChat =
 
 
 /***/ },
-/* 26 */
+/* 12 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2310,16 +1179,16 @@ var BotChat =
 
 
 /***/ },
-/* 27 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var isArray_1 = __webpack_require__(28);
-	var isObject_1 = __webpack_require__(29);
-	var isFunction_1 = __webpack_require__(26);
-	var tryCatch_1 = __webpack_require__(30);
-	var errorObject_1 = __webpack_require__(31);
-	var UnsubscriptionError_1 = __webpack_require__(32);
+	var isArray_1 = __webpack_require__(14);
+	var isObject_1 = __webpack_require__(15);
+	var isFunction_1 = __webpack_require__(12);
+	var tryCatch_1 = __webpack_require__(16);
+	var errorObject_1 = __webpack_require__(17);
+	var UnsubscriptionError_1 = __webpack_require__(18);
 	/**
 	 * Represents a disposable resource, such as the execution of an Observable. A
 	 * Subscription has one important method, `unsubscribe`, that takes no argument
@@ -2468,7 +1337,7 @@ var BotChat =
 
 
 /***/ },
-/* 28 */
+/* 14 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2476,7 +1345,7 @@ var BotChat =
 
 
 /***/ },
-/* 29 */
+/* 15 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2487,11 +1356,11 @@ var BotChat =
 
 
 /***/ },
-/* 30 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var errorObject_1 = __webpack_require__(31);
+	var errorObject_1 = __webpack_require__(17);
 	var tryCatchTarget;
 	function tryCatcher() {
 	    try {
@@ -2511,7 +1380,7 @@ var BotChat =
 
 
 /***/ },
-/* 31 */
+/* 17 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2520,7 +1389,7 @@ var BotChat =
 
 
 /***/ },
-/* 32 */
+/* 18 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2550,7 +1419,7 @@ var BotChat =
 
 
 /***/ },
-/* 33 */
+/* 19 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2563,22 +1432,22 @@ var BotChat =
 
 
 /***/ },
-/* 34 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var root_1 = __webpack_require__(23);
+	var root_1 = __webpack_require__(9);
 	var Symbol = root_1.root.Symbol;
 	exports.$$rxSubscriber = (typeof Symbol === 'function' && typeof Symbol.for === 'function') ?
 	    Symbol.for('rxSubscriber') : '@@rxSubscriber';
 
 
 /***/ },
-/* 35 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var root_1 = __webpack_require__(23);
+	var root_1 = __webpack_require__(9);
 	function getSymbolObservable(context) {
 	    var $$observable;
 	    var Symbol = context.Symbol;
@@ -2601,7 +1470,7 @@ var BotChat =
 
 
 /***/ },
-/* 36 */
+/* 22 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2633,7 +1502,7 @@ var BotChat =
 
 
 /***/ },
-/* 37 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2642,7 +1511,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscription_1 = __webpack_require__(27);
+	var Subscription_1 = __webpack_require__(13);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @ignore
@@ -2678,26 +1547,26 @@ var BotChat =
 
 
 /***/ },
-/* 38 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var bindCallback_1 = __webpack_require__(39);
+	var Observable_1 = __webpack_require__(8);
+	var bindCallback_1 = __webpack_require__(25);
 	Observable_1.Observable.bindCallback = bindCallback_1.bindCallback;
 
 
 /***/ },
-/* 39 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var BoundCallbackObservable_1 = __webpack_require__(40);
+	var BoundCallbackObservable_1 = __webpack_require__(26);
 	exports.bindCallback = BoundCallbackObservable_1.BoundCallbackObservable.create;
 
 
 /***/ },
-/* 40 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2706,10 +1575,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var tryCatch_1 = __webpack_require__(30);
-	var errorObject_1 = __webpack_require__(31);
-	var AsyncSubject_1 = __webpack_require__(41);
+	var Observable_1 = __webpack_require__(8);
+	var tryCatch_1 = __webpack_require__(16);
+	var errorObject_1 = __webpack_require__(17);
+	var AsyncSubject_1 = __webpack_require__(27);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -2866,7 +1735,7 @@ var BotChat =
 
 
 /***/ },
-/* 41 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2875,8 +1744,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subject_1 = __webpack_require__(21);
-	var Subscription_1 = __webpack_require__(27);
+	var Subject_1 = __webpack_require__(7);
+	var Subscription_1 = __webpack_require__(13);
 	/**
 	 * @class AsyncSubject<T>
 	 */
@@ -2919,26 +1788,26 @@ var BotChat =
 
 
 /***/ },
-/* 42 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var bindNodeCallback_1 = __webpack_require__(43);
+	var Observable_1 = __webpack_require__(8);
+	var bindNodeCallback_1 = __webpack_require__(29);
 	Observable_1.Observable.bindNodeCallback = bindNodeCallback_1.bindNodeCallback;
 
 
 /***/ },
-/* 43 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var BoundNodeCallbackObservable_1 = __webpack_require__(44);
+	var BoundNodeCallbackObservable_1 = __webpack_require__(30);
 	exports.bindNodeCallback = BoundNodeCallbackObservable_1.BoundNodeCallbackObservable.create;
 
 
 /***/ },
-/* 44 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2947,10 +1816,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var tryCatch_1 = __webpack_require__(30);
-	var errorObject_1 = __webpack_require__(31);
-	var AsyncSubject_1 = __webpack_require__(41);
+	var Observable_1 = __webpack_require__(8);
+	var tryCatch_1 = __webpack_require__(16);
+	var errorObject_1 = __webpack_require__(17);
+	var AsyncSubject_1 = __webpack_require__(27);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -3119,24 +1988,24 @@ var BotChat =
 
 
 /***/ },
-/* 45 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var combineLatest_1 = __webpack_require__(46);
+	var Observable_1 = __webpack_require__(8);
+	var combineLatest_1 = __webpack_require__(32);
 	Observable_1.Observable.combineLatest = combineLatest_1.combineLatest;
 
 
 /***/ },
-/* 46 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var isScheduler_1 = __webpack_require__(47);
-	var isArray_1 = __webpack_require__(28);
-	var ArrayObservable_1 = __webpack_require__(48);
-	var combineLatest_1 = __webpack_require__(51);
+	var isScheduler_1 = __webpack_require__(33);
+	var isArray_1 = __webpack_require__(14);
+	var ArrayObservable_1 = __webpack_require__(34);
+	var combineLatest_1 = __webpack_require__(37);
 	/* tslint:enable:max-line-length */
 	/**
 	 * Combines multiple Observables to create an Observable whose values are
@@ -3205,7 +2074,7 @@ var BotChat =
 
 
 /***/ },
-/* 47 */
+/* 33 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3216,7 +2085,7 @@ var BotChat =
 
 
 /***/ },
-/* 48 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -3225,10 +2094,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var ScalarObservable_1 = __webpack_require__(49);
-	var EmptyObservable_1 = __webpack_require__(50);
-	var isScheduler_1 = __webpack_require__(47);
+	var Observable_1 = __webpack_require__(8);
+	var ScalarObservable_1 = __webpack_require__(35);
+	var EmptyObservable_1 = __webpack_require__(36);
+	var isScheduler_1 = __webpack_require__(33);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -3343,7 +2212,7 @@ var BotChat =
 
 
 /***/ },
-/* 49 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -3352,7 +2221,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
+	var Observable_1 = __webpack_require__(8);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -3406,7 +2275,7 @@ var BotChat =
 
 
 /***/ },
-/* 50 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -3415,7 +2284,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
+	var Observable_1 = __webpack_require__(8);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -3486,7 +2355,7 @@ var BotChat =
 
 
 /***/ },
-/* 51 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -3495,10 +2364,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var ArrayObservable_1 = __webpack_require__(48);
-	var isArray_1 = __webpack_require__(28);
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var ArrayObservable_1 = __webpack_require__(34);
+	var isArray_1 = __webpack_require__(14);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	var none = {};
 	/**
 	 * Combines multiple Observables to create an Observable whose values are
@@ -3638,7 +2507,7 @@ var BotChat =
 
 
 /***/ },
-/* 52 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -3647,7 +2516,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @ignore
@@ -3673,17 +2542,17 @@ var BotChat =
 
 
 /***/ },
-/* 53 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var root_1 = __webpack_require__(23);
-	var isArray_1 = __webpack_require__(28);
-	var isPromise_1 = __webpack_require__(54);
-	var Observable_1 = __webpack_require__(22);
-	var iterator_1 = __webpack_require__(55);
-	var InnerSubscriber_1 = __webpack_require__(56);
-	var observable_1 = __webpack_require__(35);
+	var root_1 = __webpack_require__(9);
+	var isArray_1 = __webpack_require__(14);
+	var isPromise_1 = __webpack_require__(40);
+	var Observable_1 = __webpack_require__(8);
+	var iterator_1 = __webpack_require__(41);
+	var InnerSubscriber_1 = __webpack_require__(42);
+	var observable_1 = __webpack_require__(21);
 	function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
 	    var destination = new InnerSubscriber_1.InnerSubscriber(outerSubscriber, outerValue, outerIndex);
 	    if (destination.closed) {
@@ -3752,7 +2621,7 @@ var BotChat =
 
 
 /***/ },
-/* 54 */
+/* 40 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3763,11 +2632,11 @@ var BotChat =
 
 
 /***/ },
-/* 55 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var root_1 = __webpack_require__(23);
+	var root_1 = __webpack_require__(9);
 	var Symbol = root_1.root.Symbol;
 	if (typeof Symbol === 'function') {
 	    if (Symbol.iterator) {
@@ -3800,7 +2669,7 @@ var BotChat =
 
 
 /***/ },
-/* 56 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -3809,7 +2678,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @ignore
@@ -3841,32 +2710,32 @@ var BotChat =
 
 
 /***/ },
-/* 57 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var concat_1 = __webpack_require__(58);
+	var Observable_1 = __webpack_require__(8);
+	var concat_1 = __webpack_require__(44);
 	Observable_1.Observable.concat = concat_1.concat;
 
 
 /***/ },
-/* 58 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var concat_1 = __webpack_require__(59);
+	var concat_1 = __webpack_require__(45);
 	exports.concat = concat_1.concatStatic;
 
 
 /***/ },
-/* 59 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var isScheduler_1 = __webpack_require__(47);
-	var ArrayObservable_1 = __webpack_require__(48);
-	var mergeAll_1 = __webpack_require__(60);
+	var isScheduler_1 = __webpack_require__(33);
+	var ArrayObservable_1 = __webpack_require__(34);
+	var mergeAll_1 = __webpack_require__(46);
 	/**
 	 * Creates an output Observable which sequentially emits all values from every
 	 * given input Observable after the current Observable.
@@ -3973,7 +2842,7 @@ var BotChat =
 
 
 /***/ },
-/* 60 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -3982,8 +2851,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Converts a higher-order Observable into a first-order Observable which
 	 * concurrently delivers all values that are emitted on the inner Observables.
@@ -4089,26 +2958,26 @@ var BotChat =
 
 
 /***/ },
-/* 61 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var defer_1 = __webpack_require__(62);
+	var Observable_1 = __webpack_require__(8);
+	var defer_1 = __webpack_require__(48);
 	Observable_1.Observable.defer = defer_1.defer;
 
 
 /***/ },
-/* 62 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var DeferObservable_1 = __webpack_require__(63);
+	var DeferObservable_1 = __webpack_require__(49);
 	exports.defer = DeferObservable_1.DeferObservable.create;
 
 
 /***/ },
-/* 63 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -4117,9 +2986,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var subscribeToResult_1 = __webpack_require__(53);
-	var OuterSubscriber_1 = __webpack_require__(52);
+	var Observable_1 = __webpack_require__(8);
+	var subscribeToResult_1 = __webpack_require__(39);
+	var OuterSubscriber_1 = __webpack_require__(38);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -4206,45 +3075,45 @@ var BotChat =
 
 
 /***/ },
-/* 64 */
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var empty_1 = __webpack_require__(65);
+	var Observable_1 = __webpack_require__(8);
+	var empty_1 = __webpack_require__(51);
 	Observable_1.Observable.empty = empty_1.empty;
 
 
 /***/ },
-/* 65 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var EmptyObservable_1 = __webpack_require__(50);
+	var EmptyObservable_1 = __webpack_require__(36);
 	exports.empty = EmptyObservable_1.EmptyObservable.create;
 
 
 /***/ },
-/* 66 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var forkJoin_1 = __webpack_require__(67);
+	var Observable_1 = __webpack_require__(8);
+	var forkJoin_1 = __webpack_require__(53);
 	Observable_1.Observable.forkJoin = forkJoin_1.forkJoin;
 
 
 /***/ },
-/* 67 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var ForkJoinObservable_1 = __webpack_require__(68);
+	var ForkJoinObservable_1 = __webpack_require__(54);
 	exports.forkJoin = ForkJoinObservable_1.ForkJoinObservable.create;
 
 
 /***/ },
-/* 68 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -4253,11 +3122,11 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var EmptyObservable_1 = __webpack_require__(50);
-	var isArray_1 = __webpack_require__(28);
-	var subscribeToResult_1 = __webpack_require__(53);
-	var OuterSubscriber_1 = __webpack_require__(52);
+	var Observable_1 = __webpack_require__(8);
+	var EmptyObservable_1 = __webpack_require__(36);
+	var isArray_1 = __webpack_require__(14);
+	var subscribeToResult_1 = __webpack_require__(39);
+	var OuterSubscriber_1 = __webpack_require__(38);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -4361,26 +3230,26 @@ var BotChat =
 
 
 /***/ },
-/* 69 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var from_1 = __webpack_require__(70);
+	var Observable_1 = __webpack_require__(8);
+	var from_1 = __webpack_require__(56);
 	Observable_1.Observable.from = from_1.from;
 
 
 /***/ },
-/* 70 */
+/* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var FromObservable_1 = __webpack_require__(71);
+	var FromObservable_1 = __webpack_require__(57);
 	exports.from = FromObservable_1.FromObservable.create;
 
 
 /***/ },
-/* 71 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -4389,16 +3258,16 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var isArray_1 = __webpack_require__(28);
-	var isPromise_1 = __webpack_require__(54);
-	var PromiseObservable_1 = __webpack_require__(72);
-	var IteratorObservable_1 = __webpack_require__(73);
-	var ArrayObservable_1 = __webpack_require__(48);
-	var ArrayLikeObservable_1 = __webpack_require__(74);
-	var iterator_1 = __webpack_require__(55);
-	var Observable_1 = __webpack_require__(22);
-	var observeOn_1 = __webpack_require__(75);
-	var observable_1 = __webpack_require__(35);
+	var isArray_1 = __webpack_require__(14);
+	var isPromise_1 = __webpack_require__(40);
+	var PromiseObservable_1 = __webpack_require__(58);
+	var IteratorObservable_1 = __webpack_require__(59);
+	var ArrayObservable_1 = __webpack_require__(34);
+	var ArrayLikeObservable_1 = __webpack_require__(60);
+	var iterator_1 = __webpack_require__(41);
+	var Observable_1 = __webpack_require__(8);
+	var observeOn_1 = __webpack_require__(61);
+	var observable_1 = __webpack_require__(21);
 	var isArrayLike = (function (x) { return x && typeof x.length === 'number'; });
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
@@ -4501,7 +3370,7 @@ var BotChat =
 
 
 /***/ },
-/* 72 */
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -4510,8 +3379,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var root_1 = __webpack_require__(23);
-	var Observable_1 = __webpack_require__(22);
+	var root_1 = __webpack_require__(9);
+	var Observable_1 = __webpack_require__(8);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -4627,7 +3496,7 @@ var BotChat =
 
 
 /***/ },
-/* 73 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -4636,9 +3505,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var root_1 = __webpack_require__(23);
-	var Observable_1 = __webpack_require__(22);
-	var iterator_1 = __webpack_require__(55);
+	var root_1 = __webpack_require__(9);
+	var Observable_1 = __webpack_require__(8);
+	var iterator_1 = __webpack_require__(41);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -4789,7 +3658,7 @@ var BotChat =
 
 
 /***/ },
-/* 74 */
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -4798,9 +3667,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var ScalarObservable_1 = __webpack_require__(49);
-	var EmptyObservable_1 = __webpack_require__(50);
+	var Observable_1 = __webpack_require__(8);
+	var ScalarObservable_1 = __webpack_require__(35);
+	var EmptyObservable_1 = __webpack_require__(36);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -4864,7 +3733,7 @@ var BotChat =
 
 
 /***/ },
-/* 75 */
+/* 61 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -4873,8 +3742,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var Notification_1 = __webpack_require__(76);
+	var Subscriber_1 = __webpack_require__(11);
+	var Notification_1 = __webpack_require__(62);
 	/**
 	 * @see {@link Notification}
 	 *
@@ -4944,11 +3813,11 @@ var BotChat =
 
 
 /***/ },
-/* 76 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
+	var Observable_1 = __webpack_require__(8);
 	/**
 	 * Represents a push-based event or value that an {@link Observable} can emit.
 	 * This class is particularly useful for operators that manage notifications,
@@ -5076,26 +3945,26 @@ var BotChat =
 
 
 /***/ },
-/* 77 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var fromEvent_1 = __webpack_require__(78);
+	var Observable_1 = __webpack_require__(8);
+	var fromEvent_1 = __webpack_require__(64);
 	Observable_1.Observable.fromEvent = fromEvent_1.fromEvent;
 
 
 /***/ },
-/* 78 */
+/* 64 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var FromEventObservable_1 = __webpack_require__(79);
+	var FromEventObservable_1 = __webpack_require__(65);
 	exports.fromEvent = FromEventObservable_1.FromEventObservable.create;
 
 
 /***/ },
-/* 79 */
+/* 65 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5104,11 +3973,11 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var tryCatch_1 = __webpack_require__(30);
-	var isFunction_1 = __webpack_require__(26);
-	var errorObject_1 = __webpack_require__(31);
-	var Subscription_1 = __webpack_require__(27);
+	var Observable_1 = __webpack_require__(8);
+	var tryCatch_1 = __webpack_require__(16);
+	var isFunction_1 = __webpack_require__(12);
+	var errorObject_1 = __webpack_require__(17);
+	var Subscription_1 = __webpack_require__(13);
 	function isNodeStyleEventEmmitter(sourceObj) {
 	    return !!sourceObj && typeof sourceObj.addListener === 'function' && typeof sourceObj.removeListener === 'function';
 	}
@@ -5232,26 +4101,26 @@ var BotChat =
 
 
 /***/ },
-/* 80 */
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var fromEventPattern_1 = __webpack_require__(81);
+	var Observable_1 = __webpack_require__(8);
+	var fromEventPattern_1 = __webpack_require__(67);
 	Observable_1.Observable.fromEventPattern = fromEventPattern_1.fromEventPattern;
 
 
 /***/ },
-/* 81 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var FromEventPatternObservable_1 = __webpack_require__(82);
+	var FromEventPatternObservable_1 = __webpack_require__(68);
 	exports.fromEventPattern = FromEventPatternObservable_1.FromEventPatternObservable.create;
 
 
 /***/ },
-/* 82 */
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5260,8 +4129,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var Subscription_1 = __webpack_require__(27);
+	var Observable_1 = __webpack_require__(8);
+	var Subscription_1 = __webpack_require__(13);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -5364,36 +4233,36 @@ var BotChat =
 
 
 /***/ },
-/* 83 */
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var fromPromise_1 = __webpack_require__(84);
+	var Observable_1 = __webpack_require__(8);
+	var fromPromise_1 = __webpack_require__(70);
 	Observable_1.Observable.fromPromise = fromPromise_1.fromPromise;
 
 
 /***/ },
-/* 84 */
+/* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var PromiseObservable_1 = __webpack_require__(72);
+	var PromiseObservable_1 = __webpack_require__(58);
 	exports.fromPromise = PromiseObservable_1.PromiseObservable.create;
 
 
 /***/ },
-/* 85 */
+/* 71 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var GenerateObservable_1 = __webpack_require__(86);
+	var Observable_1 = __webpack_require__(8);
+	var GenerateObservable_1 = __webpack_require__(72);
 	Observable_1.Observable.generate = GenerateObservable_1.GenerateObservable.create;
 
 
 /***/ },
-/* 86 */
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5402,8 +4271,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var isScheduler_1 = __webpack_require__(47);
+	var Observable_1 = __webpack_require__(8);
+	var isScheduler_1 = __webpack_require__(33);
 	var selfSelector = function (value) { return value; };
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
@@ -5533,26 +4402,26 @@ var BotChat =
 
 
 /***/ },
-/* 87 */
+/* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var if_1 = __webpack_require__(88);
+	var Observable_1 = __webpack_require__(8);
+	var if_1 = __webpack_require__(74);
 	Observable_1.Observable.if = if_1._if;
 
 
 /***/ },
-/* 88 */
+/* 74 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var IfObservable_1 = __webpack_require__(89);
+	var IfObservable_1 = __webpack_require__(75);
 	exports._if = IfObservable_1.IfObservable.create;
 
 
 /***/ },
-/* 89 */
+/* 75 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5561,9 +4430,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var subscribeToResult_1 = __webpack_require__(53);
-	var OuterSubscriber_1 = __webpack_require__(52);
+	var Observable_1 = __webpack_require__(8);
+	var subscribeToResult_1 = __webpack_require__(39);
+	var OuterSubscriber_1 = __webpack_require__(38);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -5618,26 +4487,26 @@ var BotChat =
 
 
 /***/ },
-/* 90 */
+/* 76 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var interval_1 = __webpack_require__(91);
+	var Observable_1 = __webpack_require__(8);
+	var interval_1 = __webpack_require__(77);
 	Observable_1.Observable.interval = interval_1.interval;
 
 
 /***/ },
-/* 91 */
+/* 77 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var IntervalObservable_1 = __webpack_require__(92);
+	var IntervalObservable_1 = __webpack_require__(78);
 	exports.interval = IntervalObservable_1.IntervalObservable.create;
 
 
 /***/ },
-/* 92 */
+/* 78 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5646,9 +4515,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var isNumeric_1 = __webpack_require__(93);
-	var Observable_1 = __webpack_require__(22);
-	var async_1 = __webpack_require__(94);
+	var isNumeric_1 = __webpack_require__(79);
+	var Observable_1 = __webpack_require__(8);
+	var async_1 = __webpack_require__(80);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -5730,11 +4599,11 @@ var BotChat =
 
 
 /***/ },
-/* 93 */
+/* 79 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var isArray_1 = __webpack_require__(28);
+	var isArray_1 = __webpack_require__(14);
 	function isNumeric(val) {
 	    // parseFloat NaNs numeric-cast false positives (null|true|false|"")
 	    // ...but misinterprets leading-number strings, particularly hex literals ("0x...")
@@ -5747,17 +4616,17 @@ var BotChat =
 
 
 /***/ },
-/* 94 */
+/* 80 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var AsyncAction_1 = __webpack_require__(95);
-	var AsyncScheduler_1 = __webpack_require__(97);
+	var AsyncAction_1 = __webpack_require__(81);
+	var AsyncScheduler_1 = __webpack_require__(83);
 	exports.async = new AsyncScheduler_1.AsyncScheduler(AsyncAction_1.AsyncAction);
 
 
 /***/ },
-/* 95 */
+/* 81 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5766,8 +4635,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var root_1 = __webpack_require__(23);
-	var Action_1 = __webpack_require__(96);
+	var root_1 = __webpack_require__(9);
+	var Action_1 = __webpack_require__(82);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @ignore
@@ -5904,7 +4773,7 @@ var BotChat =
 
 
 /***/ },
-/* 96 */
+/* 82 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5913,7 +4782,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscription_1 = __webpack_require__(27);
+	var Subscription_1 = __webpack_require__(13);
 	/**
 	 * A unit of work to be executed in a {@link Scheduler}. An action is typically
 	 * created from within a Scheduler and an RxJS user does not need to concern
@@ -5953,7 +4822,7 @@ var BotChat =
 
 
 /***/ },
-/* 97 */
+/* 83 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5962,7 +4831,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Scheduler_1 = __webpack_require__(98);
+	var Scheduler_1 = __webpack_require__(84);
 	var AsyncScheduler = (function (_super) {
 	    __extends(AsyncScheduler, _super);
 	    function AsyncScheduler() {
@@ -6009,7 +4878,7 @@ var BotChat =
 
 
 /***/ },
-/* 98 */
+/* 84 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6063,32 +4932,32 @@ var BotChat =
 
 
 /***/ },
-/* 99 */
+/* 85 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var merge_1 = __webpack_require__(100);
+	var Observable_1 = __webpack_require__(8);
+	var merge_1 = __webpack_require__(86);
 	Observable_1.Observable.merge = merge_1.merge;
 
 
 /***/ },
-/* 100 */
+/* 86 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var merge_1 = __webpack_require__(101);
+	var merge_1 = __webpack_require__(87);
 	exports.merge = merge_1.mergeStatic;
 
 
 /***/ },
-/* 101 */
+/* 87 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var ArrayObservable_1 = __webpack_require__(48);
-	var mergeAll_1 = __webpack_require__(60);
-	var isScheduler_1 = __webpack_require__(47);
+	var ArrayObservable_1 = __webpack_require__(34);
+	var mergeAll_1 = __webpack_require__(46);
+	var isScheduler_1 = __webpack_require__(33);
 	/**
 	 * Creates an output Observable which concurrently emits all values from every
 	 * given input Observable.
@@ -6217,17 +5086,17 @@ var BotChat =
 
 
 /***/ },
-/* 102 */
+/* 88 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var race_1 = __webpack_require__(103);
+	var Observable_1 = __webpack_require__(8);
+	var race_1 = __webpack_require__(89);
 	Observable_1.Observable.race = race_1.raceStatic;
 
 
 /***/ },
-/* 103 */
+/* 89 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6236,10 +5105,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var isArray_1 = __webpack_require__(28);
-	var ArrayObservable_1 = __webpack_require__(48);
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var isArray_1 = __webpack_require__(14);
+	var ArrayObservable_1 = __webpack_require__(34);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Returns an Observable that mirrors the first source Observable to emit an item
 	 * from the combination of this Observable and supplied Observables
@@ -6343,26 +5212,26 @@ var BotChat =
 
 
 /***/ },
-/* 104 */
+/* 90 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var never_1 = __webpack_require__(105);
+	var Observable_1 = __webpack_require__(8);
+	var never_1 = __webpack_require__(91);
 	Observable_1.Observable.never = never_1.never;
 
 
 /***/ },
-/* 105 */
+/* 91 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var NeverObservable_1 = __webpack_require__(106);
+	var NeverObservable_1 = __webpack_require__(92);
 	exports.never = NeverObservable_1.NeverObservable.create;
 
 
 /***/ },
-/* 106 */
+/* 92 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6371,8 +5240,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var noop_1 = __webpack_require__(107);
+	var Observable_1 = __webpack_require__(8);
+	var noop_1 = __webpack_require__(93);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -6426,7 +5295,7 @@ var BotChat =
 
 
 /***/ },
-/* 107 */
+/* 93 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -6436,36 +5305,36 @@ var BotChat =
 
 
 /***/ },
-/* 108 */
+/* 94 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var of_1 = __webpack_require__(109);
+	var Observable_1 = __webpack_require__(8);
+	var of_1 = __webpack_require__(95);
 	Observable_1.Observable.of = of_1.of;
 
 
 /***/ },
-/* 109 */
+/* 95 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var ArrayObservable_1 = __webpack_require__(48);
+	var ArrayObservable_1 = __webpack_require__(34);
 	exports.of = ArrayObservable_1.ArrayObservable.of;
 
 
 /***/ },
-/* 110 */
+/* 96 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var onErrorResumeNext_1 = __webpack_require__(111);
+	var Observable_1 = __webpack_require__(8);
+	var onErrorResumeNext_1 = __webpack_require__(97);
 	Observable_1.Observable.onErrorResumeNext = onErrorResumeNext_1.onErrorResumeNextStatic;
 
 
 /***/ },
-/* 111 */
+/* 97 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6474,10 +5343,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var FromObservable_1 = __webpack_require__(71);
-	var isArray_1 = __webpack_require__(28);
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var FromObservable_1 = __webpack_require__(57);
+	var isArray_1 = __webpack_require__(14);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	function onErrorResumeNext() {
 	    var nextSources = [];
 	    for (var _i = 0; _i < arguments.length; _i++) {
@@ -6545,26 +5414,26 @@ var BotChat =
 
 
 /***/ },
-/* 112 */
+/* 98 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var pairs_1 = __webpack_require__(113);
+	var Observable_1 = __webpack_require__(8);
+	var pairs_1 = __webpack_require__(99);
 	Observable_1.Observable.pairs = pairs_1.pairs;
 
 
 /***/ },
-/* 113 */
+/* 99 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var PairsObservable_1 = __webpack_require__(114);
+	var PairsObservable_1 = __webpack_require__(100);
 	exports.pairs = PairsObservable_1.PairsObservable.create;
 
 
 /***/ },
-/* 114 */
+/* 100 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6573,7 +5442,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
+	var Observable_1 = __webpack_require__(8);
 	function dispatch(state) {
 	    var obj = state.obj, keys = state.keys, length = state.length, index = state.index, subscriber = state.subscriber;
 	    if (index === length) {
@@ -6654,26 +5523,26 @@ var BotChat =
 
 
 /***/ },
-/* 115 */
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var range_1 = __webpack_require__(116);
+	var Observable_1 = __webpack_require__(8);
+	var range_1 = __webpack_require__(102);
 	Observable_1.Observable.range = range_1.range;
 
 
 /***/ },
-/* 116 */
+/* 102 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var RangeObservable_1 = __webpack_require__(117);
+	var RangeObservable_1 = __webpack_require__(103);
 	exports.range = RangeObservable_1.RangeObservable.create;
 
 
 /***/ },
-/* 117 */
+/* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6682,7 +5551,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
+	var Observable_1 = __webpack_require__(8);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -6774,26 +5643,26 @@ var BotChat =
 
 
 /***/ },
-/* 118 */
+/* 104 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var using_1 = __webpack_require__(119);
+	var Observable_1 = __webpack_require__(8);
+	var using_1 = __webpack_require__(105);
 	Observable_1.Observable.using = using_1.using;
 
 
 /***/ },
-/* 119 */
+/* 105 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var UsingObservable_1 = __webpack_require__(120);
+	var UsingObservable_1 = __webpack_require__(106);
 	exports.using = UsingObservable_1.UsingObservable.create;
 
 
 /***/ },
-/* 120 */
+/* 106 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6802,9 +5671,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var subscribeToResult_1 = __webpack_require__(53);
-	var OuterSubscriber_1 = __webpack_require__(52);
+	var Observable_1 = __webpack_require__(8);
+	var subscribeToResult_1 = __webpack_require__(39);
+	var OuterSubscriber_1 = __webpack_require__(38);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -6859,26 +5728,26 @@ var BotChat =
 
 
 /***/ },
-/* 121 */
+/* 107 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var throw_1 = __webpack_require__(122);
+	var Observable_1 = __webpack_require__(8);
+	var throw_1 = __webpack_require__(108);
 	Observable_1.Observable.throw = throw_1._throw;
 
 
 /***/ },
-/* 122 */
+/* 108 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var ErrorObservable_1 = __webpack_require__(123);
+	var ErrorObservable_1 = __webpack_require__(109);
 	exports._throw = ErrorObservable_1.ErrorObservable.create;
 
 
 /***/ },
-/* 123 */
+/* 109 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6887,7 +5756,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
+	var Observable_1 = __webpack_require__(8);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -6965,26 +5834,26 @@ var BotChat =
 
 
 /***/ },
-/* 124 */
+/* 110 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var timer_1 = __webpack_require__(125);
+	var Observable_1 = __webpack_require__(8);
+	var timer_1 = __webpack_require__(111);
 	Observable_1.Observable.timer = timer_1.timer;
 
 
 /***/ },
-/* 125 */
+/* 111 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var TimerObservable_1 = __webpack_require__(126);
+	var TimerObservable_1 = __webpack_require__(112);
 	exports.timer = TimerObservable_1.TimerObservable.create;
 
 
 /***/ },
-/* 126 */
+/* 112 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6993,11 +5862,11 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var isNumeric_1 = __webpack_require__(93);
-	var Observable_1 = __webpack_require__(22);
-	var async_1 = __webpack_require__(94);
-	var isScheduler_1 = __webpack_require__(47);
-	var isDate_1 = __webpack_require__(127);
+	var isNumeric_1 = __webpack_require__(79);
+	var Observable_1 = __webpack_require__(8);
+	var async_1 = __webpack_require__(80);
+	var isScheduler_1 = __webpack_require__(33);
+	var isDate_1 = __webpack_require__(113);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -7096,7 +5965,7 @@ var BotChat =
 
 
 /***/ },
-/* 127 */
+/* 113 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7107,26 +5976,26 @@ var BotChat =
 
 
 /***/ },
-/* 128 */
+/* 114 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var zip_1 = __webpack_require__(129);
+	var Observable_1 = __webpack_require__(8);
+	var zip_1 = __webpack_require__(115);
 	Observable_1.Observable.zip = zip_1.zip;
 
 
 /***/ },
-/* 129 */
+/* 115 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var zip_1 = __webpack_require__(130);
+	var zip_1 = __webpack_require__(116);
 	exports.zip = zip_1.zipStatic;
 
 
 /***/ },
-/* 130 */
+/* 116 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -7135,12 +6004,12 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var ArrayObservable_1 = __webpack_require__(48);
-	var isArray_1 = __webpack_require__(28);
-	var Subscriber_1 = __webpack_require__(25);
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
-	var iterator_1 = __webpack_require__(55);
+	var ArrayObservable_1 = __webpack_require__(34);
+	var isArray_1 = __webpack_require__(14);
+	var Subscriber_1 = __webpack_require__(11);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
+	var iterator_1 = __webpack_require__(41);
 	/**
 	 * @param observables
 	 * @return {Observable<R>}
@@ -7385,26 +6254,26 @@ var BotChat =
 
 
 /***/ },
-/* 131 */
+/* 117 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var ajax_1 = __webpack_require__(132);
+	var Observable_1 = __webpack_require__(8);
+	var ajax_1 = __webpack_require__(118);
 	Observable_1.Observable.ajax = ajax_1.ajax;
 
 
 /***/ },
-/* 132 */
+/* 118 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var AjaxObservable_1 = __webpack_require__(133);
+	var AjaxObservable_1 = __webpack_require__(119);
 	exports.ajax = AjaxObservable_1.AjaxObservable.create;
 
 
 /***/ },
-/* 133 */
+/* 119 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -7413,12 +6282,12 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var root_1 = __webpack_require__(23);
-	var tryCatch_1 = __webpack_require__(30);
-	var errorObject_1 = __webpack_require__(31);
-	var Observable_1 = __webpack_require__(22);
-	var Subscriber_1 = __webpack_require__(25);
-	var map_1 = __webpack_require__(134);
+	var root_1 = __webpack_require__(9);
+	var tryCatch_1 = __webpack_require__(16);
+	var errorObject_1 = __webpack_require__(17);
+	var Observable_1 = __webpack_require__(8);
+	var Subscriber_1 = __webpack_require__(11);
+	var map_1 = __webpack_require__(120);
 	function getCORSRequest() {
 	    if (root_1.root.XMLHttpRequest) {
 	        var xhr = new root_1.root.XMLHttpRequest();
@@ -7802,7 +6671,7 @@ var BotChat =
 
 
 /***/ },
-/* 134 */
+/* 120 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -7811,7 +6680,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Applies a given `project` function to each value emitted by the source
 	 * Observable, and emits the resulting values as an Observable.
@@ -7894,26 +6763,26 @@ var BotChat =
 
 
 /***/ },
-/* 135 */
+/* 121 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var webSocket_1 = __webpack_require__(136);
+	var Observable_1 = __webpack_require__(8);
+	var webSocket_1 = __webpack_require__(122);
 	Observable_1.Observable.webSocket = webSocket_1.webSocket;
 
 
 /***/ },
-/* 136 */
+/* 122 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var WebSocketSubject_1 = __webpack_require__(137);
+	var WebSocketSubject_1 = __webpack_require__(123);
 	exports.webSocket = WebSocketSubject_1.WebSocketSubject.create;
 
 
 /***/ },
-/* 137 */
+/* 123 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -7922,15 +6791,15 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subject_1 = __webpack_require__(21);
-	var Subscriber_1 = __webpack_require__(25);
-	var Observable_1 = __webpack_require__(22);
-	var Subscription_1 = __webpack_require__(27);
-	var root_1 = __webpack_require__(23);
-	var ReplaySubject_1 = __webpack_require__(138);
-	var tryCatch_1 = __webpack_require__(30);
-	var errorObject_1 = __webpack_require__(31);
-	var assign_1 = __webpack_require__(142);
+	var Subject_1 = __webpack_require__(7);
+	var Subscriber_1 = __webpack_require__(11);
+	var Observable_1 = __webpack_require__(8);
+	var Subscription_1 = __webpack_require__(13);
+	var root_1 = __webpack_require__(9);
+	var ReplaySubject_1 = __webpack_require__(124);
+	var tryCatch_1 = __webpack_require__(16);
+	var errorObject_1 = __webpack_require__(17);
+	var assign_1 = __webpack_require__(128);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -8123,7 +6992,7 @@ var BotChat =
 
 
 /***/ },
-/* 138 */
+/* 124 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8132,9 +7001,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subject_1 = __webpack_require__(21);
-	var queue_1 = __webpack_require__(139);
-	var observeOn_1 = __webpack_require__(75);
+	var Subject_1 = __webpack_require__(7);
+	var queue_1 = __webpack_require__(125);
+	var observeOn_1 = __webpack_require__(61);
 	/**
 	 * @class ReplaySubject<T>
 	 */
@@ -8207,17 +7076,17 @@ var BotChat =
 
 
 /***/ },
-/* 139 */
+/* 125 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var QueueAction_1 = __webpack_require__(140);
-	var QueueScheduler_1 = __webpack_require__(141);
+	var QueueAction_1 = __webpack_require__(126);
+	var QueueScheduler_1 = __webpack_require__(127);
 	exports.queue = new QueueScheduler_1.QueueScheduler(QueueAction_1.QueueAction);
 
 
 /***/ },
-/* 140 */
+/* 126 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8226,7 +7095,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var AsyncAction_1 = __webpack_require__(95);
+	var AsyncAction_1 = __webpack_require__(81);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @ignore
@@ -8269,7 +7138,7 @@ var BotChat =
 
 
 /***/ },
-/* 141 */
+/* 127 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8278,7 +7147,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var AsyncScheduler_1 = __webpack_require__(97);
+	var AsyncScheduler_1 = __webpack_require__(83);
 	var QueueScheduler = (function (_super) {
 	    __extends(QueueScheduler, _super);
 	    function QueueScheduler() {
@@ -8290,11 +7159,11 @@ var BotChat =
 
 
 /***/ },
-/* 142 */
+/* 128 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var root_1 = __webpack_require__(23);
+	var root_1 = __webpack_require__(9);
 	var Object = root_1.root.Object;
 	if (typeof Object.assign != 'function') {
 	    (function () {
@@ -8326,17 +7195,17 @@ var BotChat =
 
 
 /***/ },
-/* 143 */
+/* 129 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var buffer_1 = __webpack_require__(144);
+	var Observable_1 = __webpack_require__(8);
+	var buffer_1 = __webpack_require__(130);
 	Observable_1.Observable.prototype.buffer = buffer_1.buffer;
 
 
 /***/ },
-/* 144 */
+/* 130 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8345,8 +7214,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Buffers the source Observable values until `closingNotifier` emits.
 	 *
@@ -8417,17 +7286,17 @@ var BotChat =
 
 
 /***/ },
-/* 145 */
+/* 131 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var bufferCount_1 = __webpack_require__(146);
+	var Observable_1 = __webpack_require__(8);
+	var bufferCount_1 = __webpack_require__(132);
 	Observable_1.Observable.prototype.bufferCount = bufferCount_1.bufferCount;
 
 
 /***/ },
-/* 146 */
+/* 132 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8436,7 +7305,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Buffers the source Observable values until the size hits the maximum
 	 * `bufferSize` given.
@@ -8546,17 +7415,17 @@ var BotChat =
 
 
 /***/ },
-/* 147 */
+/* 133 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var bufferTime_1 = __webpack_require__(148);
+	var Observable_1 = __webpack_require__(8);
+	var bufferTime_1 = __webpack_require__(134);
 	Observable_1.Observable.prototype.bufferTime = bufferTime_1.bufferTime;
 
 
 /***/ },
-/* 148 */
+/* 134 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8565,9 +7434,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var async_1 = __webpack_require__(94);
-	var Subscriber_1 = __webpack_require__(25);
-	var isScheduler_1 = __webpack_require__(47);
+	var async_1 = __webpack_require__(80);
+	var Subscriber_1 = __webpack_require__(11);
+	var isScheduler_1 = __webpack_require__(33);
 	/**
 	 * Buffers the source Observable values for a specific time period.
 	 *
@@ -8759,17 +7628,17 @@ var BotChat =
 
 
 /***/ },
-/* 149 */
+/* 135 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var bufferToggle_1 = __webpack_require__(150);
+	var Observable_1 = __webpack_require__(8);
+	var bufferToggle_1 = __webpack_require__(136);
 	Observable_1.Observable.prototype.bufferToggle = bufferToggle_1.bufferToggle;
 
 
 /***/ },
-/* 150 */
+/* 136 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8778,9 +7647,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscription_1 = __webpack_require__(27);
-	var subscribeToResult_1 = __webpack_require__(53);
-	var OuterSubscriber_1 = __webpack_require__(52);
+	var Subscription_1 = __webpack_require__(13);
+	var subscribeToResult_1 = __webpack_require__(39);
+	var OuterSubscriber_1 = __webpack_require__(38);
 	/**
 	 * Buffers the source Observable values starting from an emission from
 	 * `openings` and ending when the output of `closingSelector` emits.
@@ -8926,17 +7795,17 @@ var BotChat =
 
 
 /***/ },
-/* 151 */
+/* 137 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var bufferWhen_1 = __webpack_require__(152);
+	var Observable_1 = __webpack_require__(8);
+	var bufferWhen_1 = __webpack_require__(138);
 	Observable_1.Observable.prototype.bufferWhen = bufferWhen_1.bufferWhen;
 
 
 /***/ },
-/* 152 */
+/* 138 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8945,11 +7814,11 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscription_1 = __webpack_require__(27);
-	var tryCatch_1 = __webpack_require__(30);
-	var errorObject_1 = __webpack_require__(31);
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var Subscription_1 = __webpack_require__(13);
+	var tryCatch_1 = __webpack_require__(16);
+	var errorObject_1 = __webpack_require__(17);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Buffers the source Observable values, using a factory function of closing
 	 * Observables to determine when to close, emit, and reset the buffer.
@@ -9063,22 +7932,22 @@ var BotChat =
 
 
 /***/ },
-/* 153 */
+/* 139 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var cache_1 = __webpack_require__(154);
+	var Observable_1 = __webpack_require__(8);
+	var cache_1 = __webpack_require__(140);
 	Observable_1.Observable.prototype.cache = cache_1.cache;
 
 
 /***/ },
-/* 154 */
+/* 140 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var ReplaySubject_1 = __webpack_require__(138);
+	var Observable_1 = __webpack_require__(8);
+	var ReplaySubject_1 = __webpack_require__(124);
 	/**
 	 * @param bufferSize
 	 * @param windowTime
@@ -9127,18 +7996,18 @@ var BotChat =
 
 
 /***/ },
-/* 155 */
+/* 141 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var catch_1 = __webpack_require__(156);
+	var Observable_1 = __webpack_require__(8);
+	var catch_1 = __webpack_require__(142);
 	Observable_1.Observable.prototype.catch = catch_1._catch;
 	Observable_1.Observable.prototype._catch = catch_1._catch;
 
 
 /***/ },
-/* 156 */
+/* 142 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -9147,8 +8016,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Catches errors on the observable to be handled by returning a new observable or throwing an error.
 	 * @param {function} selector a function that takes as arguments `err`, which is the error, and `caught`, which
@@ -9208,21 +8077,21 @@ var BotChat =
 
 
 /***/ },
-/* 157 */
+/* 143 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var combineAll_1 = __webpack_require__(158);
+	var Observable_1 = __webpack_require__(8);
+	var combineAll_1 = __webpack_require__(144);
 	Observable_1.Observable.prototype.combineAll = combineAll_1.combineAll;
 
 
 /***/ },
-/* 158 */
+/* 144 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var combineLatest_1 = __webpack_require__(51);
+	var combineLatest_1 = __webpack_require__(37);
 	/**
 	 * Converts a higher-order Observable into a first-order Observable by waiting
 	 * for the outer Observable to complete, then applying {@link combineLatest}.
@@ -9270,41 +8139,41 @@ var BotChat =
 
 
 /***/ },
-/* 159 */
+/* 145 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var combineLatest_1 = __webpack_require__(51);
+	var Observable_1 = __webpack_require__(8);
+	var combineLatest_1 = __webpack_require__(37);
 	Observable_1.Observable.prototype.combineLatest = combineLatest_1.combineLatest;
 
 
 /***/ },
-/* 160 */
+/* 146 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var concat_1 = __webpack_require__(59);
+	var Observable_1 = __webpack_require__(8);
+	var concat_1 = __webpack_require__(45);
 	Observable_1.Observable.prototype.concat = concat_1.concat;
 
 
 /***/ },
-/* 161 */
+/* 147 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var concatAll_1 = __webpack_require__(162);
+	var Observable_1 = __webpack_require__(8);
+	var concatAll_1 = __webpack_require__(148);
 	Observable_1.Observable.prototype.concatAll = concatAll_1.concatAll;
 
 
 /***/ },
-/* 162 */
+/* 148 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var mergeAll_1 = __webpack_require__(60);
+	var mergeAll_1 = __webpack_require__(46);
 	/**
 	 * Converts a higher-order Observable into a first-order Observable by
 	 * concatenating the inner Observables in order.
@@ -9354,21 +8223,21 @@ var BotChat =
 
 
 /***/ },
-/* 163 */
+/* 149 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var concatMap_1 = __webpack_require__(164);
+	var Observable_1 = __webpack_require__(8);
+	var concatMap_1 = __webpack_require__(150);
 	Observable_1.Observable.prototype.concatMap = concatMap_1.concatMap;
 
 
 /***/ },
-/* 164 */
+/* 150 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var mergeMap_1 = __webpack_require__(165);
+	var mergeMap_1 = __webpack_require__(151);
 	/**
 	 * Projects each source value to an Observable which is merged in the output
 	 * Observable, in a serialized fashion waiting for each one to complete before
@@ -9432,7 +8301,7 @@ var BotChat =
 
 
 /***/ },
-/* 165 */
+/* 151 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -9441,8 +8310,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var subscribeToResult_1 = __webpack_require__(53);
-	var OuterSubscriber_1 = __webpack_require__(52);
+	var subscribeToResult_1 = __webpack_require__(39);
+	var OuterSubscriber_1 = __webpack_require__(38);
 	/**
 	 * Projects each source value to an Observable which is merged in the output
 	 * Observable.
@@ -9598,21 +8467,21 @@ var BotChat =
 
 
 /***/ },
-/* 166 */
+/* 152 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var concatMapTo_1 = __webpack_require__(167);
+	var Observable_1 = __webpack_require__(8);
+	var concatMapTo_1 = __webpack_require__(153);
 	Observable_1.Observable.prototype.concatMapTo = concatMapTo_1.concatMapTo;
 
 
 /***/ },
-/* 167 */
+/* 153 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var mergeMapTo_1 = __webpack_require__(168);
+	var mergeMapTo_1 = __webpack_require__(154);
 	/**
 	 * Projects each source value to the same Observable which is merged multiple
 	 * times in a serialized fashion on the output Observable.
@@ -9670,7 +8539,7 @@ var BotChat =
 
 
 /***/ },
-/* 168 */
+/* 154 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -9679,8 +8548,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Projects each source value to the same Observable which is merged multiple
 	 * times in the output Observable.
@@ -9829,17 +8698,17 @@ var BotChat =
 
 
 /***/ },
-/* 169 */
+/* 155 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var count_1 = __webpack_require__(170);
+	var Observable_1 = __webpack_require__(8);
+	var count_1 = __webpack_require__(156);
 	Observable_1.Observable.prototype.count = count_1.count;
 
 
 /***/ },
-/* 170 */
+/* 156 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -9848,7 +8717,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Counts the number of emissions on the source and emits that number when the
 	 * source completes.
@@ -9952,17 +8821,17 @@ var BotChat =
 
 
 /***/ },
-/* 171 */
+/* 157 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var dematerialize_1 = __webpack_require__(172);
+	var Observable_1 = __webpack_require__(8);
+	var dematerialize_1 = __webpack_require__(158);
 	Observable_1.Observable.prototype.dematerialize = dematerialize_1.dematerialize;
 
 
 /***/ },
-/* 172 */
+/* 158 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -9971,7 +8840,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Converts an Observable of {@link Notification} objects into the emissions
 	 * that they represent.
@@ -10037,17 +8906,17 @@ var BotChat =
 
 
 /***/ },
-/* 173 */
+/* 159 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var debounce_1 = __webpack_require__(174);
+	var Observable_1 = __webpack_require__(8);
+	var debounce_1 = __webpack_require__(160);
 	Observable_1.Observable.prototype.debounce = debounce_1.debounce;
 
 
 /***/ },
-/* 174 */
+/* 160 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -10056,8 +8925,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Emits a value from the source Observable only after a particular time span
 	 * determined by another Observable has passed without another source emission.
@@ -10179,17 +9048,17 @@ var BotChat =
 
 
 /***/ },
-/* 175 */
+/* 161 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var debounceTime_1 = __webpack_require__(176);
+	var Observable_1 = __webpack_require__(8);
+	var debounceTime_1 = __webpack_require__(162);
 	Observable_1.Observable.prototype.debounceTime = debounceTime_1.debounceTime;
 
 
 /***/ },
-/* 176 */
+/* 162 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -10198,8 +9067,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var async_1 = __webpack_require__(94);
+	var Subscriber_1 = __webpack_require__(11);
+	var async_1 = __webpack_require__(80);
 	/**
 	 * Emits a value from the source Observable only after a particular time span
 	 * has passed without another source emission.
@@ -10310,17 +9179,17 @@ var BotChat =
 
 
 /***/ },
-/* 177 */
+/* 163 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var defaultIfEmpty_1 = __webpack_require__(178);
+	var Observable_1 = __webpack_require__(8);
+	var defaultIfEmpty_1 = __webpack_require__(164);
 	Observable_1.Observable.prototype.defaultIfEmpty = defaultIfEmpty_1.defaultIfEmpty;
 
 
 /***/ },
-/* 178 */
+/* 164 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -10329,7 +9198,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Emits a given value if the source Observable completes without emitting any
 	 * `next` value, otherwise mirrors the source Observable.
@@ -10401,17 +9270,17 @@ var BotChat =
 
 
 /***/ },
-/* 179 */
+/* 165 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var delay_1 = __webpack_require__(180);
+	var Observable_1 = __webpack_require__(8);
+	var delay_1 = __webpack_require__(166);
 	Observable_1.Observable.prototype.delay = delay_1.delay;
 
 
 /***/ },
-/* 180 */
+/* 166 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -10420,10 +9289,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var async_1 = __webpack_require__(94);
-	var isDate_1 = __webpack_require__(127);
-	var Subscriber_1 = __webpack_require__(25);
-	var Notification_1 = __webpack_require__(76);
+	var async_1 = __webpack_require__(80);
+	var isDate_1 = __webpack_require__(113);
+	var Subscriber_1 = __webpack_require__(11);
+	var Notification_1 = __webpack_require__(62);
 	/**
 	 * Delays the emission of items from the source Observable by a given timeout or
 	 * until a given Date.
@@ -10551,17 +9420,17 @@ var BotChat =
 
 
 /***/ },
-/* 181 */
+/* 167 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var delayWhen_1 = __webpack_require__(182);
+	var Observable_1 = __webpack_require__(8);
+	var delayWhen_1 = __webpack_require__(168);
 	Observable_1.Observable.prototype.delayWhen = delayWhen_1.delayWhen;
 
 
 /***/ },
-/* 182 */
+/* 168 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -10570,10 +9439,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var Observable_1 = __webpack_require__(22);
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var Subscriber_1 = __webpack_require__(11);
+	var Observable_1 = __webpack_require__(8);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Delays the emission of items from the source Observable by a given time span
 	 * determined by the emissions of another Observable.
@@ -10756,17 +9625,17 @@ var BotChat =
 
 
 /***/ },
-/* 183 */
+/* 169 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var distinct_1 = __webpack_require__(184);
+	var Observable_1 = __webpack_require__(8);
+	var distinct_1 = __webpack_require__(170);
 	Observable_1.Observable.prototype.distinct = distinct_1.distinct;
 
 
 /***/ },
-/* 184 */
+/* 170 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -10775,8 +9644,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Returns an Observable that emits all items emitted by the source Observable that are distinct by comparison from previous items.
 	 * If a comparator function is provided, then it will be called for each item to test for whether or not that value should be emitted.
@@ -10854,21 +9723,21 @@ var BotChat =
 
 
 /***/ },
-/* 185 */
+/* 171 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var distinctKey_1 = __webpack_require__(186);
+	var Observable_1 = __webpack_require__(8);
+	var distinctKey_1 = __webpack_require__(172);
 	Observable_1.Observable.prototype.distinctKey = distinctKey_1.distinctKey;
 
 
 /***/ },
-/* 186 */
+/* 172 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var distinct_1 = __webpack_require__(184);
+	var distinct_1 = __webpack_require__(170);
 	/**
 	 * Returns an Observable that emits all items emitted by the source Observable that are distinct by comparison from previous items,
 	 * using a property accessed by using the key provided to check if the two items are distinct.
@@ -10895,17 +9764,17 @@ var BotChat =
 
 
 /***/ },
-/* 187 */
+/* 173 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var distinctUntilChanged_1 = __webpack_require__(188);
+	var Observable_1 = __webpack_require__(8);
+	var distinctUntilChanged_1 = __webpack_require__(174);
 	Observable_1.Observable.prototype.distinctUntilChanged = distinctUntilChanged_1.distinctUntilChanged;
 
 
 /***/ },
-/* 188 */
+/* 174 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -10914,9 +9783,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var tryCatch_1 = __webpack_require__(30);
-	var errorObject_1 = __webpack_require__(31);
+	var Subscriber_1 = __webpack_require__(11);
+	var tryCatch_1 = __webpack_require__(16);
+	var errorObject_1 = __webpack_require__(17);
 	/**
 	 * Returns an Observable that emits all items emitted by the source Observable that are distinct by comparison from the previous item.
 	 * If a comparator function is provided, then it will be called for each item to test for whether or not that value should be emitted.
@@ -10987,21 +9856,21 @@ var BotChat =
 
 
 /***/ },
-/* 189 */
+/* 175 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var distinctUntilKeyChanged_1 = __webpack_require__(190);
+	var Observable_1 = __webpack_require__(8);
+	var distinctUntilKeyChanged_1 = __webpack_require__(176);
 	Observable_1.Observable.prototype.distinctUntilKeyChanged = distinctUntilKeyChanged_1.distinctUntilKeyChanged;
 
 
 /***/ },
-/* 190 */
+/* 176 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var distinctUntilChanged_1 = __webpack_require__(188);
+	var distinctUntilChanged_1 = __webpack_require__(174);
 	/**
 	 * Returns an Observable that emits all items emitted by the source Observable that are distinct by comparison from the previous item,
 	 * using a property accessed by using the key provided to check if the two items are distinct.
@@ -11025,18 +9894,18 @@ var BotChat =
 
 
 /***/ },
-/* 191 */
+/* 177 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var do_1 = __webpack_require__(192);
+	var Observable_1 = __webpack_require__(8);
+	var do_1 = __webpack_require__(178);
 	Observable_1.Observable.prototype.do = do_1._do;
 	Observable_1.Observable.prototype._do = do_1._do;
 
 
 /***/ },
-/* 192 */
+/* 178 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -11045,7 +9914,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Perform a side effect for every emission on the source Observable, but return
 	 * an Observable that is identical to the source.
@@ -11153,17 +10022,17 @@ var BotChat =
 
 
 /***/ },
-/* 193 */
+/* 179 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var exhaust_1 = __webpack_require__(194);
+	var Observable_1 = __webpack_require__(8);
+	var exhaust_1 = __webpack_require__(180);
 	Observable_1.Observable.prototype.exhaust = exhaust_1.exhaust;
 
 
 /***/ },
-/* 194 */
+/* 180 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -11172,8 +10041,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Converts a higher-order Observable into a first-order Observable by dropping
 	 * inner Observables while the previous inner Observable has not yet completed.
@@ -11258,17 +10127,17 @@ var BotChat =
 
 
 /***/ },
-/* 195 */
+/* 181 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var exhaustMap_1 = __webpack_require__(196);
+	var Observable_1 = __webpack_require__(8);
+	var exhaustMap_1 = __webpack_require__(182);
 	Observable_1.Observable.prototype.exhaustMap = exhaustMap_1.exhaustMap;
 
 
 /***/ },
-/* 196 */
+/* 182 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -11277,8 +10146,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Projects each source value to an Observable which is merged in the output
 	 * Observable only if the previous projected Observable has completed.
@@ -11410,17 +10279,17 @@ var BotChat =
 
 
 /***/ },
-/* 197 */
+/* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var expand_1 = __webpack_require__(198);
+	var Observable_1 = __webpack_require__(8);
+	var expand_1 = __webpack_require__(184);
 	Observable_1.Observable.prototype.expand = expand_1.expand;
 
 
 /***/ },
-/* 198 */
+/* 184 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -11429,10 +10298,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var tryCatch_1 = __webpack_require__(30);
-	var errorObject_1 = __webpack_require__(31);
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var tryCatch_1 = __webpack_require__(16);
+	var errorObject_1 = __webpack_require__(17);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Recursively projects each source value to an Observable which is merged in
 	 * the output Observable.
@@ -11575,17 +10444,17 @@ var BotChat =
 
 
 /***/ },
-/* 199 */
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var elementAt_1 = __webpack_require__(200);
+	var Observable_1 = __webpack_require__(8);
+	var elementAt_1 = __webpack_require__(186);
 	Observable_1.Observable.prototype.elementAt = elementAt_1.elementAt;
 
 
 /***/ },
-/* 200 */
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -11594,8 +10463,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var ArgumentOutOfRangeError_1 = __webpack_require__(201);
+	var Subscriber_1 = __webpack_require__(11);
+	var ArgumentOutOfRangeError_1 = __webpack_require__(187);
 	/**
 	 * Emits the single value at the specified `index` in a sequence of emissions
 	 * from the source Observable.
@@ -11685,7 +10554,7 @@ var BotChat =
 
 
 /***/ },
-/* 201 */
+/* 187 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -11718,17 +10587,17 @@ var BotChat =
 
 
 /***/ },
-/* 202 */
+/* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var filter_1 = __webpack_require__(203);
+	var Observable_1 = __webpack_require__(8);
+	var filter_1 = __webpack_require__(189);
 	Observable_1.Observable.prototype.filter = filter_1.filter;
 
 
 /***/ },
-/* 203 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -11737,7 +10606,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Filter items emitted by the source Observable by only emitting those that
 	 * satisfy a specified predicate.
@@ -11826,18 +10695,18 @@ var BotChat =
 
 
 /***/ },
-/* 204 */
+/* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var finally_1 = __webpack_require__(205);
+	var Observable_1 = __webpack_require__(8);
+	var finally_1 = __webpack_require__(191);
 	Observable_1.Observable.prototype.finally = finally_1._finally;
 	Observable_1.Observable.prototype._finally = finally_1._finally;
 
 
 /***/ },
-/* 205 */
+/* 191 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -11846,8 +10715,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var Subscription_1 = __webpack_require__(27);
+	var Subscriber_1 = __webpack_require__(11);
+	var Subscription_1 = __webpack_require__(13);
 	/**
 	 * Returns an Observable that mirrors the source Observable, but will call a specified function when
 	 * the source terminates on complete or error.
@@ -11885,17 +10754,17 @@ var BotChat =
 
 
 /***/ },
-/* 206 */
+/* 192 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var find_1 = __webpack_require__(207);
+	var Observable_1 = __webpack_require__(8);
+	var find_1 = __webpack_require__(193);
 	Observable_1.Observable.prototype.find = find_1.find;
 
 
 /***/ },
-/* 207 */
+/* 193 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -11904,7 +10773,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Emits only the first value emitted by the source Observable that meets some
 	 * condition.
@@ -12000,21 +10869,21 @@ var BotChat =
 
 
 /***/ },
-/* 208 */
+/* 194 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var findIndex_1 = __webpack_require__(209);
+	var Observable_1 = __webpack_require__(8);
+	var findIndex_1 = __webpack_require__(195);
 	Observable_1.Observable.prototype.findIndex = findIndex_1.findIndex;
 
 
 /***/ },
-/* 209 */
+/* 195 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var find_1 = __webpack_require__(207);
+	var find_1 = __webpack_require__(193);
 	/**
 	 * Emits only the index of the first value emitted by the source Observable that
 	 * meets some condition.
@@ -12056,17 +10925,17 @@ var BotChat =
 
 
 /***/ },
-/* 210 */
+/* 196 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var first_1 = __webpack_require__(211);
+	var Observable_1 = __webpack_require__(8);
+	var first_1 = __webpack_require__(197);
 	Observable_1.Observable.prototype.first = first_1.first;
 
 
 /***/ },
-/* 211 */
+/* 197 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12075,8 +10944,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var EmptyError_1 = __webpack_require__(212);
+	var Subscriber_1 = __webpack_require__(11);
+	var EmptyError_1 = __webpack_require__(198);
 	/**
 	 * Emits only the first value (or the first value that meets some condition)
 	 * emitted by the source Observable.
@@ -12219,7 +11088,7 @@ var BotChat =
 
 
 /***/ },
-/* 212 */
+/* 198 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -12252,17 +11121,17 @@ var BotChat =
 
 
 /***/ },
-/* 213 */
+/* 199 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var groupBy_1 = __webpack_require__(214);
+	var Observable_1 = __webpack_require__(8);
+	var groupBy_1 = __webpack_require__(200);
 	Observable_1.Observable.prototype.groupBy = groupBy_1.groupBy;
 
 
 /***/ },
-/* 214 */
+/* 200 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12271,12 +11140,12 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var Subscription_1 = __webpack_require__(27);
-	var Observable_1 = __webpack_require__(22);
-	var Subject_1 = __webpack_require__(21);
-	var Map_1 = __webpack_require__(215);
-	var FastMap_1 = __webpack_require__(217);
+	var Subscriber_1 = __webpack_require__(11);
+	var Subscription_1 = __webpack_require__(13);
+	var Observable_1 = __webpack_require__(8);
+	var Subject_1 = __webpack_require__(7);
+	var Map_1 = __webpack_require__(201);
+	var FastMap_1 = __webpack_require__(203);
 	/**
 	 * Groups the items emitted by an Observable according to a specified criterion,
 	 * and emits these grouped items as `GroupedObservables`, one
@@ -12499,17 +11368,17 @@ var BotChat =
 
 
 /***/ },
-/* 215 */
+/* 201 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var root_1 = __webpack_require__(23);
-	var MapPolyfill_1 = __webpack_require__(216);
+	var root_1 = __webpack_require__(9);
+	var MapPolyfill_1 = __webpack_require__(202);
 	exports.Map = root_1.root.Map || (function () { return MapPolyfill_1.MapPolyfill; })();
 
 
 /***/ },
-/* 216 */
+/* 202 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -12561,7 +11430,7 @@ var BotChat =
 
 
 /***/ },
-/* 217 */
+/* 203 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -12597,17 +11466,17 @@ var BotChat =
 
 
 /***/ },
-/* 218 */
+/* 204 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var ignoreElements_1 = __webpack_require__(219);
+	var Observable_1 = __webpack_require__(8);
+	var ignoreElements_1 = __webpack_require__(205);
 	Observable_1.Observable.prototype.ignoreElements = ignoreElements_1.ignoreElements;
 
 
 /***/ },
-/* 219 */
+/* 205 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12616,8 +11485,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var noop_1 = __webpack_require__(107);
+	var Subscriber_1 = __webpack_require__(11);
+	var noop_1 = __webpack_require__(93);
 	/**
 	 * Ignores all items emitted by the source Observable and only passes calls of `complete` or `error`.
 	 *
@@ -12659,17 +11528,17 @@ var BotChat =
 
 
 /***/ },
-/* 220 */
+/* 206 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var isEmpty_1 = __webpack_require__(221);
+	var Observable_1 = __webpack_require__(8);
+	var isEmpty_1 = __webpack_require__(207);
 	Observable_1.Observable.prototype.isEmpty = isEmpty_1.isEmpty;
 
 
 /***/ },
-/* 221 */
+/* 207 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12678,7 +11547,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * If the source Observable is empty it returns an Observable that emits true, otherwise it emits false.
 	 *
@@ -12726,17 +11595,17 @@ var BotChat =
 
 
 /***/ },
-/* 222 */
+/* 208 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var audit_1 = __webpack_require__(223);
+	var Observable_1 = __webpack_require__(8);
+	var audit_1 = __webpack_require__(209);
 	Observable_1.Observable.prototype.audit = audit_1.audit;
 
 
 /***/ },
-/* 223 */
+/* 209 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12745,10 +11614,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var tryCatch_1 = __webpack_require__(30);
-	var errorObject_1 = __webpack_require__(31);
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var tryCatch_1 = __webpack_require__(16);
+	var errorObject_1 = __webpack_require__(17);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Ignores source values for a duration determined by another Observable, then
 	 * emits the most recent value from the source Observable, then repeats this
@@ -12851,17 +11720,17 @@ var BotChat =
 
 
 /***/ },
-/* 224 */
+/* 210 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var auditTime_1 = __webpack_require__(225);
+	var Observable_1 = __webpack_require__(8);
+	var auditTime_1 = __webpack_require__(211);
 	Observable_1.Observable.prototype.auditTime = auditTime_1.auditTime;
 
 
 /***/ },
-/* 225 */
+/* 211 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12870,8 +11739,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var async_1 = __webpack_require__(94);
-	var Subscriber_1 = __webpack_require__(25);
+	var async_1 = __webpack_require__(80);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Ignores source values for `duration` milliseconds, then emits the most recent
 	 * value from the source Observable, then repeats this process.
@@ -12970,17 +11839,17 @@ var BotChat =
 
 
 /***/ },
-/* 226 */
+/* 212 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var last_1 = __webpack_require__(227);
+	var Observable_1 = __webpack_require__(8);
+	var last_1 = __webpack_require__(213);
 	Observable_1.Observable.prototype.last = last_1.last;
 
 
 /***/ },
-/* 227 */
+/* 213 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -12989,8 +11858,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var EmptyError_1 = __webpack_require__(212);
+	var Subscriber_1 = __webpack_require__(11);
+	var EmptyError_1 = __webpack_require__(198);
 	/**
 	 * Returns an Observable that emits only the last item emitted by the source Observable.
 	 * It optionally takes a predicate function as a parameter, in which case, rather than emitting
@@ -13103,18 +11972,18 @@ var BotChat =
 
 
 /***/ },
-/* 228 */
+/* 214 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var let_1 = __webpack_require__(229);
+	var Observable_1 = __webpack_require__(8);
+	var let_1 = __webpack_require__(215);
 	Observable_1.Observable.prototype.let = let_1.letProto;
 	Observable_1.Observable.prototype.letBind = let_1.letProto;
 
 
 /***/ },
-/* 229 */
+/* 215 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -13131,17 +12000,17 @@ var BotChat =
 
 
 /***/ },
-/* 230 */
+/* 216 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var every_1 = __webpack_require__(231);
+	var Observable_1 = __webpack_require__(8);
+	var every_1 = __webpack_require__(217);
 	Observable_1.Observable.prototype.every = every_1.every;
 
 
 /***/ },
-/* 231 */
+/* 217 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -13150,7 +12019,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Returns an Observable that emits whether or not every item of the source satisfies the condition specified.
 	 * @param {function} predicate a function for determining if an item meets a specified condition.
@@ -13214,27 +12083,27 @@ var BotChat =
 
 
 /***/ },
-/* 232 */
+/* 218 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var map_1 = __webpack_require__(134);
+	var Observable_1 = __webpack_require__(8);
+	var map_1 = __webpack_require__(120);
 	Observable_1.Observable.prototype.map = map_1.map;
 
 
 /***/ },
-/* 233 */
+/* 219 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var mapTo_1 = __webpack_require__(234);
+	var Observable_1 = __webpack_require__(8);
+	var mapTo_1 = __webpack_require__(220);
 	Observable_1.Observable.prototype.mapTo = mapTo_1.mapTo;
 
 
 /***/ },
-/* 234 */
+/* 220 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -13243,7 +12112,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Emits the given constant value on the output Observable every time the source
 	 * Observable emits a value.
@@ -13302,17 +12171,17 @@ var BotChat =
 
 
 /***/ },
-/* 235 */
+/* 221 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var materialize_1 = __webpack_require__(236);
+	var Observable_1 = __webpack_require__(8);
+	var materialize_1 = __webpack_require__(222);
 	Observable_1.Observable.prototype.materialize = materialize_1.materialize;
 
 
 /***/ },
-/* 236 */
+/* 222 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -13321,8 +12190,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var Notification_1 = __webpack_require__(76);
+	var Subscriber_1 = __webpack_require__(11);
+	var Notification_1 = __webpack_require__(62);
 	/**
 	 * Represents all of the notifications from the source Observable as `next`
 	 * emissions marked with their original types within {@link Notification}
@@ -13400,21 +12269,21 @@ var BotChat =
 
 
 /***/ },
-/* 237 */
+/* 223 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var max_1 = __webpack_require__(238);
+	var Observable_1 = __webpack_require__(8);
+	var max_1 = __webpack_require__(224);
 	Observable_1.Observable.prototype.max = max_1.max;
 
 
 /***/ },
-/* 238 */
+/* 224 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var reduce_1 = __webpack_require__(239);
+	var reduce_1 = __webpack_require__(225);
 	/**
 	 * The Max operator operates on an Observable that emits numbers (or items that can be evaluated as numbers),
 	 * and when source Observable completes it emits a single item: the item with the largest number.
@@ -13437,7 +12306,7 @@ var BotChat =
 
 
 /***/ },
-/* 239 */
+/* 225 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -13446,7 +12315,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Applies an accumulator function over the source Observable, and returns the
 	 * accumulated result when the source completes, given an optional seed value.
@@ -13554,59 +12423,59 @@ var BotChat =
 
 
 /***/ },
-/* 240 */
+/* 226 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var merge_1 = __webpack_require__(101);
+	var Observable_1 = __webpack_require__(8);
+	var merge_1 = __webpack_require__(87);
 	Observable_1.Observable.prototype.merge = merge_1.merge;
 
 
 /***/ },
-/* 241 */
+/* 227 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var mergeAll_1 = __webpack_require__(60);
+	var Observable_1 = __webpack_require__(8);
+	var mergeAll_1 = __webpack_require__(46);
 	Observable_1.Observable.prototype.mergeAll = mergeAll_1.mergeAll;
 
 
 /***/ },
-/* 242 */
+/* 228 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var mergeMap_1 = __webpack_require__(165);
+	var Observable_1 = __webpack_require__(8);
+	var mergeMap_1 = __webpack_require__(151);
 	Observable_1.Observable.prototype.mergeMap = mergeMap_1.mergeMap;
 	Observable_1.Observable.prototype.flatMap = mergeMap_1.mergeMap;
 
 
 /***/ },
-/* 243 */
+/* 229 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var mergeMapTo_1 = __webpack_require__(168);
+	var Observable_1 = __webpack_require__(8);
+	var mergeMapTo_1 = __webpack_require__(154);
 	Observable_1.Observable.prototype.flatMapTo = mergeMapTo_1.mergeMapTo;
 	Observable_1.Observable.prototype.mergeMapTo = mergeMapTo_1.mergeMapTo;
 
 
 /***/ },
-/* 244 */
+/* 230 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var mergeScan_1 = __webpack_require__(245);
+	var Observable_1 = __webpack_require__(8);
+	var mergeScan_1 = __webpack_require__(231);
 	Observable_1.Observable.prototype.mergeScan = mergeScan_1.mergeScan;
 
 
 /***/ },
-/* 245 */
+/* 231 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -13615,10 +12484,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var tryCatch_1 = __webpack_require__(30);
-	var errorObject_1 = __webpack_require__(31);
-	var subscribeToResult_1 = __webpack_require__(53);
-	var OuterSubscriber_1 = __webpack_require__(52);
+	var tryCatch_1 = __webpack_require__(16);
+	var errorObject_1 = __webpack_require__(17);
+	var subscribeToResult_1 = __webpack_require__(39);
+	var OuterSubscriber_1 = __webpack_require__(38);
 	/**
 	 * @param project
 	 * @param seed
@@ -13717,21 +12586,21 @@ var BotChat =
 
 
 /***/ },
-/* 246 */
+/* 232 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var min_1 = __webpack_require__(247);
+	var Observable_1 = __webpack_require__(8);
+	var min_1 = __webpack_require__(233);
 	Observable_1.Observable.prototype.min = min_1.min;
 
 
 /***/ },
-/* 247 */
+/* 233 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var reduce_1 = __webpack_require__(239);
+	var reduce_1 = __webpack_require__(225);
 	/**
 	 * The Min operator operates on an Observable that emits numbers (or items that can be evaluated as numbers),
 	 * and when source Observable completes it emits a single item: the item with the smallest number.
@@ -13753,22 +12622,22 @@ var BotChat =
 
 
 /***/ },
-/* 248 */
+/* 234 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var multicast_1 = __webpack_require__(249);
+	var Observable_1 = __webpack_require__(8);
+	var multicast_1 = __webpack_require__(235);
 	Observable_1.Observable.prototype.multicast = multicast_1.multicast;
 
 
 /***/ },
-/* 249 */
+/* 235 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var MulticastObservable_1 = __webpack_require__(250);
-	var ConnectableObservable_1 = __webpack_require__(251);
+	var MulticastObservable_1 = __webpack_require__(236);
+	var ConnectableObservable_1 = __webpack_require__(237);
 	/**
 	 * Returns an Observable that emits the results of invoking a specified selector on items
 	 * emitted by a ConnectableObservable that shares a single subscription to the underlying stream.
@@ -13806,7 +12675,7 @@ var BotChat =
 
 
 /***/ },
-/* 250 */
+/* 236 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -13815,8 +12684,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var ConnectableObservable_1 = __webpack_require__(251);
+	var Observable_1 = __webpack_require__(8);
+	var ConnectableObservable_1 = __webpack_require__(237);
 	var MulticastObservable = (function (_super) {
 	    __extends(MulticastObservable, _super);
 	    function MulticastObservable(source, subjectFactory, selector) {
@@ -13838,7 +12707,7 @@ var BotChat =
 
 
 /***/ },
-/* 251 */
+/* 237 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -13847,10 +12716,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subject_1 = __webpack_require__(21);
-	var Observable_1 = __webpack_require__(22);
-	var Subscriber_1 = __webpack_require__(25);
-	var Subscription_1 = __webpack_require__(27);
+	var Subject_1 = __webpack_require__(7);
+	var Observable_1 = __webpack_require__(8);
+	var Subscriber_1 = __webpack_require__(11);
+	var Subscription_1 = __webpack_require__(13);
 	/**
 	 * @class ConnectableObservable<T>
 	 */
@@ -13997,37 +12866,37 @@ var BotChat =
 
 
 /***/ },
-/* 252 */
+/* 238 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var observeOn_1 = __webpack_require__(75);
+	var Observable_1 = __webpack_require__(8);
+	var observeOn_1 = __webpack_require__(61);
 	Observable_1.Observable.prototype.observeOn = observeOn_1.observeOn;
 
 
 /***/ },
-/* 253 */
+/* 239 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var onErrorResumeNext_1 = __webpack_require__(111);
+	var Observable_1 = __webpack_require__(8);
+	var onErrorResumeNext_1 = __webpack_require__(97);
 	Observable_1.Observable.prototype.onErrorResumeNext = onErrorResumeNext_1.onErrorResumeNext;
 
 
 /***/ },
-/* 254 */
+/* 240 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var pairwise_1 = __webpack_require__(255);
+	var Observable_1 = __webpack_require__(8);
+	var pairwise_1 = __webpack_require__(241);
 	Observable_1.Observable.prototype.pairwise = pairwise_1.pairwise;
 
 
 /***/ },
-/* 255 */
+/* 241 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -14036,7 +12905,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Groups pairs of consecutive emissions together and emits them as an array of
 	 * two values.
@@ -14109,22 +12978,22 @@ var BotChat =
 
 
 /***/ },
-/* 256 */
+/* 242 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var partition_1 = __webpack_require__(257);
+	var Observable_1 = __webpack_require__(8);
+	var partition_1 = __webpack_require__(243);
 	Observable_1.Observable.prototype.partition = partition_1.partition;
 
 
 /***/ },
-/* 257 */
+/* 243 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var not_1 = __webpack_require__(258);
-	var filter_1 = __webpack_require__(203);
+	var not_1 = __webpack_require__(244);
+	var filter_1 = __webpack_require__(189);
 	/**
 	 * Splits the source Observable into two, one with values that satisfy a
 	 * predicate, and another with values that don't satisfy the predicate.
@@ -14176,7 +13045,7 @@ var BotChat =
 
 
 /***/ },
-/* 258 */
+/* 244 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -14192,21 +13061,21 @@ var BotChat =
 
 
 /***/ },
-/* 259 */
+/* 245 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var pluck_1 = __webpack_require__(260);
+	var Observable_1 = __webpack_require__(8);
+	var pluck_1 = __webpack_require__(246);
 	Observable_1.Observable.prototype.pluck = pluck_1.pluck;
 
 
 /***/ },
-/* 260 */
+/* 246 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var map_1 = __webpack_require__(134);
+	var map_1 = __webpack_require__(120);
 	/**
 	 * Maps each source value (an object) to its specified nested property.
 	 *
@@ -14265,22 +13134,22 @@ var BotChat =
 
 
 /***/ },
-/* 261 */
+/* 247 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var publish_1 = __webpack_require__(262);
+	var Observable_1 = __webpack_require__(8);
+	var publish_1 = __webpack_require__(248);
 	Observable_1.Observable.prototype.publish = publish_1.publish;
 
 
 /***/ },
-/* 262 */
+/* 248 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Subject_1 = __webpack_require__(21);
-	var multicast_1 = __webpack_require__(249);
+	var Subject_1 = __webpack_require__(7);
+	var multicast_1 = __webpack_require__(235);
 	/**
 	 * Returns a ConnectableObservable, which is a variety of Observable that waits until its connect method is called
 	 * before it begins emitting items to those Observers that have subscribed to it.
@@ -14302,22 +13171,22 @@ var BotChat =
 
 
 /***/ },
-/* 263 */
+/* 249 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var publishBehavior_1 = __webpack_require__(264);
+	var Observable_1 = __webpack_require__(8);
+	var publishBehavior_1 = __webpack_require__(250);
 	Observable_1.Observable.prototype.publishBehavior = publishBehavior_1.publishBehavior;
 
 
 /***/ },
-/* 264 */
+/* 250 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var BehaviorSubject_1 = __webpack_require__(265);
-	var multicast_1 = __webpack_require__(249);
+	var BehaviorSubject_1 = __webpack_require__(251);
+	var multicast_1 = __webpack_require__(235);
 	/**
 	 * @param value
 	 * @return {ConnectableObservable<T>}
@@ -14331,7 +13200,7 @@ var BotChat =
 
 
 /***/ },
-/* 265 */
+/* 251 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -14340,8 +13209,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subject_1 = __webpack_require__(21);
-	var ObjectUnsubscribedError_1 = __webpack_require__(36);
+	var Subject_1 = __webpack_require__(7);
+	var ObjectUnsubscribedError_1 = __webpack_require__(22);
 	/**
 	 * @class BehaviorSubject<T>
 	 */
@@ -14385,22 +13254,22 @@ var BotChat =
 
 
 /***/ },
-/* 266 */
+/* 252 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var publishReplay_1 = __webpack_require__(267);
+	var Observable_1 = __webpack_require__(8);
+	var publishReplay_1 = __webpack_require__(253);
 	Observable_1.Observable.prototype.publishReplay = publishReplay_1.publishReplay;
 
 
 /***/ },
-/* 267 */
+/* 253 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var ReplaySubject_1 = __webpack_require__(138);
-	var multicast_1 = __webpack_require__(249);
+	var ReplaySubject_1 = __webpack_require__(124);
+	var multicast_1 = __webpack_require__(235);
 	/**
 	 * @param bufferSize
 	 * @param windowTime
@@ -14418,22 +13287,22 @@ var BotChat =
 
 
 /***/ },
-/* 268 */
+/* 254 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var publishLast_1 = __webpack_require__(269);
+	var Observable_1 = __webpack_require__(8);
+	var publishLast_1 = __webpack_require__(255);
 	Observable_1.Observable.prototype.publishLast = publishLast_1.publishLast;
 
 
 /***/ },
-/* 269 */
+/* 255 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var AsyncSubject_1 = __webpack_require__(41);
-	var multicast_1 = __webpack_require__(249);
+	var AsyncSubject_1 = __webpack_require__(27);
+	var multicast_1 = __webpack_require__(235);
 	/**
 	 * @return {ConnectableObservable<T>}
 	 * @method publishLast
@@ -14446,37 +13315,37 @@ var BotChat =
 
 
 /***/ },
-/* 270 */
+/* 256 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var race_1 = __webpack_require__(103);
+	var Observable_1 = __webpack_require__(8);
+	var race_1 = __webpack_require__(89);
 	Observable_1.Observable.prototype.race = race_1.race;
 
 
 /***/ },
-/* 271 */
+/* 257 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var reduce_1 = __webpack_require__(239);
+	var Observable_1 = __webpack_require__(8);
+	var reduce_1 = __webpack_require__(225);
 	Observable_1.Observable.prototype.reduce = reduce_1.reduce;
 
 
 /***/ },
-/* 272 */
+/* 258 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var repeat_1 = __webpack_require__(273);
+	var Observable_1 = __webpack_require__(8);
+	var repeat_1 = __webpack_require__(259);
 	Observable_1.Observable.prototype.repeat = repeat_1.repeat;
 
 
 /***/ },
-/* 273 */
+/* 259 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -14485,8 +13354,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var EmptyObservable_1 = __webpack_require__(50);
+	var Subscriber_1 = __webpack_require__(11);
+	var EmptyObservable_1 = __webpack_require__(36);
 	/**
 	 * Returns an Observable that repeats the stream of items emitted by the source Observable at most count times,
 	 * on a particular Scheduler.
@@ -14556,17 +13425,17 @@ var BotChat =
 
 
 /***/ },
-/* 274 */
+/* 260 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var repeatWhen_1 = __webpack_require__(275);
+	var Observable_1 = __webpack_require__(8);
+	var repeatWhen_1 = __webpack_require__(261);
 	Observable_1.Observable.prototype.repeatWhen = repeatWhen_1.repeatWhen;
 
 
 /***/ },
-/* 275 */
+/* 261 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -14575,11 +13444,11 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subject_1 = __webpack_require__(21);
-	var tryCatch_1 = __webpack_require__(30);
-	var errorObject_1 = __webpack_require__(31);
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var Subject_1 = __webpack_require__(7);
+	var tryCatch_1 = __webpack_require__(16);
+	var errorObject_1 = __webpack_require__(17);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Returns an Observable that emits the same values as the source observable with the exception of a `complete`.
 	 * A `complete` will cause the emission of the Throwable that cause the complete to the Observable returned from
@@ -14677,17 +13546,17 @@ var BotChat =
 
 
 /***/ },
-/* 276 */
+/* 262 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var retry_1 = __webpack_require__(277);
+	var Observable_1 = __webpack_require__(8);
+	var retry_1 = __webpack_require__(263);
 	Observable_1.Observable.prototype.retry = retry_1.retry;
 
 
 /***/ },
-/* 277 */
+/* 263 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -14696,7 +13565,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Returns an Observable that mirrors the source Observable, resubscribing to it if it calls `error` and the
 	 * predicate returns true for that specific exception and retry count.
@@ -14761,17 +13630,17 @@ var BotChat =
 
 
 /***/ },
-/* 278 */
+/* 264 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var retryWhen_1 = __webpack_require__(279);
+	var Observable_1 = __webpack_require__(8);
+	var retryWhen_1 = __webpack_require__(265);
 	Observable_1.Observable.prototype.retryWhen = retryWhen_1.retryWhen;
 
 
 /***/ },
-/* 279 */
+/* 265 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -14780,11 +13649,11 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subject_1 = __webpack_require__(21);
-	var tryCatch_1 = __webpack_require__(30);
-	var errorObject_1 = __webpack_require__(31);
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var Subject_1 = __webpack_require__(7);
+	var tryCatch_1 = __webpack_require__(16);
+	var errorObject_1 = __webpack_require__(17);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Returns an Observable that emits the same values as the source observable with the exception of an `error`.
 	 * An `error` will cause the emission of the Throwable that cause the error to the Observable returned from
@@ -14882,17 +13751,17 @@ var BotChat =
 
 
 /***/ },
-/* 280 */
+/* 266 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var sample_1 = __webpack_require__(281);
+	var Observable_1 = __webpack_require__(8);
+	var sample_1 = __webpack_require__(267);
 	Observable_1.Observable.prototype.sample = sample_1.sample;
 
 
 /***/ },
-/* 281 */
+/* 267 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -14901,8 +13770,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Emits the most recently emitted value from the source Observable whenever
 	 * another Observable, the `notifier`, emits.
@@ -14983,17 +13852,17 @@ var BotChat =
 
 
 /***/ },
-/* 282 */
+/* 268 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var sampleTime_1 = __webpack_require__(283);
+	var Observable_1 = __webpack_require__(8);
+	var sampleTime_1 = __webpack_require__(269);
 	Observable_1.Observable.prototype.sampleTime = sampleTime_1.sampleTime;
 
 
 /***/ },
-/* 283 */
+/* 269 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -15002,8 +13871,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var async_1 = __webpack_require__(94);
+	var Subscriber_1 = __webpack_require__(11);
+	var async_1 = __webpack_require__(80);
 	/**
 	 * Emits the most recently emitted value from the source Observable within
 	 * periodic time intervals.
@@ -15089,17 +13958,17 @@ var BotChat =
 
 
 /***/ },
-/* 284 */
+/* 270 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var scan_1 = __webpack_require__(285);
+	var Observable_1 = __webpack_require__(8);
+	var scan_1 = __webpack_require__(271);
 	Observable_1.Observable.prototype.scan = scan_1.scan;
 
 
 /***/ },
-/* 285 */
+/* 271 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -15108,7 +13977,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Applies an accumulator function over the source Observable, and returns each
 	 * intermediate result, with an optional seed value.
@@ -15212,17 +14081,17 @@ var BotChat =
 
 
 /***/ },
-/* 286 */
+/* 272 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var sequenceEqual_1 = __webpack_require__(287);
+	var Observable_1 = __webpack_require__(8);
+	var sequenceEqual_1 = __webpack_require__(273);
 	Observable_1.Observable.prototype.sequenceEqual = sequenceEqual_1.sequenceEqual;
 
 
 /***/ },
-/* 287 */
+/* 273 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -15231,9 +14100,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var tryCatch_1 = __webpack_require__(30);
-	var errorObject_1 = __webpack_require__(31);
+	var Subscriber_1 = __webpack_require__(11);
+	var tryCatch_1 = __webpack_require__(16);
+	var errorObject_1 = __webpack_require__(17);
 	/**
 	 * Compares all values of two observables in sequence using an optional comparor function
 	 * and returns an observable of a single boolean value representing whether or not the two sequences
@@ -15391,22 +14260,22 @@ var BotChat =
 
 
 /***/ },
-/* 288 */
+/* 274 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var share_1 = __webpack_require__(289);
+	var Observable_1 = __webpack_require__(8);
+	var share_1 = __webpack_require__(275);
 	Observable_1.Observable.prototype.share = share_1.share;
 
 
 /***/ },
-/* 289 */
+/* 275 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var multicast_1 = __webpack_require__(249);
-	var Subject_1 = __webpack_require__(21);
+	var multicast_1 = __webpack_require__(235);
+	var Subject_1 = __webpack_require__(7);
 	function shareSubjectFactory() {
 	    return new Subject_1.Subject();
 	}
@@ -15430,17 +14299,17 @@ var BotChat =
 
 
 /***/ },
-/* 290 */
+/* 276 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var single_1 = __webpack_require__(291);
+	var Observable_1 = __webpack_require__(8);
+	var single_1 = __webpack_require__(277);
 	Observable_1.Observable.prototype.single = single_1.single;
 
 
 /***/ },
-/* 291 */
+/* 277 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -15449,8 +14318,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var EmptyError_1 = __webpack_require__(212);
+	var Subscriber_1 = __webpack_require__(11);
+	var EmptyError_1 = __webpack_require__(198);
 	/**
 	 * Returns an Observable that emits the single item emitted by the source Observable that matches a specified
 	 * predicate, if that Observable emits one such item. If the source Observable emits more than one such item or no
@@ -15540,17 +14409,17 @@ var BotChat =
 
 
 /***/ },
-/* 292 */
+/* 278 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var skip_1 = __webpack_require__(293);
+	var Observable_1 = __webpack_require__(8);
+	var skip_1 = __webpack_require__(279);
 	Observable_1.Observable.prototype.skip = skip_1.skip;
 
 
 /***/ },
-/* 293 */
+/* 279 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -15559,7 +14428,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Returns an Observable that skips `n` items emitted by an Observable.
 	 *
@@ -15606,17 +14475,17 @@ var BotChat =
 
 
 /***/ },
-/* 294 */
+/* 280 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var skipUntil_1 = __webpack_require__(295);
+	var Observable_1 = __webpack_require__(8);
+	var skipUntil_1 = __webpack_require__(281);
 	Observable_1.Observable.prototype.skipUntil = skipUntil_1.skipUntil;
 
 
 /***/ },
-/* 295 */
+/* 281 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -15625,8 +14494,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Returns an Observable that skips items emitted by the source Observable until a second Observable emits an item.
 	 *
@@ -15692,17 +14561,17 @@ var BotChat =
 
 
 /***/ },
-/* 296 */
+/* 282 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var skipWhile_1 = __webpack_require__(297);
+	var Observable_1 = __webpack_require__(8);
+	var skipWhile_1 = __webpack_require__(283);
 	Observable_1.Observable.prototype.skipWhile = skipWhile_1.skipWhile;
 
 
 /***/ },
-/* 297 */
+/* 283 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -15711,7 +14580,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Returns an Observable that skips all items emitted by the source Observable as long as a specified condition holds
 	 * true, but emits all further source items as soon as the condition becomes false.
@@ -15773,25 +14642,25 @@ var BotChat =
 
 
 /***/ },
-/* 298 */
+/* 284 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var startWith_1 = __webpack_require__(299);
+	var Observable_1 = __webpack_require__(8);
+	var startWith_1 = __webpack_require__(285);
 	Observable_1.Observable.prototype.startWith = startWith_1.startWith;
 
 
 /***/ },
-/* 299 */
+/* 285 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var ArrayObservable_1 = __webpack_require__(48);
-	var ScalarObservable_1 = __webpack_require__(49);
-	var EmptyObservable_1 = __webpack_require__(50);
-	var concat_1 = __webpack_require__(59);
-	var isScheduler_1 = __webpack_require__(47);
+	var ArrayObservable_1 = __webpack_require__(34);
+	var ScalarObservable_1 = __webpack_require__(35);
+	var EmptyObservable_1 = __webpack_require__(36);
+	var concat_1 = __webpack_require__(45);
+	var isScheduler_1 = __webpack_require__(33);
 	/**
 	 * Returns an Observable that emits the items in a specified Iterable before it begins to emit items emitted by the
 	 * source Observable.
@@ -15831,21 +14700,21 @@ var BotChat =
 
 
 /***/ },
-/* 300 */
+/* 286 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var subscribeOn_1 = __webpack_require__(301);
+	var Observable_1 = __webpack_require__(8);
+	var subscribeOn_1 = __webpack_require__(287);
 	Observable_1.Observable.prototype.subscribeOn = subscribeOn_1.subscribeOn;
 
 
 /***/ },
-/* 301 */
+/* 287 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var SubscribeOnObservable_1 = __webpack_require__(302);
+	var SubscribeOnObservable_1 = __webpack_require__(288);
 	/**
 	 * Asynchronously subscribes Observers to this Observable on the specified Scheduler.
 	 *
@@ -15865,7 +14734,7 @@ var BotChat =
 
 
 /***/ },
-/* 302 */
+/* 288 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -15874,9 +14743,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var asap_1 = __webpack_require__(303);
-	var isNumeric_1 = __webpack_require__(93);
+	var Observable_1 = __webpack_require__(8);
+	var asap_1 = __webpack_require__(289);
+	var isNumeric_1 = __webpack_require__(79);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @extends {Ignored}
@@ -15921,17 +14790,17 @@ var BotChat =
 
 
 /***/ },
-/* 303 */
+/* 289 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var AsapAction_1 = __webpack_require__(304);
-	var AsapScheduler_1 = __webpack_require__(307);
+	var AsapAction_1 = __webpack_require__(290);
+	var AsapScheduler_1 = __webpack_require__(294);
 	exports.asap = new AsapScheduler_1.AsapScheduler(AsapAction_1.AsapAction);
 
 
 /***/ },
-/* 304 */
+/* 290 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -15940,8 +14809,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Immediate_1 = __webpack_require__(305);
-	var AsyncAction_1 = __webpack_require__(95);
+	var Immediate_1 = __webpack_require__(291);
+	var AsyncAction_1 = __webpack_require__(81);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @ignore
@@ -15989,14 +14858,14 @@ var BotChat =
 
 
 /***/ },
-/* 305 */
+/* 291 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(clearImmediate, setImmediate) {/**
 	Some credit for this helper goes to http://github.com/YuzuJS/setImmediate
 	*/
 	"use strict";
-	var root_1 = __webpack_require__(23);
+	var root_1 = __webpack_require__(9);
 	var ImmediateDefinition = (function () {
 	    function ImmediateDefinition(root) {
 	        this.root = root;
@@ -16201,13 +15070,13 @@ var BotChat =
 	exports.ImmediateDefinition = ImmediateDefinition;
 	exports.Immediate = new ImmediateDefinition(root_1.root);
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(306).clearImmediate, __webpack_require__(306).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(292).clearImmediate, __webpack_require__(292).setImmediate))
 
 /***/ },
-/* 306 */
+/* 292 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(4).nextTick;
+	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(293).nextTick;
 	var apply = Function.prototype.apply;
 	var slice = Array.prototype.slice;
 	var immediateIds = {};
@@ -16283,10 +15152,196 @@ var BotChat =
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(306).setImmediate, __webpack_require__(306).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(292).setImmediate, __webpack_require__(292).clearImmediate))
 
 /***/ },
-/* 307 */
+/* 293 */
+/***/ function(module, exports) {
+
+	// shim for using process in browser
+	var process = module.exports = {};
+	
+	// cached from whatever global is present so that test runners that stub it
+	// don't break things.  But we need to wrap it in a try catch in case it is
+	// wrapped in strict mode code which doesn't define any globals.  It's inside a
+	// function because try/catches deoptimize in certain engines.
+	
+	var cachedSetTimeout;
+	var cachedClearTimeout;
+	
+	function defaultSetTimout() {
+	    throw new Error('setTimeout has not been defined');
+	}
+	function defaultClearTimeout () {
+	    throw new Error('clearTimeout has not been defined');
+	}
+	(function () {
+	    try {
+	        if (typeof setTimeout === 'function') {
+	            cachedSetTimeout = setTimeout;
+	        } else {
+	            cachedSetTimeout = defaultSetTimout;
+	        }
+	    } catch (e) {
+	        cachedSetTimeout = defaultSetTimout;
+	    }
+	    try {
+	        if (typeof clearTimeout === 'function') {
+	            cachedClearTimeout = clearTimeout;
+	        } else {
+	            cachedClearTimeout = defaultClearTimeout;
+	        }
+	    } catch (e) {
+	        cachedClearTimeout = defaultClearTimeout;
+	    }
+	} ())
+	function runTimeout(fun) {
+	    if (cachedSetTimeout === setTimeout) {
+	        //normal enviroments in sane situations
+	        return setTimeout(fun, 0);
+	    }
+	    // if setTimeout wasn't available but was latter defined
+	    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+	        cachedSetTimeout = setTimeout;
+	        return setTimeout(fun, 0);
+	    }
+	    try {
+	        // when when somebody has screwed with setTimeout but no I.E. maddness
+	        return cachedSetTimeout(fun, 0);
+	    } catch(e){
+	        try {
+	            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+	            return cachedSetTimeout.call(null, fun, 0);
+	        } catch(e){
+	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+	            return cachedSetTimeout.call(this, fun, 0);
+	        }
+	    }
+	
+	
+	}
+	function runClearTimeout(marker) {
+	    if (cachedClearTimeout === clearTimeout) {
+	        //normal enviroments in sane situations
+	        return clearTimeout(marker);
+	    }
+	    // if clearTimeout wasn't available but was latter defined
+	    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+	        cachedClearTimeout = clearTimeout;
+	        return clearTimeout(marker);
+	    }
+	    try {
+	        // when when somebody has screwed with setTimeout but no I.E. maddness
+	        return cachedClearTimeout(marker);
+	    } catch (e){
+	        try {
+	            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+	            return cachedClearTimeout.call(null, marker);
+	        } catch (e){
+	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+	            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+	            return cachedClearTimeout.call(this, marker);
+	        }
+	    }
+	
+	
+	
+	}
+	var queue = [];
+	var draining = false;
+	var currentQueue;
+	var queueIndex = -1;
+	
+	function cleanUpNextTick() {
+	    if (!draining || !currentQueue) {
+	        return;
+	    }
+	    draining = false;
+	    if (currentQueue.length) {
+	        queue = currentQueue.concat(queue);
+	    } else {
+	        queueIndex = -1;
+	    }
+	    if (queue.length) {
+	        drainQueue();
+	    }
+	}
+	
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    var timeout = runTimeout(cleanUpNextTick);
+	    draining = true;
+	
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        while (++queueIndex < len) {
+	            if (currentQueue) {
+	                currentQueue[queueIndex].run();
+	            }
+	        }
+	        queueIndex = -1;
+	        len = queue.length;
+	    }
+	    currentQueue = null;
+	    draining = false;
+	    runClearTimeout(timeout);
+	}
+	
+	process.nextTick = function (fun) {
+	    var args = new Array(arguments.length - 1);
+	    if (arguments.length > 1) {
+	        for (var i = 1; i < arguments.length; i++) {
+	            args[i - 1] = arguments[i];
+	        }
+	    }
+	    queue.push(new Item(fun, args));
+	    if (queue.length === 1 && !draining) {
+	        runTimeout(drainQueue);
+	    }
+	};
+	
+	// v8 likes predictible objects
+	function Item(fun, array) {
+	    this.fun = fun;
+	    this.array = array;
+	}
+	Item.prototype.run = function () {
+	    this.fun.apply(null, this.array);
+	};
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = ''; // empty string to avoid regexp issues
+	process.versions = {};
+	
+	function noop() {}
+	
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
+	
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
+	
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
+
+
+/***/ },
+/* 294 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -16295,7 +15350,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var AsyncScheduler_1 = __webpack_require__(97);
+	var AsyncScheduler_1 = __webpack_require__(83);
 	var AsapScheduler = (function (_super) {
 	    __extends(AsapScheduler, _super);
 	    function AsapScheduler() {
@@ -16328,18 +15383,18 @@ var BotChat =
 
 
 /***/ },
-/* 308 */
+/* 295 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var switch_1 = __webpack_require__(309);
+	var Observable_1 = __webpack_require__(8);
+	var switch_1 = __webpack_require__(296);
 	Observable_1.Observable.prototype.switch = switch_1._switch;
 	Observable_1.Observable.prototype._switch = switch_1._switch;
 
 
 /***/ },
-/* 309 */
+/* 296 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -16348,8 +15403,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Converts a higher-order Observable into a first-order Observable by
 	 * subscribing to only the most recently emitted of those inner Observables.
@@ -16452,17 +15507,17 @@ var BotChat =
 
 
 /***/ },
-/* 310 */
+/* 297 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var switchMap_1 = __webpack_require__(311);
+	var Observable_1 = __webpack_require__(8);
+	var switchMap_1 = __webpack_require__(298);
 	Observable_1.Observable.prototype.switchMap = switchMap_1.switchMap;
 
 
 /***/ },
-/* 311 */
+/* 298 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -16471,8 +15526,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Projects each source value to an Observable which is merged in the output
 	 * Observable, emitting values only from the most recently projected Observable.
@@ -16606,17 +15661,17 @@ var BotChat =
 
 
 /***/ },
-/* 312 */
+/* 299 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var switchMapTo_1 = __webpack_require__(313);
+	var Observable_1 = __webpack_require__(8);
+	var switchMapTo_1 = __webpack_require__(300);
 	Observable_1.Observable.prototype.switchMapTo = switchMapTo_1.switchMapTo;
 
 
 /***/ },
-/* 313 */
+/* 300 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -16625,8 +15680,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Projects each source value to the same Observable which is flattened multiple
 	 * times with {@link switch} in the output Observable.
@@ -16747,17 +15802,17 @@ var BotChat =
 
 
 /***/ },
-/* 314 */
+/* 301 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var take_1 = __webpack_require__(315);
+	var Observable_1 = __webpack_require__(8);
+	var take_1 = __webpack_require__(302);
 	Observable_1.Observable.prototype.take = take_1.take;
 
 
 /***/ },
-/* 315 */
+/* 302 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -16766,9 +15821,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var ArgumentOutOfRangeError_1 = __webpack_require__(201);
-	var EmptyObservable_1 = __webpack_require__(50);
+	var Subscriber_1 = __webpack_require__(11);
+	var ArgumentOutOfRangeError_1 = __webpack_require__(187);
+	var EmptyObservable_1 = __webpack_require__(36);
 	/**
 	 * Emits only the first `count` values emitted by the source Observable.
 	 *
@@ -16850,17 +15905,17 @@ var BotChat =
 
 
 /***/ },
-/* 316 */
+/* 303 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var takeLast_1 = __webpack_require__(317);
+	var Observable_1 = __webpack_require__(8);
+	var takeLast_1 = __webpack_require__(304);
 	Observable_1.Observable.prototype.takeLast = takeLast_1.takeLast;
 
 
 /***/ },
-/* 317 */
+/* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -16869,9 +15924,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var ArgumentOutOfRangeError_1 = __webpack_require__(201);
-	var EmptyObservable_1 = __webpack_require__(50);
+	var Subscriber_1 = __webpack_require__(11);
+	var ArgumentOutOfRangeError_1 = __webpack_require__(187);
+	var EmptyObservable_1 = __webpack_require__(36);
 	/**
 	 * Emits only the last `count` values emitted by the source Observable.
 	 *
@@ -16972,17 +16027,17 @@ var BotChat =
 
 
 /***/ },
-/* 318 */
+/* 305 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var takeUntil_1 = __webpack_require__(319);
+	var Observable_1 = __webpack_require__(8);
+	var takeUntil_1 = __webpack_require__(306);
 	Observable_1.Observable.prototype.takeUntil = takeUntil_1.takeUntil;
 
 
 /***/ },
-/* 319 */
+/* 306 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -16991,8 +16046,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Emits the values emitted by the source Observable until a `notifier`
 	 * Observable emits a value.
@@ -17062,17 +16117,17 @@ var BotChat =
 
 
 /***/ },
-/* 320 */
+/* 307 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var takeWhile_1 = __webpack_require__(321);
+	var Observable_1 = __webpack_require__(8);
+	var takeWhile_1 = __webpack_require__(308);
 	Observable_1.Observable.prototype.takeWhile = takeWhile_1.takeWhile;
 
 
 /***/ },
-/* 321 */
+/* 308 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -17081,7 +16136,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Emits values emitted by the source Observable so long as each value satisfies
 	 * the given `predicate`, and then completes as soon as this `predicate` is not
@@ -17169,17 +16224,17 @@ var BotChat =
 
 
 /***/ },
-/* 322 */
+/* 309 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var throttle_1 = __webpack_require__(323);
+	var Observable_1 = __webpack_require__(8);
+	var throttle_1 = __webpack_require__(310);
 	Observable_1.Observable.prototype.throttle = throttle_1.throttle;
 
 
 /***/ },
-/* 323 */
+/* 310 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -17188,8 +16243,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Emits a value from the source Observable, then ignores subsequent source
 	 * values for a duration determined by another Observable, then repeats this
@@ -17292,17 +16347,17 @@ var BotChat =
 
 
 /***/ },
-/* 324 */
+/* 311 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var throttleTime_1 = __webpack_require__(325);
+	var Observable_1 = __webpack_require__(8);
+	var throttleTime_1 = __webpack_require__(312);
 	Observable_1.Observable.prototype.throttleTime = throttleTime_1.throttleTime;
 
 
 /***/ },
-/* 325 */
+/* 312 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -17311,8 +16366,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var async_1 = __webpack_require__(94);
+	var Subscriber_1 = __webpack_require__(11);
+	var async_1 = __webpack_require__(80);
 	/**
 	 * Emits a value from the source Observable, then ignores subsequent source
 	 * values for `duration` milliseconds, then repeats this process.
@@ -17402,17 +16457,17 @@ var BotChat =
 
 
 /***/ },
-/* 326 */
+/* 313 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var timeInterval_1 = __webpack_require__(327);
+	var Observable_1 = __webpack_require__(8);
+	var timeInterval_1 = __webpack_require__(314);
 	Observable_1.Observable.prototype.timeInterval = timeInterval_1.timeInterval;
 
 
 /***/ },
-/* 327 */
+/* 314 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -17421,8 +16476,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var async_1 = __webpack_require__(94);
+	var Subscriber_1 = __webpack_require__(11);
+	var async_1 = __webpack_require__(80);
 	/**
 	 * @param scheduler
 	 * @return {Observable<TimeInterval<any>>|WebSocketSubject<T>|Observable<T>}
@@ -17476,17 +16531,17 @@ var BotChat =
 
 
 /***/ },
-/* 328 */
+/* 315 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var timeout_1 = __webpack_require__(329);
+	var Observable_1 = __webpack_require__(8);
+	var timeout_1 = __webpack_require__(316);
 	Observable_1.Observable.prototype.timeout = timeout_1.timeout;
 
 
 /***/ },
-/* 329 */
+/* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -17495,9 +16550,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var async_1 = __webpack_require__(94);
-	var isDate_1 = __webpack_require__(127);
-	var Subscriber_1 = __webpack_require__(25);
+	var async_1 = __webpack_require__(80);
+	var isDate_1 = __webpack_require__(113);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * @param due
 	 * @param errorToSend
@@ -17593,17 +16648,17 @@ var BotChat =
 
 
 /***/ },
-/* 330 */
+/* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var timeoutWith_1 = __webpack_require__(331);
+	var Observable_1 = __webpack_require__(8);
+	var timeoutWith_1 = __webpack_require__(318);
 	Observable_1.Observable.prototype.timeoutWith = timeoutWith_1.timeoutWith;
 
 
 /***/ },
-/* 331 */
+/* 318 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -17612,10 +16667,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var async_1 = __webpack_require__(94);
-	var isDate_1 = __webpack_require__(127);
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var async_1 = __webpack_require__(80);
+	var isDate_1 = __webpack_require__(113);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * @param due
 	 * @param withObservable
@@ -17718,17 +16773,17 @@ var BotChat =
 
 
 /***/ },
-/* 332 */
+/* 319 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var timestamp_1 = __webpack_require__(333);
+	var Observable_1 = __webpack_require__(8);
+	var timestamp_1 = __webpack_require__(320);
 	Observable_1.Observable.prototype.timestamp = timestamp_1.timestamp;
 
 
 /***/ },
-/* 333 */
+/* 320 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -17737,8 +16792,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var async_1 = __webpack_require__(94);
+	var Subscriber_1 = __webpack_require__(11);
+	var async_1 = __webpack_require__(80);
 	/**
 	 * @param scheduler
 	 * @return {Observable<Timestamp<any>>|WebSocketSubject<T>|Observable<T>}
@@ -17783,17 +16838,17 @@ var BotChat =
 
 
 /***/ },
-/* 334 */
+/* 321 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var toArray_1 = __webpack_require__(335);
+	var Observable_1 = __webpack_require__(8);
+	var toArray_1 = __webpack_require__(322);
 	Observable_1.Observable.prototype.toArray = toArray_1.toArray;
 
 
 /***/ },
-/* 335 */
+/* 322 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -17802,7 +16857,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * @return {Observable<any[]>|WebSocketSubject<T>|Observable<T>}
 	 * @method toArray
@@ -17843,21 +16898,21 @@ var BotChat =
 
 
 /***/ },
-/* 336 */
+/* 323 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var toPromise_1 = __webpack_require__(337);
+	var Observable_1 = __webpack_require__(8);
+	var toPromise_1 = __webpack_require__(324);
 	Observable_1.Observable.prototype.toPromise = toPromise_1.toPromise;
 
 
 /***/ },
-/* 337 */
+/* 324 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var root_1 = __webpack_require__(23);
+	var root_1 = __webpack_require__(9);
 	/**
 	 * @param PromiseCtor
 	 * @return {Promise<T>}
@@ -17886,17 +16941,17 @@ var BotChat =
 
 
 /***/ },
-/* 338 */
+/* 325 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var window_1 = __webpack_require__(339);
+	var Observable_1 = __webpack_require__(8);
+	var window_1 = __webpack_require__(326);
 	Observable_1.Observable.prototype.window = window_1.window;
 
 
 /***/ },
-/* 339 */
+/* 326 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -17905,9 +16960,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subject_1 = __webpack_require__(21);
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var Subject_1 = __webpack_require__(7);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Branch out the source Observable values as a nested Observable whenever
 	 * `windowBoundaries` emits.
@@ -18011,17 +17066,17 @@ var BotChat =
 
 
 /***/ },
-/* 340 */
+/* 327 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var windowCount_1 = __webpack_require__(341);
+	var Observable_1 = __webpack_require__(8);
+	var windowCount_1 = __webpack_require__(328);
 	Observable_1.Observable.prototype.windowCount = windowCount_1.windowCount;
 
 
 /***/ },
-/* 341 */
+/* 328 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -18030,8 +17085,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subscriber_1 = __webpack_require__(25);
-	var Subject_1 = __webpack_require__(21);
+	var Subscriber_1 = __webpack_require__(11);
+	var Subject_1 = __webpack_require__(7);
 	/**
 	 * Branch out the source Observable values as a nested Observable with each
 	 * nested Observable emitting at most `windowSize` values.
@@ -18157,17 +17212,17 @@ var BotChat =
 
 
 /***/ },
-/* 342 */
+/* 329 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var windowTime_1 = __webpack_require__(343);
+	var Observable_1 = __webpack_require__(8);
+	var windowTime_1 = __webpack_require__(330);
 	Observable_1.Observable.prototype.windowTime = windowTime_1.windowTime;
 
 
 /***/ },
-/* 343 */
+/* 330 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -18176,9 +17231,9 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subject_1 = __webpack_require__(21);
-	var async_1 = __webpack_require__(94);
-	var Subscriber_1 = __webpack_require__(25);
+	var Subject_1 = __webpack_require__(7);
+	var async_1 = __webpack_require__(80);
+	var Subscriber_1 = __webpack_require__(11);
 	/**
 	 * Branch out the source Observable values as a nested Observable periodically
 	 * in time.
@@ -18341,17 +17396,17 @@ var BotChat =
 
 
 /***/ },
-/* 344 */
+/* 331 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var windowToggle_1 = __webpack_require__(345);
+	var Observable_1 = __webpack_require__(8);
+	var windowToggle_1 = __webpack_require__(332);
 	Observable_1.Observable.prototype.windowToggle = windowToggle_1.windowToggle;
 
 
 /***/ },
-/* 345 */
+/* 332 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -18360,12 +17415,12 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subject_1 = __webpack_require__(21);
-	var Subscription_1 = __webpack_require__(27);
-	var tryCatch_1 = __webpack_require__(30);
-	var errorObject_1 = __webpack_require__(31);
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var Subject_1 = __webpack_require__(7);
+	var Subscription_1 = __webpack_require__(13);
+	var tryCatch_1 = __webpack_require__(16);
+	var errorObject_1 = __webpack_require__(17);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Branch out the source Observable values as a nested Observable starting from
 	 * an emission from `openings` and ending when the output of `closingSelector`
@@ -18536,17 +17591,17 @@ var BotChat =
 
 
 /***/ },
-/* 346 */
+/* 333 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var windowWhen_1 = __webpack_require__(347);
+	var Observable_1 = __webpack_require__(8);
+	var windowWhen_1 = __webpack_require__(334);
 	Observable_1.Observable.prototype.windowWhen = windowWhen_1.windowWhen;
 
 
 /***/ },
-/* 347 */
+/* 334 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -18555,11 +17610,11 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subject_1 = __webpack_require__(21);
-	var tryCatch_1 = __webpack_require__(30);
-	var errorObject_1 = __webpack_require__(31);
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var Subject_1 = __webpack_require__(7);
+	var tryCatch_1 = __webpack_require__(16);
+	var errorObject_1 = __webpack_require__(17);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Branch out the source Observable values as a nested Observable using a
 	 * factory function of closing Observables to determine when to start a new
@@ -18678,17 +17733,17 @@ var BotChat =
 
 
 /***/ },
-/* 348 */
+/* 335 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var withLatestFrom_1 = __webpack_require__(349);
+	var Observable_1 = __webpack_require__(8);
+	var withLatestFrom_1 = __webpack_require__(336);
 	Observable_1.Observable.prototype.withLatestFrom = withLatestFrom_1.withLatestFrom;
 
 
 /***/ },
-/* 349 */
+/* 336 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -18697,8 +17752,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var OuterSubscriber_1 = __webpack_require__(52);
-	var subscribeToResult_1 = __webpack_require__(53);
+	var OuterSubscriber_1 = __webpack_require__(38);
+	var subscribeToResult_1 = __webpack_require__(39);
 	/**
 	 * Combines the source Observable with other Observables to create an Observable
 	 * whose values are calculated from the latest values of each, only when the
@@ -18823,31 +17878,31 @@ var BotChat =
 
 
 /***/ },
-/* 350 */
+/* 337 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var zip_1 = __webpack_require__(130);
+	var Observable_1 = __webpack_require__(8);
+	var zip_1 = __webpack_require__(116);
 	Observable_1.Observable.prototype.zip = zip_1.zipProto;
 
 
 /***/ },
-/* 351 */
+/* 338 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var Observable_1 = __webpack_require__(22);
-	var zipAll_1 = __webpack_require__(352);
+	var Observable_1 = __webpack_require__(8);
+	var zipAll_1 = __webpack_require__(339);
 	Observable_1.Observable.prototype.zipAll = zipAll_1.zipAll;
 
 
 /***/ },
-/* 352 */
+/* 339 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var zip_1 = __webpack_require__(130);
+	var zip_1 = __webpack_require__(116);
 	/**
 	 * @param project
 	 * @return {Observable<R>|WebSocketSubject<T>|Observable<T>}
@@ -18861,7 +17916,7 @@ var BotChat =
 
 
 /***/ },
-/* 353 */
+/* 340 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -18870,12 +17925,12 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var Notification_1 = __webpack_require__(76);
-	var ColdObservable_1 = __webpack_require__(354);
-	var HotObservable_1 = __webpack_require__(358);
-	var SubscriptionLog_1 = __webpack_require__(356);
-	var VirtualTimeScheduler_1 = __webpack_require__(359);
+	var Observable_1 = __webpack_require__(8);
+	var Notification_1 = __webpack_require__(62);
+	var ColdObservable_1 = __webpack_require__(341);
+	var HotObservable_1 = __webpack_require__(345);
+	var SubscriptionLog_1 = __webpack_require__(343);
+	var VirtualTimeScheduler_1 = __webpack_require__(346);
 	var defaultMaxFrame = 750;
 	var TestScheduler = (function (_super) {
 	    __extends(TestScheduler, _super);
@@ -19089,7 +18144,7 @@ var BotChat =
 
 
 /***/ },
-/* 354 */
+/* 341 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -19098,10 +18153,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Observable_1 = __webpack_require__(22);
-	var Subscription_1 = __webpack_require__(27);
-	var SubscriptionLoggable_1 = __webpack_require__(355);
-	var applyMixins_1 = __webpack_require__(357);
+	var Observable_1 = __webpack_require__(8);
+	var Subscription_1 = __webpack_require__(13);
+	var SubscriptionLoggable_1 = __webpack_require__(342);
+	var applyMixins_1 = __webpack_require__(344);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @ignore
@@ -19140,11 +18195,11 @@ var BotChat =
 
 
 /***/ },
-/* 355 */
+/* 342 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var SubscriptionLog_1 = __webpack_require__(356);
+	var SubscriptionLog_1 = __webpack_require__(343);
 	var SubscriptionLoggable = (function () {
 	    function SubscriptionLoggable() {
 	        this.subscriptions = [];
@@ -19164,7 +18219,7 @@ var BotChat =
 
 
 /***/ },
-/* 356 */
+/* 343 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -19180,7 +18235,7 @@ var BotChat =
 
 
 /***/ },
-/* 357 */
+/* 344 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -19198,7 +18253,7 @@ var BotChat =
 
 
 /***/ },
-/* 358 */
+/* 345 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -19207,10 +18262,10 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var Subject_1 = __webpack_require__(21);
-	var Subscription_1 = __webpack_require__(27);
-	var SubscriptionLoggable_1 = __webpack_require__(355);
-	var applyMixins_1 = __webpack_require__(357);
+	var Subject_1 = __webpack_require__(7);
+	var Subscription_1 = __webpack_require__(13);
+	var SubscriptionLoggable_1 = __webpack_require__(342);
+	var applyMixins_1 = __webpack_require__(344);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @ignore
@@ -19251,7 +18306,7 @@ var BotChat =
 
 
 /***/ },
-/* 359 */
+/* 346 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -19260,8 +18315,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var AsyncAction_1 = __webpack_require__(95);
-	var AsyncScheduler_1 = __webpack_require__(97);
+	var AsyncAction_1 = __webpack_require__(81);
+	var AsyncScheduler_1 = __webpack_require__(83);
 	var VirtualTimeScheduler = (function (_super) {
 	    __extends(VirtualTimeScheduler, _super);
 	    function VirtualTimeScheduler(SchedulerAction, maxFrames) {
@@ -19354,17 +18409,17 @@ var BotChat =
 
 
 /***/ },
-/* 360 */
+/* 347 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var AnimationFrameAction_1 = __webpack_require__(361);
-	var AnimationFrameScheduler_1 = __webpack_require__(363);
+	var AnimationFrameAction_1 = __webpack_require__(348);
+	var AnimationFrameScheduler_1 = __webpack_require__(350);
 	exports.animationFrame = new AnimationFrameScheduler_1.AnimationFrameScheduler(AnimationFrameAction_1.AnimationFrameAction);
 
 
 /***/ },
-/* 361 */
+/* 348 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -19373,8 +18428,8 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var AsyncAction_1 = __webpack_require__(95);
-	var AnimationFrame_1 = __webpack_require__(362);
+	var AsyncAction_1 = __webpack_require__(81);
+	var AnimationFrame_1 = __webpack_require__(349);
 	/**
 	 * We need this JSDoc comment for affecting ESDoc.
 	 * @ignore
@@ -19422,11 +18477,11 @@ var BotChat =
 
 
 /***/ },
-/* 362 */
+/* 349 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var root_1 = __webpack_require__(23);
+	var root_1 = __webpack_require__(9);
 	var RequestAnimationFrameDefinition = (function () {
 	    function RequestAnimationFrameDefinition(root) {
 	        if (root.requestAnimationFrame) {
@@ -19461,7 +18516,7 @@ var BotChat =
 
 
 /***/ },
-/* 363 */
+/* 350 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -19470,7 +18525,7 @@ var BotChat =
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var AsyncScheduler_1 = __webpack_require__(97);
+	var AsyncScheduler_1 = __webpack_require__(83);
 	var AnimationFrameScheduler = (function (_super) {
 	    __extends(AnimationFrameScheduler, _super);
 	    function AnimationFrameScheduler() {
@@ -19503,12 +18558,11 @@ var BotChat =
 
 
 /***/ },
-/* 364 */,
-/* 365 */
+/* 351 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var rxjs_1 = __webpack_require__(19);
+	var rxjs_1 = __webpack_require__(5);
 	// An experimental feature. The idea is to allow two instances of botchat on a page, A and B
 	// A sends and receives messages to and from the bot, as normal
 	// B sends and receives backchannel messages to and from the bot using A as a proxy
@@ -19533,7 +18587,7 @@ var BotChat =
 
 
 /***/ },
-/* 366 */
+/* 352 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -19543,24 +18597,22 @@ var BotChat =
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var React = __webpack_require__(2);
-	var BotChat_1 = __webpack_require__(1);
-	var HistoryMessage_1 = __webpack_require__(367);
-	var rxjs_1 = __webpack_require__(19);
+	var Store_1 = __webpack_require__(353);
+	var HistoryMessage_1 = __webpack_require__(368);
+	var rxjs_1 = __webpack_require__(5);
 	var History = (function (_super) {
 	    __extends(History, _super);
 	    function History() {
 	        _super.call(this);
 	        this.onMessageClicked = function (e, activity) {
-	            if (BotChat_1.store.getState().debug.viewState === BotChat_1.DebugViewState.visible) {
-	                e.preventDefault();
-	                e.stopPropagation();
-	                BotChat_1.store.dispatch({ type: 'Select_Activity', activity: activity });
-	            }
+	            e.preventDefault();
+	            e.stopPropagation();
+	            Store_1.getStore().dispatch({ type: 'Select_Activity', selectedActivity: activity });
 	        };
 	    }
 	    History.prototype.componentWillMount = function () {
 	        var _this = this;
-	        BotChat_1.store.subscribe(function () {
+	        this.storeUnsubscribe = Store_1.getStore().subscribe(function () {
 	            return _this.forceUpdate();
 	        });
 	    };
@@ -19570,25 +18622,26 @@ var BotChat =
 	            .map(function (e) { return e.target.scrollTop + e.target.offsetHeight >= e.target.scrollHeight; })
 	            .distinctUntilChanged()
 	            .subscribe(function (autoscroll) {
-	            return BotChat_1.store.dispatch({ type: 'Set_Autoscroll', autoscroll: autoscroll });
+	            return Store_1.getStore().dispatch({ type: 'Set_Autoscroll', autoscroll: autoscroll });
 	        });
 	    };
 	    History.prototype.componentWillUnmount = function () {
 	        this.autoscrollSubscription.unsubscribe();
+	        this.storeUnsubscribe();
 	    };
 	    History.prototype.componentDidUpdate = function (prevProps, prevState) {
-	        if (BotChat_1.store.getState().history.autoscroll)
+	        if (Store_1.getState().history.autoscroll)
 	            this.scrollMe.scrollTop = this.scrollMe.scrollHeight;
 	    };
 	    History.prototype.render = function () {
 	        var _this = this;
-	        var state = BotChat_1.store.getState();
+	        var state = Store_1.getState();
 	        return (React.createElement("div", {className: "wc-message-groups", ref: function (ref) { return _this.scrollMe = ref; }}, 
 	            React.createElement("div", {className: "wc-message-group"}, state.history.activities
 	                .filter(function (activity) { return activity.type === "message" && (activity.from.id != state.connection.user.id || !activity.id); })
 	                .map(function (activity) {
 	                return React.createElement("div", {className: 'wc-message wc-message-from-' + (activity.from.id === state.connection.user.id ? 'me' : 'bot')}, 
-	                    React.createElement("div", {className: 'wc-message-content' + (state.debug.viewState === BotChat_1.DebugViewState.visible ? ' clickable' : '') + (activity === state.debug.selectedActivity ? ' selected' : ''), onClick: function (e) { return _this.onMessageClicked(e, activity); }}, 
+	                    React.createElement("div", {className: 'wc-message-content' + (_this.props.allowMessageSelection ? ' clickable' : '') + (activity === state.history.selectedActivity ? ' selected' : ''), onClick: function (e) { return _this.props.allowMessageSelection ? _this.onMessageClicked(e, activity) : undefined; }}, 
 	                        React.createElement("svg", {className: "wc-message-callout"}, 
 	                            React.createElement("path", {className: "point-left", d: "m0,0 h12 v10 z"}), 
 	                            React.createElement("path", {className: "point-right", d: "m0,10 v-10 h12 z"})), 
@@ -19605,14 +18658,971 @@ var BotChat =
 
 
 /***/ },
+/* 353 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var redux_1 = __webpack_require__(354);
+	exports.formatReducer = function (state, action) {
+	    if (state === void 0) { state = {
+	        options: {
+	            showHeader: true
+	        }
+	    }; }
+	    switch (action.type) {
+	        case 'Set_Format_Options':
+	            return { options: action.options };
+	        default:
+	            return state;
+	    }
+	};
+	exports.shellReducer = function (state, action) {
+	    if (state === void 0) { state = {
+	        text: '',
+	        enableSend: true
+	    }; }
+	    switch (action.type) {
+	        case 'Update_Shell_Text':
+	            return { text: action.text, enableSend: true };
+	        case 'Pre_Send_Shell_Text':
+	            return { text: state.text, enableSend: false };
+	        case 'Fail_Send_Shell_Text':
+	            return { text: state.text, enableSend: true };
+	        case 'Post_Send_Shell_Text':
+	            return { text: '', enableSend: true };
+	        default:
+	            return state;
+	    }
+	};
+	exports.connectionReducer = function (state, action) {
+	    if (state === void 0) { state = {
+	        connected: false,
+	        botConnection: undefined,
+	        user: undefined,
+	        host: undefined
+	    }; }
+	    switch (action.type) {
+	        case 'Start_Connection':
+	            return { connected: false, botConnection: action.botConnection, user: action.user, host: state.host };
+	        case 'Connected_To_Bot':
+	            return { connected: true, botConnection: state.botConnection, user: state.user, host: state.host };
+	        case 'Subscribe_Host':
+	            return { connected: state.connected, botConnection: state.botConnection, user: state.user, host: action.host };
+	        case 'Unsubscribe_Host':
+	            return { connected: state.connected, botConnection: state.botConnection, user: state.user, host: undefined };
+	        default:
+	            return state;
+	    }
+	};
+	exports.historyReducer = function (state, action) {
+	    if (state === void 0) { state = {
+	        activities: [],
+	        autoscroll: true,
+	        selectedActivity: null
+	    }; }
+	    switch (action.type) {
+	        case 'Receive_Message':
+	            return { activities: state.activities.concat([action.activity]), autoscroll: state.autoscroll, selectedActivity: state.selectedActivity };
+	        case 'Send_Message':
+	            return { activities: state.activities.concat([action.activity]), autoscroll: true, selectedActivity: state.selectedActivity };
+	        case 'Set_Autoscroll':
+	            return { activities: state.activities, autoscroll: action.autoscroll, selectedActivity: state.selectedActivity };
+	        case 'Select_Activity':
+	            return { activities: state.activities, autoscroll: state.autoscroll, selectedActivity: action.selectedActivity };
+	        default:
+	            return state;
+	    }
+	};
+	exports.getStore = function () {
+	    var global = Function('return this')();
+	    if (!global['msbotchat'])
+	        global['msbotchat'] = {};
+	    if (!global['msbotchat'].store)
+	        global['msbotchat'].store = redux_1.createStore(redux_1.combineReducers({
+	            format: exports.formatReducer,
+	            shell: exports.shellReducer,
+	            connection: exports.connectionReducer,
+	            history: exports.historyReducer
+	        }));
+	    return global['msbotchat'].store;
+	};
+	exports.getState = function () {
+	    return exports.getStore().getState();
+	};
+
+
+/***/ },
+/* 354 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+	
+	exports.__esModule = true;
+	exports.compose = exports.applyMiddleware = exports.bindActionCreators = exports.combineReducers = exports.createStore = undefined;
+	
+	var _createStore = __webpack_require__(355);
+	
+	var _createStore2 = _interopRequireDefault(_createStore);
+	
+	var _combineReducers = __webpack_require__(363);
+	
+	var _combineReducers2 = _interopRequireDefault(_combineReducers);
+	
+	var _bindActionCreators = __webpack_require__(365);
+	
+	var _bindActionCreators2 = _interopRequireDefault(_bindActionCreators);
+	
+	var _applyMiddleware = __webpack_require__(366);
+	
+	var _applyMiddleware2 = _interopRequireDefault(_applyMiddleware);
+	
+	var _compose = __webpack_require__(367);
+	
+	var _compose2 = _interopRequireDefault(_compose);
+	
+	var _warning = __webpack_require__(364);
+	
+	var _warning2 = _interopRequireDefault(_warning);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	/*
+	* This is a dummy function to check if the function name has been altered by minification.
+	* If the function has been minified and NODE_ENV !== 'production', warn the user.
+	*/
+	function isCrushed() {}
+	
+	if (process.env.NODE_ENV !== 'production' && typeof isCrushed.name === 'string' && isCrushed.name !== 'isCrushed') {
+	  (0, _warning2['default'])('You are currently using minified code outside of NODE_ENV === \'production\'. ' + 'This means that you are running a slower development build of Redux. ' + 'You can use loose-envify (https://github.com/zertosh/loose-envify) for browserify ' + 'or DefinePlugin for webpack (http://stackoverflow.com/questions/30030031) ' + 'to ensure you have the correct code for your production build.');
+	}
+	
+	exports.createStore = _createStore2['default'];
+	exports.combineReducers = _combineReducers2['default'];
+	exports.bindActionCreators = _bindActionCreators2['default'];
+	exports.applyMiddleware = _applyMiddleware2['default'];
+	exports.compose = _compose2['default'];
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(293)))
+
+/***/ },
+/* 355 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	exports.__esModule = true;
+	exports.ActionTypes = undefined;
+	exports['default'] = createStore;
+	
+	var _isPlainObject = __webpack_require__(356);
+	
+	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
+	
+	var _symbolObservable = __webpack_require__(360);
+	
+	var _symbolObservable2 = _interopRequireDefault(_symbolObservable);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	/**
+	 * These are private action types reserved by Redux.
+	 * For any unknown actions, you must return the current state.
+	 * If the current state is undefined, you must return the initial state.
+	 * Do not reference these action types directly in your code.
+	 */
+	var ActionTypes = exports.ActionTypes = {
+	  INIT: '@@redux/INIT'
+	};
+	
+	/**
+	 * Creates a Redux store that holds the state tree.
+	 * The only way to change the data in the store is to call `dispatch()` on it.
+	 *
+	 * There should only be a single store in your app. To specify how different
+	 * parts of the state tree respond to actions, you may combine several reducers
+	 * into a single reducer function by using `combineReducers`.
+	 *
+	 * @param {Function} reducer A function that returns the next state tree, given
+	 * the current state tree and the action to handle.
+	 *
+	 * @param {any} [preloadedState] The initial state. You may optionally specify it
+	 * to hydrate the state from the server in universal apps, or to restore a
+	 * previously serialized user session.
+	 * If you use `combineReducers` to produce the root reducer function, this must be
+	 * an object with the same shape as `combineReducers` keys.
+	 *
+	 * @param {Function} enhancer The store enhancer. You may optionally specify it
+	 * to enhance the store with third-party capabilities such as middleware,
+	 * time travel, persistence, etc. The only store enhancer that ships with Redux
+	 * is `applyMiddleware()`.
+	 *
+	 * @returns {Store} A Redux store that lets you read the state, dispatch actions
+	 * and subscribe to changes.
+	 */
+	function createStore(reducer, preloadedState, enhancer) {
+	  var _ref2;
+	
+	  if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
+	    enhancer = preloadedState;
+	    preloadedState = undefined;
+	  }
+	
+	  if (typeof enhancer !== 'undefined') {
+	    if (typeof enhancer !== 'function') {
+	      throw new Error('Expected the enhancer to be a function.');
+	    }
+	
+	    return enhancer(createStore)(reducer, preloadedState);
+	  }
+	
+	  if (typeof reducer !== 'function') {
+	    throw new Error('Expected the reducer to be a function.');
+	  }
+	
+	  var currentReducer = reducer;
+	  var currentState = preloadedState;
+	  var currentListeners = [];
+	  var nextListeners = currentListeners;
+	  var isDispatching = false;
+	
+	  function ensureCanMutateNextListeners() {
+	    if (nextListeners === currentListeners) {
+	      nextListeners = currentListeners.slice();
+	    }
+	  }
+	
+	  /**
+	   * Reads the state tree managed by the store.
+	   *
+	   * @returns {any} The current state tree of your application.
+	   */
+	  function getState() {
+	    return currentState;
+	  }
+	
+	  /**
+	   * Adds a change listener. It will be called any time an action is dispatched,
+	   * and some part of the state tree may potentially have changed. You may then
+	   * call `getState()` to read the current state tree inside the callback.
+	   *
+	   * You may call `dispatch()` from a change listener, with the following
+	   * caveats:
+	   *
+	   * 1. The subscriptions are snapshotted just before every `dispatch()` call.
+	   * If you subscribe or unsubscribe while the listeners are being invoked, this
+	   * will not have any effect on the `dispatch()` that is currently in progress.
+	   * However, the next `dispatch()` call, whether nested or not, will use a more
+	   * recent snapshot of the subscription list.
+	   *
+	   * 2. The listener should not expect to see all state changes, as the state
+	   * might have been updated multiple times during a nested `dispatch()` before
+	   * the listener is called. It is, however, guaranteed that all subscribers
+	   * registered before the `dispatch()` started will be called with the latest
+	   * state by the time it exits.
+	   *
+	   * @param {Function} listener A callback to be invoked on every dispatch.
+	   * @returns {Function} A function to remove this change listener.
+	   */
+	  function subscribe(listener) {
+	    if (typeof listener !== 'function') {
+	      throw new Error('Expected listener to be a function.');
+	    }
+	
+	    var isSubscribed = true;
+	
+	    ensureCanMutateNextListeners();
+	    nextListeners.push(listener);
+	
+	    return function unsubscribe() {
+	      if (!isSubscribed) {
+	        return;
+	      }
+	
+	      isSubscribed = false;
+	
+	      ensureCanMutateNextListeners();
+	      var index = nextListeners.indexOf(listener);
+	      nextListeners.splice(index, 1);
+	    };
+	  }
+	
+	  /**
+	   * Dispatches an action. It is the only way to trigger a state change.
+	   *
+	   * The `reducer` function, used to create the store, will be called with the
+	   * current state tree and the given `action`. Its return value will
+	   * be considered the **next** state of the tree, and the change listeners
+	   * will be notified.
+	   *
+	   * The base implementation only supports plain object actions. If you want to
+	   * dispatch a Promise, an Observable, a thunk, or something else, you need to
+	   * wrap your store creating function into the corresponding middleware. For
+	   * example, see the documentation for the `redux-thunk` package. Even the
+	   * middleware will eventually dispatch plain object actions using this method.
+	   *
+	   * @param {Object} action A plain object representing “what changed”. It is
+	   * a good idea to keep actions serializable so you can record and replay user
+	   * sessions, or use the time travelling `redux-devtools`. An action must have
+	   * a `type` property which may not be `undefined`. It is a good idea to use
+	   * string constants for action types.
+	   *
+	   * @returns {Object} For convenience, the same action object you dispatched.
+	   *
+	   * Note that, if you use a custom middleware, it may wrap `dispatch()` to
+	   * return something else (for example, a Promise you can await).
+	   */
+	  function dispatch(action) {
+	    if (!(0, _isPlainObject2['default'])(action)) {
+	      throw new Error('Actions must be plain objects. ' + 'Use custom middleware for async actions.');
+	    }
+	
+	    if (typeof action.type === 'undefined') {
+	      throw new Error('Actions may not have an undefined "type" property. ' + 'Have you misspelled a constant?');
+	    }
+	
+	    if (isDispatching) {
+	      throw new Error('Reducers may not dispatch actions.');
+	    }
+	
+	    try {
+	      isDispatching = true;
+	      currentState = currentReducer(currentState, action);
+	    } finally {
+	      isDispatching = false;
+	    }
+	
+	    var listeners = currentListeners = nextListeners;
+	    for (var i = 0; i < listeners.length; i++) {
+	      listeners[i]();
+	    }
+	
+	    return action;
+	  }
+	
+	  /**
+	   * Replaces the reducer currently used by the store to calculate the state.
+	   *
+	   * You might need this if your app implements code splitting and you want to
+	   * load some of the reducers dynamically. You might also need this if you
+	   * implement a hot reloading mechanism for Redux.
+	   *
+	   * @param {Function} nextReducer The reducer for the store to use instead.
+	   * @returns {void}
+	   */
+	  function replaceReducer(nextReducer) {
+	    if (typeof nextReducer !== 'function') {
+	      throw new Error('Expected the nextReducer to be a function.');
+	    }
+	
+	    currentReducer = nextReducer;
+	    dispatch({ type: ActionTypes.INIT });
+	  }
+	
+	  /**
+	   * Interoperability point for observable/reactive libraries.
+	   * @returns {observable} A minimal observable of state changes.
+	   * For more information, see the observable proposal:
+	   * https://github.com/zenparsing/es-observable
+	   */
+	  function observable() {
+	    var _ref;
+	
+	    var outerSubscribe = subscribe;
+	    return _ref = {
+	      /**
+	       * The minimal observable subscription method.
+	       * @param {Object} observer Any object that can be used as an observer.
+	       * The observer object should have a `next` method.
+	       * @returns {subscription} An object with an `unsubscribe` method that can
+	       * be used to unsubscribe the observable from the store, and prevent further
+	       * emission of values from the observable.
+	       */
+	      subscribe: function subscribe(observer) {
+	        if (typeof observer !== 'object') {
+	          throw new TypeError('Expected the observer to be an object.');
+	        }
+	
+	        function observeState() {
+	          if (observer.next) {
+	            observer.next(getState());
+	          }
+	        }
+	
+	        observeState();
+	        var unsubscribe = outerSubscribe(observeState);
+	        return { unsubscribe: unsubscribe };
+	      }
+	    }, _ref[_symbolObservable2['default']] = function () {
+	      return this;
+	    }, _ref;
+	  }
+	
+	  // When a store is created, an "INIT" action is dispatched so that every
+	  // reducer returns their initial state. This effectively populates
+	  // the initial state tree.
+	  dispatch({ type: ActionTypes.INIT });
+	
+	  return _ref2 = {
+	    dispatch: dispatch,
+	    subscribe: subscribe,
+	    getState: getState,
+	    replaceReducer: replaceReducer
+	  }, _ref2[_symbolObservable2['default']] = observable, _ref2;
+	}
+
+/***/ },
+/* 356 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var getPrototype = __webpack_require__(357),
+	    isObjectLike = __webpack_require__(359);
+	
+	/** `Object#toString` result references. */
+	var objectTag = '[object Object]';
+	
+	/** Used for built-in method references. */
+	var funcProto = Function.prototype,
+	    objectProto = Object.prototype;
+	
+	/** Used to resolve the decompiled source of functions. */
+	var funcToString = funcProto.toString;
+	
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+	
+	/** Used to infer the `Object` constructor. */
+	var objectCtorString = funcToString.call(Object);
+	
+	/**
+	 * Used to resolve the
+	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var objectToString = objectProto.toString;
+	
+	/**
+	 * Checks if `value` is a plain object, that is, an object created by the
+	 * `Object` constructor or one with a `[[Prototype]]` of `null`.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.8.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
+	 * @example
+	 *
+	 * function Foo() {
+	 *   this.a = 1;
+	 * }
+	 *
+	 * _.isPlainObject(new Foo);
+	 * // => false
+	 *
+	 * _.isPlainObject([1, 2, 3]);
+	 * // => false
+	 *
+	 * _.isPlainObject({ 'x': 0, 'y': 0 });
+	 * // => true
+	 *
+	 * _.isPlainObject(Object.create(null));
+	 * // => true
+	 */
+	function isPlainObject(value) {
+	  if (!isObjectLike(value) || objectToString.call(value) != objectTag) {
+	    return false;
+	  }
+	  var proto = getPrototype(value);
+	  if (proto === null) {
+	    return true;
+	  }
+	  var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
+	  return (typeof Ctor == 'function' &&
+	    Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString);
+	}
+	
+	module.exports = isPlainObject;
+
+
+/***/ },
+/* 357 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var overArg = __webpack_require__(358);
+	
+	/** Built-in value references. */
+	var getPrototype = overArg(Object.getPrototypeOf, Object);
+	
+	module.exports = getPrototype;
+
+
+/***/ },
+/* 358 */
+/***/ function(module, exports) {
+
+	/**
+	 * Creates a unary function that invokes `func` with its argument transformed.
+	 *
+	 * @private
+	 * @param {Function} func The function to wrap.
+	 * @param {Function} transform The argument transform.
+	 * @returns {Function} Returns the new function.
+	 */
+	function overArg(func, transform) {
+	  return function(arg) {
+	    return func(transform(arg));
+	  };
+	}
+	
+	module.exports = overArg;
+
+
+/***/ },
+/* 359 */
+/***/ function(module, exports) {
+
+	/**
+	 * Checks if `value` is object-like. A value is object-like if it's not `null`
+	 * and has a `typeof` result of "object".
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 * @example
+	 *
+	 * _.isObjectLike({});
+	 * // => true
+	 *
+	 * _.isObjectLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObjectLike(_.noop);
+	 * // => false
+	 *
+	 * _.isObjectLike(null);
+	 * // => false
+	 */
+	function isObjectLike(value) {
+	  return value != null && typeof value == 'object';
+	}
+	
+	module.exports = isObjectLike;
+
+
+/***/ },
+/* 360 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(361);
+
+
+/***/ },
+/* 361 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _ponyfill = __webpack_require__(362);
+	
+	var _ponyfill2 = _interopRequireDefault(_ponyfill);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	var root = undefined; /* global window */
+	
+	if (typeof global !== 'undefined') {
+		root = global;
+	} else if (typeof window !== 'undefined') {
+		root = window;
+	}
+	
+	var result = (0, _ponyfill2['default'])(root);
+	exports['default'] = result;
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 362 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports['default'] = symbolObservablePonyfill;
+	function symbolObservablePonyfill(root) {
+		var result;
+		var _Symbol = root.Symbol;
+	
+		if (typeof _Symbol === 'function') {
+			if (_Symbol.observable) {
+				result = _Symbol.observable;
+			} else {
+				result = _Symbol('observable');
+				_Symbol.observable = result;
+			}
+		} else {
+			result = '@@observable';
+		}
+	
+		return result;
+	};
+
+/***/ },
+/* 363 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+	
+	exports.__esModule = true;
+	exports['default'] = combineReducers;
+	
+	var _createStore = __webpack_require__(355);
+	
+	var _isPlainObject = __webpack_require__(356);
+	
+	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
+	
+	var _warning = __webpack_require__(364);
+	
+	var _warning2 = _interopRequireDefault(_warning);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	function getUndefinedStateErrorMessage(key, action) {
+	  var actionType = action && action.type;
+	  var actionName = actionType && '"' + actionType.toString() + '"' || 'an action';
+	
+	  return 'Given action ' + actionName + ', reducer "' + key + '" returned undefined. ' + 'To ignore an action, you must explicitly return the previous state.';
+	}
+	
+	function getUnexpectedStateShapeWarningMessage(inputState, reducers, action, unexpectedKeyCache) {
+	  var reducerKeys = Object.keys(reducers);
+	  var argumentName = action && action.type === _createStore.ActionTypes.INIT ? 'preloadedState argument passed to createStore' : 'previous state received by the reducer';
+	
+	  if (reducerKeys.length === 0) {
+	    return 'Store does not have a valid reducer. Make sure the argument passed ' + 'to combineReducers is an object whose values are reducers.';
+	  }
+	
+	  if (!(0, _isPlainObject2['default'])(inputState)) {
+	    return 'The ' + argumentName + ' has unexpected type of "' + {}.toString.call(inputState).match(/\s([a-z|A-Z]+)/)[1] + '". Expected argument to be an object with the following ' + ('keys: "' + reducerKeys.join('", "') + '"');
+	  }
+	
+	  var unexpectedKeys = Object.keys(inputState).filter(function (key) {
+	    return !reducers.hasOwnProperty(key) && !unexpectedKeyCache[key];
+	  });
+	
+	  unexpectedKeys.forEach(function (key) {
+	    unexpectedKeyCache[key] = true;
+	  });
+	
+	  if (unexpectedKeys.length > 0) {
+	    return 'Unexpected ' + (unexpectedKeys.length > 1 ? 'keys' : 'key') + ' ' + ('"' + unexpectedKeys.join('", "') + '" found in ' + argumentName + '. ') + 'Expected to find one of the known reducer keys instead: ' + ('"' + reducerKeys.join('", "') + '". Unexpected keys will be ignored.');
+	  }
+	}
+	
+	function assertReducerSanity(reducers) {
+	  Object.keys(reducers).forEach(function (key) {
+	    var reducer = reducers[key];
+	    var initialState = reducer(undefined, { type: _createStore.ActionTypes.INIT });
+	
+	    if (typeof initialState === 'undefined') {
+	      throw new Error('Reducer "' + key + '" returned undefined during initialization. ' + 'If the state passed to the reducer is undefined, you must ' + 'explicitly return the initial state. The initial state may ' + 'not be undefined.');
+	    }
+	
+	    var type = '@@redux/PROBE_UNKNOWN_ACTION_' + Math.random().toString(36).substring(7).split('').join('.');
+	    if (typeof reducer(undefined, { type: type }) === 'undefined') {
+	      throw new Error('Reducer "' + key + '" returned undefined when probed with a random type. ' + ('Don\'t try to handle ' + _createStore.ActionTypes.INIT + ' or other actions in "redux/*" ') + 'namespace. They are considered private. Instead, you must return the ' + 'current state for any unknown actions, unless it is undefined, ' + 'in which case you must return the initial state, regardless of the ' + 'action type. The initial state may not be undefined.');
+	    }
+	  });
+	}
+	
+	/**
+	 * Turns an object whose values are different reducer functions, into a single
+	 * reducer function. It will call every child reducer, and gather their results
+	 * into a single state object, whose keys correspond to the keys of the passed
+	 * reducer functions.
+	 *
+	 * @param {Object} reducers An object whose values correspond to different
+	 * reducer functions that need to be combined into one. One handy way to obtain
+	 * it is to use ES6 `import * as reducers` syntax. The reducers may never return
+	 * undefined for any action. Instead, they should return their initial state
+	 * if the state passed to them was undefined, and the current state for any
+	 * unrecognized action.
+	 *
+	 * @returns {Function} A reducer function that invokes every reducer inside the
+	 * passed object, and builds a state object with the same shape.
+	 */
+	function combineReducers(reducers) {
+	  var reducerKeys = Object.keys(reducers);
+	  var finalReducers = {};
+	  for (var i = 0; i < reducerKeys.length; i++) {
+	    var key = reducerKeys[i];
+	
+	    if (process.env.NODE_ENV !== 'production') {
+	      if (typeof reducers[key] === 'undefined') {
+	        (0, _warning2['default'])('No reducer provided for key "' + key + '"');
+	      }
+	    }
+	
+	    if (typeof reducers[key] === 'function') {
+	      finalReducers[key] = reducers[key];
+	    }
+	  }
+	  var finalReducerKeys = Object.keys(finalReducers);
+	
+	  if (process.env.NODE_ENV !== 'production') {
+	    var unexpectedKeyCache = {};
+	  }
+	
+	  var sanityError;
+	  try {
+	    assertReducerSanity(finalReducers);
+	  } catch (e) {
+	    sanityError = e;
+	  }
+	
+	  return function combination() {
+	    var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	    var action = arguments[1];
+	
+	    if (sanityError) {
+	      throw sanityError;
+	    }
+	
+	    if (process.env.NODE_ENV !== 'production') {
+	      var warningMessage = getUnexpectedStateShapeWarningMessage(state, finalReducers, action, unexpectedKeyCache);
+	      if (warningMessage) {
+	        (0, _warning2['default'])(warningMessage);
+	      }
+	    }
+	
+	    var hasChanged = false;
+	    var nextState = {};
+	    for (var i = 0; i < finalReducerKeys.length; i++) {
+	      var key = finalReducerKeys[i];
+	      var reducer = finalReducers[key];
+	      var previousStateForKey = state[key];
+	      var nextStateForKey = reducer(previousStateForKey, action);
+	      if (typeof nextStateForKey === 'undefined') {
+	        var errorMessage = getUndefinedStateErrorMessage(key, action);
+	        throw new Error(errorMessage);
+	      }
+	      nextState[key] = nextStateForKey;
+	      hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
+	    }
+	    return hasChanged ? nextState : state;
+	  };
+	}
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(293)))
+
+/***/ },
+/* 364 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	exports.__esModule = true;
+	exports['default'] = warning;
+	/**
+	 * Prints a warning in the console if it exists.
+	 *
+	 * @param {String} message The warning message.
+	 * @returns {void}
+	 */
+	function warning(message) {
+	  /* eslint-disable no-console */
+	  if (typeof console !== 'undefined' && typeof console.error === 'function') {
+	    console.error(message);
+	  }
+	  /* eslint-enable no-console */
+	  try {
+	    // This error was thrown as a convenience so that if you enable
+	    // "break on all exceptions" in your console,
+	    // it would pause the execution at this line.
+	    throw new Error(message);
+	    /* eslint-disable no-empty */
+	  } catch (e) {}
+	  /* eslint-enable no-empty */
+	}
+
+/***/ },
+/* 365 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	exports.__esModule = true;
+	exports['default'] = bindActionCreators;
+	function bindActionCreator(actionCreator, dispatch) {
+	  return function () {
+	    return dispatch(actionCreator.apply(undefined, arguments));
+	  };
+	}
+	
+	/**
+	 * Turns an object whose values are action creators, into an object with the
+	 * same keys, but with every function wrapped into a `dispatch` call so they
+	 * may be invoked directly. This is just a convenience method, as you can call
+	 * `store.dispatch(MyActionCreators.doSomething())` yourself just fine.
+	 *
+	 * For convenience, you can also pass a single function as the first argument,
+	 * and get a function in return.
+	 *
+	 * @param {Function|Object} actionCreators An object whose values are action
+	 * creator functions. One handy way to obtain it is to use ES6 `import * as`
+	 * syntax. You may also pass a single function.
+	 *
+	 * @param {Function} dispatch The `dispatch` function available on your Redux
+	 * store.
+	 *
+	 * @returns {Function|Object} The object mimicking the original object, but with
+	 * every action creator wrapped into the `dispatch` call. If you passed a
+	 * function as `actionCreators`, the return value will also be a single
+	 * function.
+	 */
+	function bindActionCreators(actionCreators, dispatch) {
+	  if (typeof actionCreators === 'function') {
+	    return bindActionCreator(actionCreators, dispatch);
+	  }
+	
+	  if (typeof actionCreators !== 'object' || actionCreators === null) {
+	    throw new Error('bindActionCreators expected an object or a function, instead received ' + (actionCreators === null ? 'null' : typeof actionCreators) + '. ' + 'Did you write "import ActionCreators from" instead of "import * as ActionCreators from"?');
+	  }
+	
+	  var keys = Object.keys(actionCreators);
+	  var boundActionCreators = {};
+	  for (var i = 0; i < keys.length; i++) {
+	    var key = keys[i];
+	    var actionCreator = actionCreators[key];
+	    if (typeof actionCreator === 'function') {
+	      boundActionCreators[key] = bindActionCreator(actionCreator, dispatch);
+	    }
+	  }
+	  return boundActionCreators;
+	}
+
+/***/ },
+/* 366 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	exports.__esModule = true;
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
+	exports['default'] = applyMiddleware;
+	
+	var _compose = __webpack_require__(367);
+	
+	var _compose2 = _interopRequireDefault(_compose);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	/**
+	 * Creates a store enhancer that applies middleware to the dispatch method
+	 * of the Redux store. This is handy for a variety of tasks, such as expressing
+	 * asynchronous actions in a concise manner, or logging every action payload.
+	 *
+	 * See `redux-thunk` package as an example of the Redux middleware.
+	 *
+	 * Because middleware is potentially asynchronous, this should be the first
+	 * store enhancer in the composition chain.
+	 *
+	 * Note that each middleware will be given the `dispatch` and `getState` functions
+	 * as named arguments.
+	 *
+	 * @param {...Function} middlewares The middleware chain to be applied.
+	 * @returns {Function} A store enhancer applying the middleware.
+	 */
+	function applyMiddleware() {
+	  for (var _len = arguments.length, middlewares = Array(_len), _key = 0; _key < _len; _key++) {
+	    middlewares[_key] = arguments[_key];
+	  }
+	
+	  return function (createStore) {
+	    return function (reducer, preloadedState, enhancer) {
+	      var store = createStore(reducer, preloadedState, enhancer);
+	      var _dispatch = store.dispatch;
+	      var chain = [];
+	
+	      var middlewareAPI = {
+	        getState: store.getState,
+	        dispatch: function dispatch(action) {
+	          return _dispatch(action);
+	        }
+	      };
+	      chain = middlewares.map(function (middleware) {
+	        return middleware(middlewareAPI);
+	      });
+	      _dispatch = _compose2['default'].apply(undefined, chain)(store.dispatch);
+	
+	      return _extends({}, store, {
+	        dispatch: _dispatch
+	      });
+	    };
+	  };
+	}
+
+/***/ },
 /* 367 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	exports.__esModule = true;
+	exports["default"] = compose;
+	/**
+	 * Composes single-argument functions from right to left. The rightmost
+	 * function can take multiple arguments as it provides the signature for
+	 * the resulting composite function.
+	 *
+	 * @param {...Function} funcs The functions to compose.
+	 * @returns {Function} A function obtained by composing the argument functions
+	 * from right to left. For example, compose(f, g, h) is identical to doing
+	 * (...args) => f(g(h(...args))).
+	 */
+	
+	function compose() {
+	  for (var _len = arguments.length, funcs = Array(_len), _key = 0; _key < _len; _key++) {
+	    funcs[_key] = arguments[_key];
+	  }
+	
+	  if (funcs.length === 0) {
+	    return function (arg) {
+	      return arg;
+	    };
+	  }
+	
+	  if (funcs.length === 1) {
+	    return funcs[0];
+	  }
+	
+	  var last = funcs[funcs.length - 1];
+	  var rest = funcs.slice(0, -1);
+	  return function () {
+	    return rest.reduceRight(function (composed, f) {
+	      return f(composed);
+	    }, last.apply(undefined, arguments));
+	  };
+	}
+
+/***/ },
+/* 368 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var React = __webpack_require__(2);
-	var Attachment_1 = __webpack_require__(368);
-	var Carousel_1 = __webpack_require__(369);
-	var FormattedText_1 = __webpack_require__(370);
+	var Attachment_1 = __webpack_require__(369);
+	var Carousel_1 = __webpack_require__(370);
+	var FormattedText_1 = __webpack_require__(371);
 	exports.HistoryMessage = function (props) {
 	    if (props.activity.attachments && props.activity.attachments.length >= 1) {
 	        if (props.activity.attachmentLayout === 'carousel' && props.activity.attachments.length > 1)
@@ -19630,14 +19640,14 @@ var BotChat =
 
 
 /***/ },
-/* 368 */
+/* 369 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var React = __webpack_require__(2);
-	var BotChat_1 = __webpack_require__(1);
+	var Store_1 = __webpack_require__(353);
 	exports.AttachmentView = function (props) {
-	    var state = BotChat_1.store.getState();
+	    var state = Store_1.getState();
 	    var onClickButton = function (type, value) {
 	        switch (type) {
 	            case "imBack":
@@ -19646,7 +19656,7 @@ var BotChat =
 	                    .retry(2)
 	                    .subscribe(function () {
 	                    if (type === "imBack") {
-	                        BotChat_1.store.dispatch({ type: 'Send_Message', activity: {
+	                        Store_1.getStore().dispatch({ type: 'Send_Message', activity: {
 	                                type: "message",
 	                                text: value,
 	                                from: { id: state.connection.user.id },
@@ -19735,7 +19745,7 @@ var BotChat =
 
 
 /***/ },
-/* 369 */
+/* 370 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -19745,7 +19755,7 @@ var BotChat =
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var React = __webpack_require__(2);
-	var Attachment_1 = __webpack_require__(368);
+	var Attachment_1 = __webpack_require__(369);
 	var Carousel = (function (_super) {
 	    __extends(Carousel, _super);
 	    function Carousel(props) {
@@ -19881,7 +19891,7 @@ var BotChat =
 
 
 /***/ },
-/* 370 */
+/* 371 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -19899,8 +19909,8 @@ var BotChat =
 	    return t;
 	};
 	var React = __webpack_require__(2);
-	var Marked = __webpack_require__(371);
-	var He = __webpack_require__(372);
+	var Marked = __webpack_require__(372);
+	var He = __webpack_require__(373);
 	var FormattedText = (function (_super) {
 	    __extends(FormattedText, _super);
 	    function FormattedText() {
@@ -20111,7 +20121,7 @@ var BotChat =
 
 
 /***/ },
-/* 371 */
+/* 372 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -21404,7 +21414,7 @@ var BotChat =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 372 */
+/* 373 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! https://mths.be/he v1.1.0 by @mathias | MIT license */
@@ -21748,10 +21758,10 @@ var BotChat =
 	
 	}(this));
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(373)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(374)(module), (function() { return this; }())))
 
 /***/ },
-/* 373 */
+/* 374 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -21767,7 +21777,7 @@ var BotChat =
 
 
 /***/ },
-/* 374 */
+/* 375 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -21777,21 +21787,21 @@ var BotChat =
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var React = __webpack_require__(2);
-	var BotChat_1 = __webpack_require__(1);
+	var Store_1 = __webpack_require__(353);
 	var Shell = (function (_super) {
 	    __extends(Shell, _super);
 	    function Shell() {
 	        var _this = this;
 	        _super.apply(this, arguments);
 	        this.sendFile = function (files) {
-	            var state = BotChat_1.store.getState();
+	            var state = Store_1.getState();
 	            var _loop_1 = function(i, numFiles) {
 	                var file = files[i];
 	                state.connection.botConnection.postFile(file)
 	                    .retry(2)
 	                    .subscribe(function () {
 	                    var path = window.URL.createObjectURL(file);
-	                    BotChat_1.store.dispatch({ type: 'Send_Message', activity: {
+	                    Store_1.getStore().dispatch({ type: 'Send_Message', activity: {
 	                            type: "message",
 	                            from: state.connection.user,
 	                            timestamp: Date.now().toString(),
@@ -21810,22 +21820,22 @@ var BotChat =
 	            }
 	        };
 	        this.sendMessage = function () {
-	            var state = BotChat_1.store.getState();
+	            var state = Store_1.getState();
 	            console.log("shell sendMessage");
-	            BotChat_1.store.dispatch({ type: 'Pre_Send_Shell_Text' });
+	            Store_1.getStore().dispatch({ type: 'Pre_Send_Shell_Text' });
 	            state.connection.botConnection.postMessage(state.shell.text, state.connection.user)
 	                .retry(2)
 	                .subscribe(function () {
-	                BotChat_1.store.dispatch({ type: 'Send_Message', activity: {
+	                Store_1.getStore().dispatch({ type: 'Send_Message', activity: {
 	                        type: "message",
 	                        text: state.shell.text,
 	                        from: state.connection.user },
 	                    timestamp: Date.now().toString()
 	                });
-	                BotChat_1.store.dispatch({ type: 'Post_Send_Shell_Text' });
+	                Store_1.getStore().dispatch({ type: 'Post_Send_Shell_Text' });
 	            }, function (error) {
 	                console.log("failed to post message");
-	                BotChat_1.store.dispatch({ type: 'Fail_Send_Shell_Text' });
+	                Store_1.getStore().dispatch({ type: 'Fail_Send_Shell_Text' });
 	            });
 	        };
 	        this.onKeyPress = function (e) {
@@ -21833,26 +21843,29 @@ var BotChat =
 	                _this.sendMessage();
 	        };
 	        this.onClickSend = function () {
-	            var state = BotChat_1.store.getState();
+	            var state = Store_1.getState();
 	            if (state.shell.text && state.shell.text.length > 0 && state.shell.enableSend)
 	                _this.sendMessage();
 	        };
 	        this.updateMessage = function (text) {
-	            BotChat_1.store.dispatch({ type: 'Update_Shell_Text', text: text });
+	            Store_1.getStore().dispatch({ type: 'Update_Shell_Text', text: text });
 	        };
 	    }
 	    Shell.prototype.componentDidMount = function () {
 	        var _this = this;
-	        BotChat_1.store.subscribe(function () {
+	        this.storeUnsubscribe = Store_1.getStore().subscribe(function () {
 	            return _this.forceUpdate();
 	        });
+	    };
+	    Shell.prototype.componentWillUnmount = function () {
+	        this.storeUnsubscribe();
 	    };
 	    Shell.prototype.componentDidUpdate = function () {
 	        this.textInput.focus();
 	    };
 	    Shell.prototype.render = function () {
 	        var _this = this;
-	        var state = BotChat_1.store.getState();
+	        var state = Store_1.getState();
 	        return (React.createElement("div", {className: "wc-console"}, 
 	            React.createElement("label", {className: "wc-upload"}, 
 	                React.createElement("input", {type: "file", accept: "image/*", multiple: true, onChange: function (e) { return _this.sendFile(e.target.files); }}), 
@@ -21871,62 +21884,6 @@ var BotChat =
 	    return Shell;
 	}(React.Component));
 	exports.Shell = Shell;
-
-
-/***/ },
-/* 375 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var React = __webpack_require__(2);
-	var formatJSON = function (obj) {
-	    var json = JSON.stringify(obj, null, 2);
-	    // Hide ampersands we don't want replaced
-	    json = json.replace(/&(amp|apos|copy|gt|lt|nbsp|quot|#x?\d+|[\w\d]+);/g, '\x01');
-	    // Escape remaining ampersands and other HTML special characters
-	    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-	    // Restore hidden ampersands
-	    json = json.replace(/\x01/g, '&');
-	    // Match all the JSON parts and add theming markup
-	    json = json.replace(/"(\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, function (match) {
-	        // Default to "number"
-	        var cls = 'number';
-	        // Detect the type of the JSON part
-	        if (/^"/.test(match)) {
-	            if (/:$/.test(match)) {
-	                cls = 'key';
-	            }
-	            else {
-	                cls = 'string';
-	            }
-	        }
-	        else if (/true|false/.test(match)) {
-	            cls = 'boolean';
-	        }
-	        else if (/null/.test(match)) {
-	            cls = 'null';
-	        }
-	        if (cls === 'key') {
-	            // Color string content, not the quotes or colon delimiter
-	            var exec = /"(.*)":\s*/.exec(match);
-	            return "\"<span class=\"json-" + cls + "\">" + exec[1] + "</span>\": ";
-	        }
-	        else if (cls === 'string') {
-	            // Color string content, not the quotes
-	            var exec = /"(.*)"/.exec(match);
-	            return "\"<span class=\"json-" + cls + "\">" + exec[1] + "</span>\"";
-	        }
-	        else {
-	            return "<span class=\"json-" + cls + "\">" + match + "</span>";
-	        }
-	    });
-	    return React.createElement("span", {dangerouslySetInnerHTML: { __html: json }});
-	};
-	exports.DebugView = function (props) {
-	    return React.createElement("div", {className: "wc-debugview"}, 
-	        React.createElement("div", {className: "wc-debugview-json"}, formatJSON(props.activity || {}))
-	    );
-	};
 
 
 /***/ }
