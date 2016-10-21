@@ -18,3 +18,5 @@ Test the [botchat](https://www.github/billba/botchat).
 
     npm run build
     npm run start
+
+... or just run it [here](https://botchattest.herokuapp.com)
