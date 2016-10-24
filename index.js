@@ -21,8 +21,7 @@ app.get('/botchat', (req, res) => {
         settings += `, user: { id: "${guid()}", name: "your name here" }`;
         if (req.cookies.settings) {
             console.log("cookie", req.cookies.settings);
-            if (req.cookies.settings.title)
-                settings += `, title: "${req.cookies.settings.title}"`;
+            settings += `, formatOptions: { showHeader: "${req.cookies.settings.showHeader}" }`;
             if (req.cookies.settings.allowMessagesFrom)
                 settings += `, allowMessagesFrom: ['${req.cookies.settings.allowMessagesFrom.replace(" ", "").replace(",", "','")}']`;
         }
@@ -46,7 +45,7 @@ app.get('/', (req, res) => {
             console.log("token", text, "retrieved at", new Date());
             ejs_1.renderFile("./index.html", {
                 token: text.split('"')[1],
-                title: req.cookies.settings && req.cookies.settings.title,
+                showHeader: req.cookies.settings && req.cookies.settings.showHeader,
                 secret: req.cookies.settings && req.cookies.settings.secret,
                 allowMessagesFrom: req.cookies.settings && req.cookies.settings.allowMessagesFrom
             }, (err, str) => {
