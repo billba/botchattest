@@ -36,24 +36,33 @@ app.post('/', (req, res) => {
 });
 app.get('/', (req, res) => {
     const appSecret = (req.cookies.settings && req.cookies.settings.secret) || process.env.APP_SECRET;
-    fetch('https://directline.botframework.com/api/tokens/conversation', {
+    console.log("query", req.query);
+    const dl3 = req.query["dl3"];
+    const segment = req.query["segment"];
+    const endpoint = dl3 ?
+        `https://${dl3}/${segment}/tokens/generate` :
+        'https://directline.botframework.com/api/tokens/conversation';
+    const auth = dl3 ? 'Bearer' : 'BotConnector';
+    fetch(endpoint, {
         method: 'POST',
-        headers: {
-            Authorization: `BotConnector ${appSecret}`
-        } }).then(response => {
-        response.text().then(text => {
-            console.log("token", text, "retrieved at", new Date());
-            ejs_1.renderFile("./index.html", {
-                token: text.split('"')[1],
-                showHeader: req.cookies.settings && req.cookies.settings.showHeader,
-                secret: req.cookies.settings && req.cookies.settings.secret,
-                allowMessagesFrom: req.cookies.settings && req.cookies.settings.allowMessagesFrom
-            }, (err, str) => {
-                if (err)
-                    console.log("ejs error", err);
-                else
-                    res.send(str);
-            });
+        headers: { Authorization: `${auth} ${appSecret}`, Accept: "application/json" }
+    }).then(response => {
+        return dl3 ? response.json() : response.text();
+    }).then(result => {
+        const token = dl3 ? result["token"] : result.split('"')[1];
+        console.log("token", token, "retrieved at", new Date());
+        ejs_1.renderFile("./index.html", {
+            token,
+            dl3,
+            segment,
+            showHeader: req.cookies.settings && req.cookies.settings.showHeader,
+            secret: req.cookies.settings && req.cookies.settings.secret,
+            allowMessagesFrom: req.cookies.settings && req.cookies.settings.allowMessagesFrom
+        }, (err, str) => {
+            if (err)
+                console.log("ejs error", err);
+            else
+                res.send(str);
         });
     });
 });
