@@ -52,7 +52,7 @@ app.get('/', (req, res) => {
     const dl3 = req.query["dl3"];
     const segment = req.query["segment"];
     const endpoint = dl3 ?
-        `https://${dl3}/${segment}/tokens/generate` :
+        `${dl3}/${segment}/tokens/generate` :
         'https://directline.botframework.com/api/tokens/conversation';
     const auth = dl3 ? 'Bearer' : 'BotConnector';
     fetch(endpoint, {
