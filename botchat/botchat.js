@@ -191,8 +191,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	                activity = Object.assign({}, activity, { type: 'typing' });
 	            case "typing":
-	                if (this.typingTimers[activity.from.id])
+	                if (this.typingTimers[activity.from.id]) {
 	                    clearTimeout(this.typingTimers[activity.from.id]);
+	                    this.typingTimers[activity.from.id] = undefined;
+	                }
 	                this.store.dispatch({ type: 'Show_Typing', activity: activity });
 	                this.typingTimers[activity.from.id] = setTimeout(function () {
 	                    _this.typingTimers[activity.from.id] = undefined;
@@ -427,6 +429,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        case "image/png":
 	        case "image/jpg":
 	        case "image/jpeg":
+	        case "image/gif":
 	            return imageWithOnLoad(props.attachment.contentUrl);
 	        default:
 	            return React.createElement("span", null);
@@ -20883,13 +20886,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	        case 'Receive_Message':
 	            return Object.assign({}, state, {
 	                activities: state.activities.filter(function (activity) { return activity.type !== "typing"; }).concat([
-	                    Object.assign({}, action.activity, { status: "received" })
+	                    Object.assign({}, action.activity, {
+	                        status: "received"
+	                    })
 	                ], state.activities.filter(function (activity) { return activity.from.id !== action.activity.from.id && activity.type === "typing"; }))
 	            });
 	        case 'Send_Message':
 	            return Object.assign({}, state, {
 	                activities: state.activities.filter(function (activity) { return activity.type !== "typing"; }).concat([
-	                    Object.assign({}, action.activity, { status: "sending", sendId: state.sendCounter })
+	                    Object.assign({}, action.activity, {
+	                        status: "sending",
+	                        sendId: state.sendCounter
+	                    })
 	                ], state.activities.filter(function (activity) { return activity.type === "typing"; })),
 	                input: '',
 	                sendCounter: state.sendCounter + 1,
@@ -20898,10 +20906,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        case 'Send_Message_Try':
 	            var activity = state.activities.find(function (activity) { return activity["sendId"] === action.sendId; });
 	            return Object.assign({}, state, {
-	                activities: [
-	                    state.activities.filter(function (activity) { return activity["sendId"] !== action.sendId && activity.type !== "typing"; }),
-	                    Object.assign({}, activity, { status: "sending", sendId: state.sendCounter })
-	                ].concat(state.activities.filter(function (activity) { return activity.type === "typing"; })),
+	                activities: state.activities.filter(function (activity) { return activity["sendId"] !== action.sendId && activity.type !== "typing"; }).concat([
+	                    Object.assign({}, activity, {
+	                        status: "sending",
+	                        sendId: state.sendCounter
+	                    })
+	                ], state.activities.filter(function (activity) { return activity.type === "typing"; })),
 	                sendCounter: state.sendCounter + 1,
 	                autoscroll: true
 	            });
@@ -20923,7 +20933,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        case 'Show_Typing':
 	            return Object.assign({}, state, {
 	                activities: state.activities.filter(function (activity) { return activity.type !== "typing"; }).concat(state.activities.filter(function (activity) { return activity.from.id !== action.activity.from.id && activity.type === "typing"; }), [
-	                    Object.assign({}, action.activity, { status: "received" })
+	                    Object.assign({}, action.activity, {
+	                        status: "received"
+	                    })
 	                ])
 	            });
 	        case 'Clear_Typing':
