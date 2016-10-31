@@ -184,7 +184,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            case "message":
 	                if (activity.from.id === state.connection.user.id)
 	                    break;
-	                if (!activity.text.endsWith("//typing")) {
+	                if (!(activity.text && activity.text.endsWith("//typing"))) {
 	                    if (!state.history.activities.find(function (a) { return a.id === activity.id; }))
 	                        this.store.dispatch({ type: 'Receive_Message', activity: activity });
 	                    break;
@@ -235,6 +235,43 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Chat;
 	}(React.Component));
 	exports.Chat = Chat;
+	exports.sendMessage = function (store, text) {
+	    var state = store.getState();
+	    var sendId = state.history.sendCounter;
+	    store.dispatch({ type: 'Send_Message', activity: {
+	            type: "message",
+	            text: text,
+	            from: state.connection.user,
+	            timestamp: Date.now().toString()
+	        } });
+	    exports.trySendMessage(store, sendId);
+	};
+	exports.trySendMessage = function (store, sendId, updateStatus) {
+	    if (updateStatus === void 0) { updateStatus = false; }
+	    if (updateStatus) {
+	        store.dispatch({ type: "Send_Message_Try", sendId: sendId });
+	    }
+	    var state = store.getState();
+	    var activity = state.history.activities.find(function (activity) { return activity["sendId"] === sendId; });
+	    state.connection.botConnection.postMessage(activity.text, state.connection.user)
+	        .subscribe(function (id) {
+	        console.log("success sending message", id);
+	        store.dispatch({ type: "Send_Message_Succeed", sendId: sendId, id: id });
+	    }, function (error) {
+	        console.log("failed to send message", error);
+	        // TODO: show an error under the message with "retry" link
+	        store.dispatch({ type: "Send_Message_Fail", sendId: sendId });
+	    });
+	};
+	exports.sendPostBack = function (store, text) {
+	    var state = store.getState();
+	    state.connection.botConnection.postMessage(text, state.connection.user)
+	        .subscribe(function (id) {
+	        console.log("success sending postBack", id);
+	    }, function (error) {
+	        console.log("failed to send postBack", error);
+	    });
+	};
 
 
 /***/ },
@@ -253,7 +290,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	var History = (function (_super) {
 	    __extends(History, _super);
 	    function History(props) {
+	        var _this = this;
 	        _super.call(this, props);
+	        this.onImageLoad = function () {
+	            if (_this.props.store.getState().history.autoscroll)
+	                _this.scrollMe.scrollTop = _this.scrollMe.scrollHeight;
+	        };
 	    }
 	    History.prototype.componentDidMount = function () {
 	        var _this = this;
@@ -290,7 +332,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        React.createElement("svg", {className: "wc-message-callout"}, 
 	                            React.createElement("path", {className: "point-left", d: "m0,0 h12 v10 z"}), 
 	                            React.createElement("path", {className: "point-right", d: "m0,10 v-10 h12 z"})), 
-	                        React.createElement(HistoryMessage_1.HistoryMessage, {store: _this.props.store, activity: activity})), 
+	                        React.createElement(HistoryMessage_1.HistoryMessage, {store: _this.props.store, activity: activity, onImageLoad: _this.onImageLoad})), 
 	                    React.createElement("div", {className: "wc-message-from"}, activity.from.id === state.connection.user.id ? 'you' : activity.from.id));
 	            }))
 	        ));
@@ -310,18 +352,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	var React = __webpack_require__(3);
 	var Attachment_1 = __webpack_require__(7);
 	var Carousel_1 = __webpack_require__(8);
-	var FormattedText_1 = __webpack_require__(9);
+	var react_formattedtext_1 = __webpack_require__(9);
 	exports.HistoryMessage = function (props) {
 	    switch (props.activity.type) {
 	        case 'message':
 	            if (props.activity.attachments && props.activity.attachments.length >= 1) {
 	                if (props.activity.attachmentLayout === 'carousel' && props.activity.attachments.length > 1)
-	                    return React.createElement(Carousel_1.Carousel, {store: props.store, attachments: props.activity.attachments});
+	                    return React.createElement(Carousel_1.Carousel, {store: props.store, attachments: props.activity.attachments, onImageLoad: props.onImageLoad});
 	                else
-	                    return (React.createElement("div", null, props.activity.attachments.map(function (attachment) { return React.createElement(Attachment_1.AttachmentView, {store: props.store, attachment: attachment}); })));
+	                    return (React.createElement("div", null, props.activity.attachments.map(function (attachment) { return React.createElement(Attachment_1.AttachmentView, {store: props.store, attachment: attachment, onImageLoad: props.onImageLoad}); })));
 	            }
 	            else if (props.activity.text) {
-	                return React.createElement(FormattedText_1.FormattedText, {text: props.activity.text, format: props.activity.textFormat});
+	                return React.createElement(react_formattedtext_1.FormattedText, {text: props.activity.text, format: props.activity.textFormat});
 	            }
 	            else {
 	                return React.createElement("span", null);
@@ -338,29 +380,16 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	var React = __webpack_require__(3);
+	var Chat_1 = __webpack_require__(4);
 	exports.AttachmentView = function (props) {
 	    var state = props.store.getState();
 	    var onClickButton = function (type, value) {
 	        switch (type) {
 	            case "imBack":
+	                Chat_1.sendMessage(props.store, value);
+	                break;
 	            case "postBack":
-	                state.connection.botConnection.postMessage(value, state.connection.user)
-	                    .retry(2)
-	                    .subscribe(function () {
-	                    if (type === "imBack") {
-	                        props.store.dispatch({ type: 'Send_Message', activity: {
-	                                type: "message",
-	                                text: value,
-	                                from: { id: state.connection.user.id },
-	                                timestamp: Date.now().toString()
-	                            } });
-	                    }
-	                    else {
-	                        console.log("quietly posted message", value);
-	                    }
-	                }, function (error) {
-	                    console.log("failed to post message");
-	                });
+	                Chat_1.sendPostBack(props.store, value);
 	                break;
 	            case "openUrl":
 	            case "signin":
@@ -375,7 +404,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            React.createElement("button", {onClick: function () { return onClickButton(button.type, button.value); }}, button.title)
 	        ); })); };
 	    var imageWithOnLoad = function (url) {
-	        return React.createElement("img", {src: url, onLoad: function () { return props.onImageLoad && props.onImageLoad(); }});
+	        return React.createElement("img", {src: url, onLoad: function () { return props.onImageLoad(); }});
 	    };
 	    var attachedImage = function (images) {
 	        return images && imageWithOnLoad(images[0].url);
@@ -577,6 +606,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Carousel.prototype.resize = function () {
 	        this.setItemWidth();
 	        this.manageScrollButtons();
+	        this.props.onImageLoad();
 	    };
 	    return Carousel;
 	}(React.Component));
@@ -601,16 +631,33 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    return t;
 	};
-	var React = __webpack_require__(3);
 	var Marked = __webpack_require__(10);
+	var React = __webpack_require__(3);
 	var He = __webpack_require__(11);
 	var FormattedText = (function (_super) {
 	    __extends(FormattedText, _super);
-	    function FormattedText(props) {
-	        _super.call(this, props);
+	    function FormattedText() {
+	        _super.apply(this, arguments);
 	    }
+	    FormattedText.prototype.getDefaultProps = function () {
+	        return {
+	            text: '',
+	            format: "markdown",
+	            markdownOptions: {
+	                gfm: true,
+	                tables: true,
+	                breaks: false,
+	                pedantic: false,
+	                sanitize: true,
+	                smartLists: true,
+	                silent: false,
+	                smartypants: true
+	            }
+	        };
+	    };
 	    FormattedText.prototype.shouldComponentUpdate = function (nextProps) {
-	        return this.props.text !== nextProps.text || this.props.format !== nextProps.format;
+	        // I don't love this, but it is fast and it works.
+	        return JSON.stringify(this.props) !== JSON.stringify(nextProps);
 	    };
 	    FormattedText.prototype.render = function () {
 	        switch (this.props.format) {
@@ -623,31 +670,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 	    FormattedText.prototype.renderPlainText = function () {
-	        // TODO @eanders-MS: This is placeholder until updated to DirectLine 3.0
-	        var src = this.props.text || '';
-	        var lines = src.replace('\r', '').split('\n');
-	        var elements = lines.map(function (line) { return React.createElement("span", null, 
+	        var lines = this.props.text.replace('\r', '').split('\n');
+	        var elements = lines.map(function (line, i) { return React.createElement("span", {key: i}, 
 	            line, 
 	            React.createElement("br", null)); });
 	        return React.createElement("span", {className: "format-plain"}, elements);
 	    };
 	    FormattedText.prototype.renderXml = function () {
-	        // TODO @eanders-MS: Implement once updated to DirectLine 3.0
-	        return React.createElement("span", {className: "format-xml"});
+	        // TODO: Implement Xml renderer
+	        //return <span className="format-xml"></span>;
+	        return this.renderPlainText();
 	    };
 	    FormattedText.prototype.renderMarkdown = function () {
 	        var src = this.props.text || '';
 	        src = src.replace(/<br\s*\/?>/ig, '\r\n\r\n');
-	        var options = {
-	            gfm: true,
-	            tables: true,
-	            breaks: false,
-	            pedantic: false,
-	            sanitize: true,
-	            smartLists: true,
-	            silent: false,
-	            smartypants: true
-	        };
+	        var options = Object.assign({}, this.props.markdownOptions);
 	        var renderer = options.renderer = new ReactRenderer(options);
 	        var text = Marked(src, options);
 	        var elements = renderer.getElements(text);
@@ -669,10 +706,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    /**
 	     * We're being sneaky here. Marked is expecting us to render html to text and return that.
 	     * Instead, we're generating react elements and returning their array indices as strings,
-	     * which are concatenated by Marked into the final output. We return astringified index that
-	     * is {{strongly delimited}}. This is because Marked can sometimes leak source text into the
-	     * stream, interspersed with our ids. This leaked text will be detected later and turned
-	     * into react elements.
+	     * which are concatenated by Marked into the final output. We return a stringified index that
+	     * is {{strongly delimited}}. We must do this because Marked can sometimes leak source text
+	     * into the stream, interspersed with our ids. This leaked text will be detected later and
+	     * turned into react elements.
 	     */
 	    ReactRenderer.prototype.addElement = function (element) {
 	        var elementId = this.elements.length;
@@ -20719,6 +20756,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var React = __webpack_require__(3);
+	var Chat_1 = __webpack_require__(4);
 	var Shell = (function (_super) {
 	    __extends(Shell, _super);
 	    function Shell(props) {
@@ -20757,44 +20795,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	            _loop_1(i, numFiles);
 	        }
 	    };
-	    Shell.prototype.sendMessage = function () {
-	        var state = this.props.store.getState();
-	        if (state.history.input.length === 0)
-	            return;
-	        var sendId = state.history.sendCounter;
-	        this.props.store.dispatch({ type: 'Send_Message', activity: {
-	                type: "message",
-	                text: state.history.input,
-	                from: state.connection.user,
-	                timestamp: Date.now().toString()
-	            } });
-	        this.trySendMessage(sendId);
-	    };
-	    Shell.prototype.trySendMessage = function (sendId, updateStatus) {
-	        var _this = this;
-	        if (updateStatus === void 0) { updateStatus = false; }
-	        if (updateStatus) {
-	            this.props.store.dispatch({ type: "Send_Message_Try", sendId: sendId });
-	        }
-	        var state = this.props.store.getState();
-	        var activity = state.history.activities.find(function (activity) { return activity["sendId"] === sendId; });
-	        state.connection.botConnection.postMessage(activity.text, state.connection.user)
-	            .subscribe(function (id) {
-	            console.log("success posting message");
-	            _this.props.store.dispatch({ type: "Send_Message_Succeed", sendId: sendId, id: id });
-	        }, function (error) {
-	            console.log("failed to post message");
-	            // TODO: show an error under the message with "retry" link
-	            _this.props.store.dispatch({ type: "Send_Message_Fail", sendId: sendId });
-	        });
-	    };
 	    Shell.prototype.onKeyPress = function (e) {
-	        if (e.key === 'Enter')
-	            this.sendMessage();
+	        if (e.key === 'Enter' && this.textInput.value.length >= 0)
+	            Chat_1.sendMessage(this.props.store, this.textInput.value);
 	    };
 	    Shell.prototype.onClickSend = function () {
 	        this.textInput.focus();
-	        this.sendMessage();
+	        if (this.textInput.value.length >= 0)
+	            Chat_1.sendMessage(this.props.store, this.textInput.value);
 	    };
 	    Shell.prototype.onClickFile = function (files) {
 	        this.textInput.focus();
@@ -22109,9 +22117,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            url: this.domain + "/" + this.segment + "/conversations/" + this.conversationId + "/upload?userId=" + from.id,
 	            body: formData,
 	            headers: {
-	                "Authorization": "Bearer " + this.token,
-	                "Content-Type": file.type,
-	                "Content-Disposition": "filename=" + file.name
+	                "Authorization": "Bearer " + this.token
 	            }
 	        })
 	            .retryWhen(function (error$) { return error$.delay(1000); })
