@@ -1,33 +1,33 @@
 ﻿/* reset */
 
-    html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-    }
-
-    body, button, input, textarea {
+    body .wc-app, .wc-app button, .wc-app input, .wc-app textarea {
         font-family: 'Segoe UI', sans-serif;
         font-size: 15px;
     }
 
-    button {
-        background-color: #29a3ed;
+    .wc-app button {
+        background-color: #0063B1;
         border: none;
         border-radius: 2px;
         color: #fff;
         cursor: pointer;
         outline: none;
+        transition: color .2s ease, background-color .2s ease;
+    }
+    
+    .wc-app button:hover {
+        background-color: #3A96DD;
+        color: #fff;
+        transition: color .2s ease, background-color .2s ease;
     }
 
-    button:hover {
-        background-color: #3e92d2;
+    .wc-app h1, .wc-app h2, .wc-app h3, .wc-app h4, .wc-app p, .wc-app ul, .wc-app ol {
+        margin: 0;
+        padding: 0;
     }
 
-    h1, h2, h3, h4, p, ul, ol {
-        margin-bottom: 8px;
-        margin-top: 0;
+    .wc-app audio, .wc-app video {
+        display: block;
     }
 
 /* docking */
@@ -37,16 +37,19 @@
     }
 
     .wc-header {
-        background-color: #3e92d2;
+        background-color: #3A96DD;
+        box-shadow: 0 1px rgba(0,0,0,0.2);
+        box-sizing: content-box;
         color: #fff;
         font-weight: 500;
-        height: 35px;   /* height + padding-top = total height */
+        height: 30px;   /* height + padding-top = total height */
         left: 0;
         letter-spacing: 0.5px;
-        padding: 10px 15px 0 15px;
+        padding: 8px 8px 0 8px;
         position: absolute;
         right: 0;
         top: 0;
+        z-index: 1;
     }
 
     .wc-time {
@@ -62,7 +65,7 @@
         padding: 10px;
         position: absolute;
         right: 0;
-        top: 45px;  /* from wc-header total height */
+        top: 38px;  /* from wc-header total height */
     }
 
     .wc-console {
@@ -85,114 +88,60 @@
         bottom: 0;
     }
 
-    .wc-chatview-panel.wc-withdebugview {
-        width: 50%;
-    }
-
-    .wc-toggledebugview {
-        position: absolute;
-        width: 24px;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        cursor: pointer;
-    }
-
-    .wc-toggledebugview svg {
-        position: absolute;
-        top: 12px;
-    }
-
-    .wc-toggledebugview svg path#frame {
-        fill: #fff;
-    }
-
-    .wc-toggledebugview svg rect#panel {
-        fill: #ffa333;
-    }
-
-    .wc-debugview-panel {
-        position: absolute;
-        width: 50%;
-        right: 0;
-        top: 0;
-        bottom: 0;
-    }
-
-    .wc-debugview {
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 45px;
-        bottom: 0;
-        overflow-y: scroll;
-    }
-
-    .wc-debugview-json {
-        background-color: #eceff1;
-        font-size: 13px;
-        font-family: monospace;
-        position: absolute;
-        top: 0;
-        left: 0;
-        max-width: 95%;
-        word-wrap: break-word;
-        white-space: pre-wrap;
-        padding: 5px 5px 5px 5px;
-        margin: 5px 5px 5px 5px;
-        border-radius: 2px;
-        box-shadow: 0px 1px 1px 0px #ffa333
-    }
-
-/* JSON */
-
-    .json-key {
-        color: rgb(19, 132, 149);
-    }
-
-    .json-string {
-        color: #1A1AA6;
-    }
-
-    .json-number {
-        color: rgb(0, 0, 205);
-    }
-
-    .json-boolean {
-        color: rgb(88, 92, 246);
-    }
-
-    .json-null {
-        color: black;
-    }
-
 /* messages */
 
     .wc-message-group {
+        display: table;
+        height: 100%;
+        width: 100%;
+    }
+
+    .wc-message-group-content {
+        display: table-cell;
+        vertical-align: bottom;
+    }
+
+    .wc-message-wrapper {
+        animation: animationFrames 2s;
+        animation-iteration-count: 1;
         clear: both;
+        margin-bottom: 10px;
+        overflow: hidden;
+        /*transition: max-height 2s ease-in-out;*/
+    }
+
+    @keyframes animationFrames{
+        0% {
+            /*max-height: 0;*/
+            opacity: 0;
+        }
+        20% {
+            opacity: 1;
+        }
+        100% {
+            /*max-height: 2000px;*/
+        }
     }
 
     .wc-message {
-        clear: both;
-        margin-bottom: 10px;
         max-width: 80%;
         position: relative;
     }
 
     .wc-message svg.wc-message-callout {
-        height: 8px;
+        height: 22px;
         position: absolute;
         stroke: none;
-        top: 0;
-        width: 12px;
+        top: 12px;
+        width: 6px;
     }
 
     .wc-message-content {
         border-radius: 2px;
         box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
         padding: 8px;
-        word-wrap: break-word;
-    }
+        word-break: break-word;
+      }
 
     .wc-message-content.clickable {
         cursor: pointer;
@@ -205,6 +154,14 @@
     .wc-message-content img {
         max-height: 320px;
         max-width: 100%;
+    }
+
+    .wc-message-content audio, .wc-message-content video {
+        max-width: 100%;
+    }
+
+    .wc-message-content audio+h1, .wc-message-content video+h1 {
+        margin-top: 11px;
     }
 
     .wc-message-from {
@@ -220,12 +177,20 @@
         border: 1px solid #d2dde5;
         font-size: 13px;
         padding: 8px;
-        width: 300px;
     }
 
     .wc-card button {
+        background-color: transparent;
+        border: none;
+        border-top: 1px solid #d2dde5;
+        color: #3A96DD;
         height: 42px;
         width: 100%;
+    }
+
+    .wc-card button:hover {
+        background-color: transparent;
+        color: #0063B1;
     }
 
     .wc-card h1 {
@@ -256,11 +221,11 @@
 
     ul.wc-card-buttons {
         clear: both;
+        margin: 0 -8px -8px -8px;
     }
 
     ul.wc-card-buttons li {
         list-style-type: none;
-        margin-top: 8px;
         text-align: center;
     }
 
@@ -323,10 +288,28 @@
         line-height: 2.25;
     }
 
+    .wc-card.receipt tfoot .total {
+        font-weight: bold;
+    }
+
     .wc-card.thumbnail img {
         float: right;
         margin-left: 10px;
         width: 100px;
+    }
+
+    .wc-card.signin h1 {
+        margin: 10px 24px 16px 14px;
+    }
+
+/* list */
+
+    .wc-list > .wc-card {
+        margin-top: 8px;
+    }
+
+    .wc-list > .wc-card:first-child {
+        margin-top: 0;
     }
 
 /* carousel */
@@ -338,6 +321,7 @@
     .wc-carousel button.scroll {
         background-color: #d2dde5;
         height: 28px;
+        overflow: hidden;
         padding: 0;
         position: absolute;
         top: 50%;
@@ -382,9 +366,11 @@
 
     .wc-carousel-scroll > ul > li {
         display: inline-block;
+        max-width: 640px;
         padding: 0 4px;
         vertical-align: top;
-        white-space: nowrap;
+        white-space: normal;
+        width: 85%;
     }
 
     .wc-carousel-scroll > ul > li:last-child {
@@ -400,7 +386,7 @@
 
     .wc-message-from-me {
         float: right;
-        margin-right: 12px;
+        margin-right: 6px;
     }
 
     .wc-message-from-me .wc-message-from {
@@ -408,12 +394,12 @@
     }
 
     .wc-message-from-me .wc-message-content {
-        background-color: #808c95;
+        background-color: #3A96DD;
         color: #fff;
     }
 
     .wc-message-from-me svg.wc-message-callout path {
-        fill: #808c95;
+        fill: #3A96DD;
     }
 
     .wc-message-from-me svg.wc-message-callout path.point-left {
@@ -421,14 +407,14 @@
     }
 
     .wc-message-from-me svg.wc-message-callout {
-        right: -10px;
+        right: -6px;
     }
 
 /* from bot */
 
     .wc-message-from-bot {
         float: left;
-        margin-left: 12px;
+        margin-left: 8px;
     }
 
     .wc-message-from-bot .wc-message-content {
@@ -445,7 +431,7 @@
     }
 
     .wc-message-from-bot svg.wc-message-callout {
-        left: -12px;
+        left: -6px;
     }
 
 /* console */
@@ -490,17 +476,27 @@
         right: 0;
     }
 
+    .wc-console.has-text .wc-send svg {
+        fill: #3A96DD;
+    }
+
 /* animation */
 
     .wc-animate-scroll {
+        left: 0;
+        position: absolute;
         transition: left .8s ease;
     }
 
     .wc-animate-scroll-rapid {
+        left: 0;
+        position: absolute;
         transition: left .4s ease;
     }
 
     .wc-animate-scroll-near {
+        left: 0;
+        position: absolute;
         transition: left .5s ease-in-out;
     }
 
@@ -512,4 +508,30 @@
 
     .format-markdown code {
         white-space: pre-wrap;
+    }
+
+    .format-markdown+div {
+        margin-top: 8px;
+    }
+
+    .format-markdown ol {
+        padding-left: 30px;  /* numbers are right-aligned to the period */
+    }
+
+    .format-markdown ul {
+        padding-left: 33px;
+    }
+
+/* browser scrollbar customization */
+
+    .wc-app ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .wc-app ::-webkit-scrollbar * {
+        background-color: transparent;
+    }
+
+    .wc-app ::-webkit-scrollbar-thumb {
+        background-color: #DBDEE1;
     }

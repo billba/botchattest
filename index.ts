@@ -49,24 +49,18 @@ app.post('/', (req, res) => {
 app.get('/', (req, res) => {
     const appSecret = (req.cookies.settings && req.cookies.settings.secret) || process.env.APP_SECRET;
     console.log("query", req.query);
-    const dl3 = req.query["dl3"];
-    const segment = req.query["segment"];
-    const endpoint = dl3 ?
-        `${dl3}/${segment}/tokens/generate` :
-        'https://directline.botframework.com/api/tokens/conversation';
-    const auth = dl3 ? 'Bearer' : 'BotConnector';
+    const endpoint = 'https://directline.botframework.com/v3/directline/tokens/generate';
+    const auth = 'Bearer';
     fetch(endpoint, {
         method: 'POST',
         headers: { Authorization: `${auth} ${appSecret}`, Accept: "application/json" }
-    }).then(response => {
-        return dl3 ? response.json() : response.text();
-    }).then(result => {
-        const token: string = dl3 ? result["token"] : result.split('"')[1];
+    }).then(response =>
+        response.json()
+    ).then(result => {
+        const token: string = result["token"];
         console.log("token", token, "retrieved at", new Date());
         renderFile("./index.html", {
             token,
-            dl3,
-            segment,
             showHeader: req.cookies.settings && req.cookies.settings.showHeader, 
             secret: req.cookies.settings && req.cookies.settings.secret,
             allowMessagesFrom: req.cookies.settings && req.cookies.settings.allowMessagesFrom

@@ -18,26 +18,30 @@
                 <form method="post" action=".">
                     <p>
                         <label for="secret">App Secret</label>
-                        <input id="secret" name="secret" type="text" style="width:300px;" value="<%= secret %>" placeholder="leave blank for featurebot"/>
+                        <input id="secret" name="secret" type="text" style="width:300px;" value="<%= secret %>" placeholder="leave blank for TestBotV3"/>
                     </p>
                     <p>
                         <label for="showHeader">ShowHeader</label>
                         <input id="showHeader" name="showHeader" type="text" style="width:300px;" value="<%= showHeader %>" placeholder="leave blank for false"/>
                     </p>
+<!--
                     <p>
                         <label for="allowMessagesFrom">Allow messages from websites hosted at: </label>
                         <input id="allowMessagesFrom" name="allowMessagesFrom" type="text" style="width:300px;" value="<%= allowMessagesFrom %>" placeholder="http://localhost:3000, http://bill.barnacle.org"/>
                     </p>
+-->
                     <p>
                         <input type="submit"/>
                     </p>
                 </form>
+<!--                
                 <h1>Backchannel</h1>
                 <textarea id="message" rows="5" cols="40"></textarea>
                 <button onclick="sendMessage(document.getElementById('message').value)">Send Message To Bot</button>
+-->
             </div>
             <div style="margin-left: 320px;">
-                <iframe id="botchat" src="/botchat/?t=<%= token %>&dl3=<%= dl3 %>&segment=<%= segment %>" width="400" height="500"></iframe>
+                <iframe id="botchat" src="/botchat/?t=<%= token %>" width="400" height="500"></iframe>
             </div>
             <div style="clear:both;"/>
         </div>
