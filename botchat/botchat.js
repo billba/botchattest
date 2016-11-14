@@ -21538,7 +21538,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Shell_1 = __webpack_require__(183);
 	var Store_1 = __webpack_require__(184);
 	var Strings_1 = __webpack_require__(205);
-	;
 	var Chat = (function (_super) {
 	    __extends(Chat, _super);
 	    function Chat(props) {
@@ -21547,7 +21546,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.store = Store_1.createStore();
 	        this.typingTimers = {};
 	        console.log("BotChat.Chat props", props);
-	        this.store.dispatch({ type: 'Start_Connection', user: props.user, botConnection: props.botConnection, selectedActivity: props.selectedActivity });
+	        this.store.dispatch({ type: 'Start_Connection', user: props.user, bot: props.bot, botConnection: props.botConnection, selectedActivity: props.selectedActivity });
 	        if (props.formatOptions)
 	            this.store.dispatch({ type: 'Set_Format_Options', options: props.formatOptions });
 	        this.store.dispatch({ type: 'Set_Localized_Strings', strings: Strings_1.strings(props.locale || window.navigator.language) });
@@ -21555,7 +21554,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.connectedSubscription = props.botConnection.connected$.filter(function (connected) { return connected === true; }).subscribe(function (connected) {
 	            _this.store.dispatch({ type: 'Connected_To_Bot' });
 	        });
-	        this.activitySubscription = props.botConnection.activity$.subscribe(function (activity) { return _this.handleIncomingActivity(activity); }, function (error) { return console.log("errors", error); });
+	        this.activitySubscription = props.botConnection.activity$.subscribe(function (activity) { return _this.handleIncomingActivity(activity); }, function (error) { return console.log("activity$ error", error); } // THIS IS WHERE WE WILL CHANGE THE APP STATE
+	        );
 	        if (props.selectedActivity) {
 	            this.selectedActivitySubscription = props.selectedActivity.subscribe(function (activityOrID) {
 	                _this.store.dispatch({
@@ -21573,14 +21573,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var state = this.store.getState();
 	        switch (activity.type) {
 	            case "message":
-	                if (activity.from.id === state.connection.user.id)
+	                if (activity.from.id === state.connection.user.id) {
+	                    this.store.dispatch({ type: 'Receive_Sent_Message', activity: activity });
 	                    break;
-	                // 'typing' activity only available with WebSockets, so this allows us to test with polling GET
-	                if (activity.text && activity.text.endsWith("//typing"))
+	                }
+	                else if (activity.text && activity.text.endsWith("//typing")) {
+	                    // 'typing' activity only available with WebSockets, so this allows us to test with polling GET
 	                    activity = Object.assign({}, activity, { type: 'typing' });
+	                }
 	                else {
-	                    if (!state.history.activities.find(function (a) { return a.id === activity.id; }))
-	                        this.store.dispatch({ type: 'Receive_Message', activity: activity });
+	                    this.store.dispatch({ type: 'Receive_Message', activity: activity });
 	                    break;
 	                }
 	            case "typing":
@@ -21643,65 +21645,81 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (!text || typeof text !== 'string' || text.trim().length === 0)
 	        return;
 	    var state = store.getState();
-	    var sendId = state.history.sendCounter;
-	    store.dispatch({ type: 'Send_Message', activity: {
+	    var clientActivityId = state.history.clientActivityBase + state.history.clientActivityCounter;
+	    store.dispatch({
+	        type: 'Send_Message',
+	        activity: {
 	            type: "message",
 	            text: text,
 	            from: state.connection.user,
 	            timestamp: (new Date()).toISOString()
-	        } });
-	    exports.trySendMessage(store, sendId);
+	        }
+	    });
+	    exports.trySendMessage(store, clientActivityId);
 	};
-	var sendMessageSucceed = function (store, sendId) { return function (id) {
+	var sendMessageSucceed = function (store, clientActivityId) { return function (id) {
 	    console.log("success sending message", id);
-	    store.dispatch({ type: "Send_Message_Succeed", sendId: sendId, id: id });
+	    store.dispatch({ type: "Send_Message_Succeed", clientActivityId: clientActivityId, id: id });
 	    exports.updateSelectedActivity(store);
 	}; };
-	var sendMessageFail = function (store, sendId) { return function (error) {
+	var sendMessageFail = function (store, clientActivityId) { return function (error) {
 	    console.log("failed to send message", error);
 	    // TODO: show an error under the message with "retry" link
-	    store.dispatch({ type: "Send_Message_Fail", sendId: sendId });
+	    store.dispatch({ type: "Send_Message_Fail", clientActivityId: clientActivityId });
 	    exports.updateSelectedActivity(store);
 	}; };
-	exports.trySendMessage = function (store, sendId, updateStatus) {
+	exports.trySendMessage = function (store, clientActivityId, updateStatus) {
 	    if (updateStatus === void 0) { updateStatus = false; }
 	    if (updateStatus) {
-	        store.dispatch({ type: "Send_Message_Try", sendId: sendId });
+	        store.dispatch({ type: "Send_Message_Try", clientActivityId: clientActivityId });
 	    }
 	    var state = store.getState();
-	    var activity = state.history.activities.find(function (activity) { return activity["sendId"] === sendId; });
-	    state.connection.botConnection.postMessage(activity.text, state.connection.user)
-	        .subscribe(sendMessageSucceed(store, sendId), sendMessageFail(store, sendId));
+	    var activity = state.history.activities.find(function (activity) { return activity.channelData && activity.channelData.clientActivityId === clientActivityId; });
+	    if (!activity) {
+	        console.log("activity not found");
+	        return;
+	    }
+	    (activity.type === 'message' && activity.attachments && activity.attachments.length > 0
+	        ? state.connection.botConnection.postMessageWithAttachments(activity)
+	        : state.connection.botConnection.postActivity(activity)).subscribe(sendMessageSucceed(store, clientActivityId), sendMessageFail(store, clientActivityId));
 	};
 	exports.sendPostBack = function (store, text) {
 	    var state = store.getState();
-	    state.connection.botConnection.postMessage(text, state.connection.user)
+	    state.connection.botConnection.postActivity({
+	        type: "message",
+	        text: text,
+	        from: state.connection.user
+	    })
 	        .subscribe(function (id) {
 	        console.log("success sending postBack", id);
 	    }, function (error) {
 	        console.log("failed to send postBack", error);
 	    });
 	};
-	exports.sendFiles = function (store, files) {
+	var attachmentsFromFiles = function (files) {
+	    var attachments = [];
 	    for (var i = 0, numFiles = files.length; i < numFiles; i++) {
 	        var file = files[i];
-	        console.log("file", file);
-	        var state = store.getState();
-	        var sendId = state.history.sendCounter;
-	        store.dispatch({ type: 'Send_Message', activity: {
-	                type: "message",
-	                from: state.connection.user,
-	                timestamp: (new Date()).toISOString(),
-	                attachments: [{
-	                        contentType: file.type,
-	                        contentUrl: window.URL.createObjectURL(file),
-	                        name: file.name
-	                    }]
-	            } });
-	        state = store.getState();
-	        state.connection.botConnection.postFile(file, state.connection.user)
-	            .subscribe(sendMessageSucceed(store, sendId), sendMessageFail(store, sendId));
+	        attachments.push({
+	            contentType: file.type,
+	            contentUrl: window.URL.createObjectURL(file),
+	            name: file.name
+	        });
 	    }
+	    return attachments;
+	};
+	exports.sendFiles = function (store, files) {
+	    var state = store.getState();
+	    var clientActivityId = state.history.clientActivityBase + state.history.clientActivityCounter;
+	    store.dispatch({
+	        type: 'Send_Message',
+	        activity: {
+	            type: "message",
+	            attachments: attachmentsFromFiles(files),
+	            from: state.connection.user
+	        }
+	    });
+	    exports.trySendMessage(store, clientActivityId);
 	};
 
 
@@ -21760,7 +21778,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            React.createElement("path", {className: "point-right", d: "m6,6 l-6 6 v-12 z"})), 
 	                        React.createElement(ActivityView_1.ActivityView, {store: _this.props.store, activity: activity, onImageLoad: function () { return _this.onImageLoad; }})), 
 	                    React.createElement("div", {className: "wc-message-from"}, 
-	                        activity.from.id === state.connection.user.id ? 'you' : activity.from.name || activity.from.id || '', 
+	                        activity.from.name || activity.from.id, 
 	                        timeLine))
 	            ));
 	        });
@@ -21857,10 +21875,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return React.createElement("video", {src: videoUrl, poster: thumbnailUrl, autoPlay: autoPlay, controls: true, loop: loop, onLoadedMetadata: function () { console.log("local onVideoLoad"); props.onImageLoad(); }});
 	    };
 	    var attachedImage = function (images) {
-	        return images && imageWithOnLoad(images[0].url);
+	        return images && images.length > 0 && imageWithOnLoad(images[0].url);
 	    };
 	    switch (attachment.contentType) {
 	        case "application/vnd.microsoft.card.hero":
+	            if (!attachment.content)
+	                return null;
 	            return (React.createElement("div", {className: 'wc-card hero'}, 
 	                attachedImage(attachment.content.images), 
 	                React.createElement("h1", null, attachment.content.title), 
@@ -21868,6 +21888,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                React.createElement("p", null, attachment.content.text), 
 	                buttons(attachment.content.buttons)));
 	        case "application/vnd.microsoft.card.thumbnail":
+	            if (!attachment.content)
+	                return null;
 	            return (React.createElement("div", {className: 'wc-card thumbnail'}, 
 	                React.createElement("h1", null, attachment.content.title), 
 	                React.createElement("p", null, 
@@ -21876,16 +21898,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    attachment.content.text), 
 	                buttons(attachment.content.buttons)));
 	        case "application/vnd.microsoft.card.video":
-	            var thumbnail;
-	            if (attachment.content.image)
-	                thumbnail = attachment.content.image.url;
+	            if (!attachment.content || !attachment.content.media || attachment.content.media.length === 0)
+	                return null;
 	            return (React.createElement("div", {className: 'wc-card video'}, 
-	                videoWithOnLoad(attachment.content.media[0].url, thumbnail, attachment.content.autostart, attachment.content.autoloop), 
+	                videoWithOnLoad(attachment.content.media[0].url, attachment.content.image ? attachment.content.image.url : null, attachment.content.autostart, attachment.content.autoloop), 
 	                React.createElement("h1", null, attachment.content.title), 
 	                React.createElement("h2", null, attachment.content.subtitle), 
 	                React.createElement("p", null, attachment.content.text), 
 	                buttons(attachment.content.buttons)));
 	        case "application/vnd.microsoft.card.audio":
+	            if (!attachment.content || !attachment.content.media || attachment.content.media.length === 0)
+	                return null;
 	            return (React.createElement("div", {className: 'wc-card audio'}, 
 	                audio(attachment.content.media[0].url, attachment.content.autostart, attachment.content.autoloop), 
 	                React.createElement("h1", null, attachment.content.title), 
@@ -21893,10 +21916,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	                React.createElement("p", null, attachment.content.text), 
 	                buttons(attachment.content.buttons)));
 	        case "application/vnd.microsoft.card.signin":
+	            if (!attachment.content)
+	                return null;
 	            return (React.createElement("div", {className: 'wc-card signin'}, 
 	                React.createElement("h1", null, attachment.content.text), 
 	                buttons(attachment.content.buttons)));
 	        case "application/vnd.microsoft.card.receipt":
+	            if (!attachment.content)
+	                return null;
 	            return (React.createElement("div", {className: 'wc-card receipt'}, 
 	                React.createElement("table", null, 
 	                    React.createElement("thead", null, 
@@ -21932,7 +21959,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        case "video/mp4":
 	            return videoWithOnLoad(attachment.contentUrl);
 	        default:
-	            return React.createElement("span", null);
+	            return React.createElement("span", null, 
+	                "[File of type '", 
+	                attachment.contentType, 
+	                "']");
 	    }
 	};
 
@@ -24012,7 +24042,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            className += ' has-text';
 	        return (React.createElement("div", {className: className}, 
 	            React.createElement("label", {className: "wc-upload"}, 
-	                React.createElement("input", {type: "file", accept: "image/*", multiple: true, onChange: function (e) { return _this.onClickFile(e.target.files); }}), 
+	                React.createElement("input", {type: "file", multiple: true, onChange: function (e) { return _this.onClickFile(e.target.files); }}), 
 	                React.createElement("svg", {width: "26", height: "18"}, 
 	                    React.createElement("path", {d: "M 19.9603965 4.789052 m -2 0 a 2 2 0 0 1 4 0 a 2 2 0 0 1 -4 0 z M 8.3168322 4.1917918 L 2.49505 15.5342575 L 22.455446 15.5342575 L 17.465347 8.5643945 L 14.4158421 11.1780931 L 8.3168322 4.1917918 Z M 1.04 1 L 1.04 17 L 24.96 17 L 24.96 1 L 1.04 1 Z M 1.0352753 0 L 24.9647247 0 C 25.5364915 0 26 0.444957 26 0.9934084 L 26 17.006613 C 26 17.5552514 25.5265266 18 24.9647247 18 L 1.0352753 18 C 0.4635085 18 0 17.5550644 0 17.006613 L 0 0.9934084 C 0 0.44477 0.4734734 0 1.0352753 0 Z"})
 	                )), 
@@ -24059,6 +24089,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        botConnection: undefined,
 	        selectedActivity: undefined,
 	        user: undefined,
+	        bot: undefined,
 	        host: undefined
 	    }; }
 	    switch (action.type) {
@@ -24067,6 +24098,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                connected: false,
 	                botConnection: action.botConnection,
 	                user: action.user,
+	                bot: action.bot,
 	                selectedActivity: action.selectedActivity
 	            });
 	        case 'Connected_To_Bot':
@@ -24089,7 +24121,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (state === void 0) { state = {
 	        activities: [],
 	        input: '',
-	        sendCounter: 0,
+	        clientActivityBase: Date.now().toString() + Math.random().toString().substr(1) + '.',
+	        clientActivityCounter: 0,
 	        selectedActivity: null
 	    }; }
 	    console.log("history action", action);
@@ -24098,7 +24131,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return Object.assign({}, state, {
 	                input: action.input
 	            });
+	        case 'Receive_Sent_Message': {
+	            var i = state.activities.findIndex(function (activity) {
+	                return activity.channelData && action.activity.channelData && activity.channelData.clientActivityId === action.activity.channelData.clientActivityId;
+	            });
+	            if (i !== -1) {
+	                var activity = state.activities[i];
+	                return Object.assign({}, state, {
+	                    activities: state.activities.slice(0, i).concat([
+	                        action.activity
+	                    ], state.activities.slice(i + 1)),
+	                    selectedActivity: state.selectedActivity === activity ? action.activity : state.selectedActivity
+	                });
+	            }
+	        }
 	        case 'Receive_Message':
+	            if (state.activities.find(function (a) { return a.id === action.activity.id; })) {
+	                // don't allow duplicate messages
+	                return state;
+	            }
 	            return Object.assign({}, state, {
 	                activities: state.activities.filter(function (activity) { return activity.type !== "typing"; }).concat([
 	                    Object.assign({}, action.activity, {
@@ -24110,33 +24161,39 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return Object.assign({}, state, {
 	                activities: state.activities.filter(function (activity) { return activity.type !== "typing"; }).concat([
 	                    Object.assign({}, action.activity, {
+	                        timestamp: (new Date()).toISOString(),
 	                        status: "sending",
-	                        sendId: state.sendCounter
+	                        channelData: { clientActivityId: state.clientActivityBase + state.clientActivityCounter }
 	                    })
 	                ], state.activities.filter(function (activity) { return activity.type === "typing"; })),
 	                input: '',
-	                sendCounter: state.sendCounter + 1,
-	                autoscroll: true
+	                clientActivityCounter: state.clientActivityCounter + 1
 	            });
 	        case 'Send_Message_Try':
 	            {
-	                var activity = state.activities.find(function (activity) { return activity["sendId"] === action.sendId; });
+	                var activity = state.activities.find(function (activity) {
+	                    return activity.channelData && activity.channelData.clientActivityId === action.clientActivityId;
+	                });
 	                var newActivity = Object.assign({}, activity, {
 	                    status: "sending",
-	                    sendId: state.sendCounter
+	                    clientActivityCounter: state.clientActivityCounter
 	                });
 	                return Object.assign({}, state, {
-	                    activities: state.activities.filter(function (activity) { return activity["sendId"] !== action.sendId && activity.type !== "typing"; }).concat([
+	                    activities: state.activities.filter(function (activity) {
+	                        return activity.type !== "typing" &&
+	                            (!activity.channelData || activity.channelData.clientActivityId !== action.clientActivityId);
+	                    }).concat([
 	                        newActivity
 	                    ], state.activities.filter(function (activity) { return activity.type === "typing"; })),
-	                    sendCounter: state.sendCounter + 1,
-	                    autoscroll: true,
+	                    clientActivityCounter: state.clientActivityCounter + 1,
 	                    selectedActivity: state.selectedActivity === activity ? newActivity : state.selectedActivity
 	                });
 	            }
 	        case 'Send_Message_Succeed':
 	        case 'Send_Message_Fail': {
-	            var i = state.activities.findIndex(function (activity) { return activity["sendId"] === action.sendId; });
+	            var i = state.activities.findIndex(function (activity) {
+	                return activity.channelData && activity.channelData.clientActivityId === action.clientActivityId;
+	            });
 	            if (i === -1)
 	                return state;
 	            var activity = state.activities[i];
@@ -24148,8 +24205,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                activities: state.activities.slice(0, i).concat([
 	                    newActivity
 	                ], state.activities.slice(i + 1)),
-	                sendCounter: state.sendCounter + 1,
-	                autoscroll: true,
+	                clientActivityCounter: state.clientActivityCounter + 1,
 	                selectedActivity: state.selectedActivity === activity ? newActivity : state.selectedActivity
 	            });
 	        }
@@ -32437,6 +32493,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.domain = domain;
 	        this.segment = segment;
 	        this.connected$ = new rxjs_1.BehaviorSubject(false);
+	        this.watermark = '';
 	        this.secret = secretOrToken.secret;
 	        this.token = secretOrToken.secret || secretOrToken.token;
 	        if (segment) {
@@ -32496,34 +32553,43 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.pollTimer = undefined;
 	        }
 	    };
-	    DirectLine.prototype.postMessage = function (text, from, channelData) {
-	        return rxjs_1.Observable.ajax({
-	            method: "POST",
-	            url: this.domain + "/conversations/" + this.conversationId + "/activities",
-	            body: {
-	                type: "message",
-	                text: text,
-	                from: from,
-	                conversationId: this.conversationId,
-	                channelData: channelData
-	            },
-	            timeout: timeout,
-	            headers: {
-	                "Content-Type": "application/json",
-	                "Authorization": "Bearer " + this.token
-	            }
+	    DirectLine.prototype.postMessageWithAttachments = function (message) {
+	        var _this = this;
+	        var formData = new FormData();
+	        formData.append('activity', new Blob([JSON.stringify(Object.assign({}, message, { attachments: undefined }))], { type: 'application/vnd.microsoft.activity' }));
+	        return rxjs_1.Observable.from(message.attachments || [])
+	            .flatMap(function (media) {
+	            return rxjs_1.Observable.ajax({
+	                method: "GET",
+	                url: media.contentUrl,
+	                responseType: 'arraybuffer'
+	            })
+	                .do(function (ajaxResponse) {
+	                return formData.append('file', new Blob([ajaxResponse.response], { type: media.contentType }), media.name);
+	            });
+	        })
+	            .count()
+	            .flatMap(function (count) {
+	            return rxjs_1.Observable.ajax({
+	                method: "POST",
+	                url: _this.domain + "/conversations/" + _this.conversationId + "/upload?userId=" + message.from.id,
+	                body: formData,
+	                timeout: timeout,
+	                headers: {
+	                    "Authorization": "Bearer " + _this.token
+	                }
+	            });
 	        })
 	            .map(function (ajaxResponse) { return ajaxResponse.response.id; });
 	    };
-	    DirectLine.prototype.postFile = function (file, from) {
-	        var formData = new FormData();
-	        formData.append('file', file);
+	    DirectLine.prototype.postActivity = function (activity) {
 	        return rxjs_1.Observable.ajax({
 	            method: "POST",
-	            url: this.domain + "/conversations/" + this.conversationId + "/upload?userId=" + from.id,
-	            body: formData,
+	            url: this.domain + "/conversations/" + this.conversationId + "/activities",
+	            body: activity,
 	            timeout: timeout,
 	            headers: {
+	                "Content-Type": "application/json",
 	                "Authorization": "Bearer " + this.token
 	            }
 	        })
@@ -32537,27 +32603,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	            .concatAll()
 	            .do(function (activity) { return console.log("Activity", activity); });
 	    };
-	    DirectLine.prototype.activitiesGenerator = function (subscriber, watermark) {
+	    DirectLine.prototype.activitiesGenerator = function (subscriber) {
 	        var _this = this;
-	        this.getActivityGroupSubscription = this.getActivityGroup(watermark).subscribe(function (activityGroup) {
+	        this.getActivityGroupSubscription = this.getActivityGroup().subscribe(function (activityGroup) {
+	            _this.watermark = activityGroup.watermark;
 	            var someMessages = activityGroup && activityGroup.activities && activityGroup.activities.length > 0;
 	            if (someMessages)
 	                subscriber.next(rxjs_1.Observable.from(activityGroup.activities));
-	            _this.pollTimer = setTimeout(function () { return _this.activitiesGenerator(subscriber, activityGroup && activityGroup.watermark); }, someMessages && activityGroup.watermark ? 0 : 1000);
+	            _this.pollTimer = setTimeout(function () { return _this.activitiesGenerator(subscriber); }, someMessages && _this.watermark ? 0 : 1000);
 	        }, function (error) {
 	            return subscriber.error(error);
 	        });
 	    };
-	    DirectLine.prototype.getActivityGroup = function (watermark) {
-	        if (watermark === void 0) { watermark = ""; }
+	    DirectLine.prototype.getActivityGroup = function () {
 	        return rxjs_1.Observable.ajax({
 	            method: "GET",
-	            url: this.domain + "/conversations/" + this.conversationId + "/activities?watermark=" + watermark,
+	            url: this.domain + "/conversations/" + this.conversationId + "/activities?watermark=" + this.watermark,
 	            timeout: timeout,
 	            headers: {
 	                "Accept": "application/json",
 	                "Authorization": "Bearer " + this.token
 	            }
+	        })
+	            .retryWhen(function (error$) {
+	            return error$
+	                .mergeMap(function (error) {
+	                console.log("getActivity error", error);
+	                return error.status === 403 ? rxjs_1.Observable.throw(error) : rxjs_1.Observable.of(error);
+	            })
+	                .delay(5 * 1000);
 	        })
 	            .map(function (ajaxResponse) { return ajaxResponse.response; });
 	    };
