@@ -21676,7 +21676,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var state = store.getState();
 	    var activity = state.history.activities.find(function (activity) { return activity.channelData && activity.channelData.clientActivityId === clientActivityId; });
 	    if (!activity) {
-	        console.log("activity not found");
+	        console.log("trySendMessage: activity not found");
 	        return;
 	    }
 	    (activity.type === 'message' && activity.attachments && activity.attachments.length > 0
@@ -21735,6 +21735,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var React = __webpack_require__(3);
 	var ActivityView_1 = __webpack_require__(176);
+	var Chat_1 = __webpack_require__(174);
 	var History = (function (_super) {
 	    __extends(History, _super);
 	    function History(props) {
@@ -21761,14 +21762,39 @@ return /******/ (function(modules) { // webpackBootstrap
 	    History.prototype.suitableInterval = function (current, next) {
 	        return Date.parse(next.timestamp) - Date.parse(current.timestamp) > 5 * 60 * 1000;
 	    };
+	    History.prototype.onClickRetry = function (e, activity) {
+	        e.preventDefault();
+	        e.stopPropagation();
+	        Chat_1.trySendMessage(this.props.store, activity.channelData.clientActivityId, true);
+	    };
 	    History.prototype.render = function () {
 	        var _this = this;
 	        var state = this.props.store.getState();
 	        var activities = state.history.activities;
 	        var wrappedActivities = activities.map(function (activity, index) {
 	            var timeLine;
-	            if (index === activities.length - 1 || (index + 1 < activities.length && _this.suitableInterval(activity, activities[index + 1]))) {
-	                timeLine = " at " + (new Date(activity.timestamp)).toLocaleTimeString();
+	            switch (activity.id) {
+	                case undefined:
+	                    timeLine = React.createElement("span", null, state.format.strings.messageSending);
+	                    break;
+	                case null:
+	                    timeLine = React.createElement("span", null, state.format.strings.messageFailed);
+	                    break;
+	                case "retry":
+	                    timeLine =
+	                        React.createElement("span", null, 
+	                            state.format.strings.messageFailed, 
+	                            ' ', 
+	                            React.createElement("a", {href: ".", onClick: function (e) { return _this.onClickRetry(e, activity); }}, state.format.strings.messageRetry));
+	                    break;
+	                default:
+	                    var sent = void 0;
+	                    if (index === activities.length - 1 || (index + 1 < activities.length && _this.suitableInterval(activity, activities[index + 1])))
+	                        sent = state.format.strings.timeSent.replace('%1', (new Date(activity.timestamp)).toLocaleTimeString());
+	                    timeLine = React.createElement("span", null, 
+	                        activity.from.name || activity.from.id, 
+	                        sent);
+	                    break;
 	            }
 	            return (React.createElement("div", {key: index, className: "wc-message-wrapper" + (_this.props.selectActivity ? ' clickable' : ''), onClick: function (e) { return _this.selectActivity(activity); }}, 
 	                React.createElement("div", {className: 'wc-message wc-message-from-' + (activity.from.id === state.connection.user.id ? 'me' : 'bot')}, 
@@ -21777,9 +21803,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            React.createElement("path", {className: "point-left", d: "m0,6 l6 6 v-12 z"}), 
 	                            React.createElement("path", {className: "point-right", d: "m6,6 l-6 6 v-12 z"})), 
 	                        React.createElement(ActivityView_1.ActivityView, {store: _this.props.store, activity: activity, onImageLoad: function () { return _this.onImageLoad; }})), 
-	                    React.createElement("div", {className: "wc-message-from"}, 
-	                        activity.from.name || activity.from.id, 
-	                        timeLine))
+	                    React.createElement("div", {className: "wc-message-from"}, timeLine))
 	            ));
 	        });
 	        return (React.createElement("div", {className: "wc-message-groups", ref: function (ref) { return _this.scrollMe = ref; }}, 
@@ -21942,10 +21966,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    })), 
 	                    React.createElement("tfoot", null, 
 	                        React.createElement("tr", null, 
-	                            React.createElement("td", null, "Tax"), 
+	                            React.createElement("td", null, state.format.strings.receiptTax), 
 	                            React.createElement("td", null, attachment.content.tax)), 
 	                        React.createElement("tr", {className: "total"}, 
-	                            React.createElement("td", null, "Total"), 
+	                            React.createElement("td", null, state.format.strings.receiptTotal), 
 	                            React.createElement("td", null, attachment.content.total))))
 	            ));
 	        case "image/png":
@@ -21959,10 +21983,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        case "video/mp4":
 	            return videoWithOnLoad(attachment.contentUrl);
 	        default:
-	            return React.createElement("span", null, 
-	                "[File of type '", 
-	                attachment.contentType, 
-	                "']");
+	            return React.createElement("span", null, state.format.strings.unknownFile.replace('%1', attachment.contentType));
 	    }
 	};
 
@@ -24152,9 +24173,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	            return Object.assign({}, state, {
 	                activities: state.activities.filter(function (activity) { return activity.type !== "typing"; }).concat([
-	                    Object.assign({}, action.activity, {
-	                        status: "received"
-	                    })
+	                    action.activity
 	                ], state.activities.filter(function (activity) { return activity.from.id !== action.activity.from.id && activity.type === "typing"; }))
 	            });
 	        case 'Send_Message':
@@ -24162,7 +24181,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                activities: state.activities.filter(function (activity) { return activity.type !== "typing"; }).concat([
 	                    Object.assign({}, action.activity, {
 	                        timestamp: (new Date()).toISOString(),
-	                        status: "sending",
 	                        channelData: { clientActivityId: state.clientActivityBase + state.clientActivityCounter }
 	                    })
 	                ], state.activities.filter(function (activity) { return activity.type === "typing"; })),
@@ -24171,22 +24189,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	            });
 	        case 'Send_Message_Try':
 	            {
-	                var activity = state.activities.find(function (activity) {
+	                var activity_1 = state.activities.find(function (activity) {
 	                    return activity.channelData && activity.channelData.clientActivityId === action.clientActivityId;
 	                });
-	                var newActivity = Object.assign({}, activity, {
-	                    status: "sending",
-	                    clientActivityCounter: state.clientActivityCounter
-	                });
+	                var newActivity = activity_1.id === undefined ? activity_1 : Object.assign({}, activity_1, { id: undefined });
 	                return Object.assign({}, state, {
-	                    activities: state.activities.filter(function (activity) {
-	                        return activity.type !== "typing" &&
-	                            (!activity.channelData || activity.channelData.clientActivityId !== action.clientActivityId);
-	                    }).concat([
+	                    activities: state.activities.filter(function (activityT) { return activityT.type !== "typing" && activityT !== activity_1; }).concat([
 	                        newActivity
 	                    ], state.activities.filter(function (activity) { return activity.type === "typing"; })),
-	                    clientActivityCounter: state.clientActivityCounter + 1,
-	                    selectedActivity: state.selectedActivity === activity ? newActivity : state.selectedActivity
+	                    selectedActivity: state.selectedActivity === activity_1 ? newActivity : state.selectedActivity
 	                });
 	            }
 	        case 'Send_Message_Succeed':
@@ -24198,8 +24209,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                return state;
 	            var activity = state.activities[i];
 	            var newActivity = Object.assign({}, activity, {
-	                status: action.type === 'Send_Message_Succeed' ? "sent" : "retry",
-	                id: action.type === 'Send_Message_Succeed' ? action.id : undefined
+	                id: action.type === 'Send_Message_Succeed' ? action.id : null
 	            });
 	            return Object.assign({}, state, {
 	                activities: state.activities.slice(0, i).concat([
@@ -24212,9 +24222,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        case 'Show_Typing':
 	            return Object.assign({}, state, {
 	                activities: state.activities.filter(function (activity) { return activity.type !== "typing"; }).concat(state.activities.filter(function (activity) { return activity.from.id !== action.activity.from.id && activity.type === "typing"; }), [
-	                    Object.assign({}, action.activity, {
-	                        status: "received"
-	                    })
+	                    action.activity
 	                ])
 	            });
 	        case 'Clear_Typing': {
@@ -25268,7 +25276,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	var localizedStrings = {
 	    'en-us': {
 	        title: "Chat",
-	        send: "Send"
+	        send: "Send",
+	        unknownFile: "[File of type '%1']",
+	        receiptTax: "Tax",
+	        receiptTotal: "Total",
+	        messageRetry: "retry",
+	        messageFailed: "couldn't send",
+	        messageSending: "sending",
+	        timeSent: " at %1",
 	    }
 	};
 	// Returns strings using the "best match available"" locale
@@ -32485,21 +32500,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	var rxjs_1 = __webpack_require__(498);
 	var intervalRefreshToken = 29 * 60 * 1000;
-	var timeout = 10 * 1000;
+	var timeout = 5 * 1000;
 	var DirectLine = (function () {
-	    function DirectLine(secretOrToken, domain, segment // DEPRECATED will be removed before release
-	        ) {
+	    function DirectLine(secretOrToken, domain) {
 	        if (domain === void 0) { domain = "https://directline.botframework.com/v3/directline"; }
 	        this.domain = domain;
-	        this.segment = segment;
 	        this.connected$ = new rxjs_1.BehaviorSubject(false);
 	        this.watermark = '';
 	        this.secret = secretOrToken.secret;
 	        this.token = secretOrToken.secret || secretOrToken.token;
-	        if (segment) {
-	            console.log("Support for 'segment' is deprecated and will be removed before release. Please use default domain or pass entire path in domain");
-	            this.domain += "/" + segment;
-	        }
 	    }
 	    DirectLine.prototype.start = function () {
 	        var _this = this;
@@ -32521,14 +32530,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (!_this.secret) {
 	                _this.tokenRefreshSubscription = rxjs_1.Observable.timer(intervalRefreshToken, intervalRefreshToken).flatMap(function (_) {
 	                    return rxjs_1.Observable.ajax({
-	                        method: "GET",
+	                        method: "POST",
 	                        url: _this.domain + "/tokens/refresh",
 	                        timeout: timeout,
 	                        headers: {
 	                            "Authorization": "Bearer " + _this.token
 	                        }
 	                    })
-	                        .map(function (ajaxResponse) { return ajaxResponse.response; });
+	                        .map(function (ajaxResponse) { return ajaxResponse.response.token; });
 	                }).subscribe(function (token) {
 	                    console.log("refreshing token", token, "at", new Date());
 	                    _this.token = token;
@@ -32580,7 +32589,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            });
 	        })
-	            .map(function (ajaxResponse) { return ajaxResponse.response.id; });
+	            .map(function (ajaxResponse) { return ajaxResponse.response.id; })
+	            .catch(function (error) {
+	            console.log("postMessageWithAttachments error", error);
+	            return error.status >= 400 && error.status < 500
+	                ? rxjs_1.Observable.throw(error)
+	                : rxjs_1.Observable.of("retry");
+	        });
 	    };
 	    DirectLine.prototype.postActivity = function (activity) {
 	        return rxjs_1.Observable.ajax({
@@ -32593,7 +32608,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	                "Authorization": "Bearer " + this.token
 	            }
 	        })
-	            .map(function (ajaxResponse) { return ajaxResponse.response.id; });
+	            .map(function (ajaxResponse) { return ajaxResponse.response.id; })
+	            .catch(function (error) {
+	            return error.status >= 400 && error.status < 500
+	                ? rxjs_1.Observable.throw(error)
+	                : rxjs_1.Observable.of("retry");
+	        });
 	    };
 	    DirectLine.prototype.getActivity$ = function () {
 	        var _this = this;
@@ -32625,15 +32645,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	                "Authorization": "Bearer " + this.token
 	            }
 	        })
+	            .map(function (ajaxResponse) { return ajaxResponse.response; })
 	            .retryWhen(function (error$) {
 	            return error$
 	                .mergeMap(function (error) {
-	                console.log("getActivity error", error);
-	                return error.status === 403 ? rxjs_1.Observable.throw(error) : rxjs_1.Observable.of(error);
+	                return error.status === 403
+	                    ? rxjs_1.Observable.throw(error)
+	                    : rxjs_1.Observable.of(error);
 	            })
 	                .delay(5 * 1000);
-	        })
-	            .map(function (ajaxResponse) { return ajaxResponse.response; });
+	        });
 	    };
 	    return DirectLine;
 	}());
