@@ -3304,30 +3304,38 @@ return /******/ (function(modules) { // webpackBootstrap
 	// Set.prototype.keys
 	Set.prototype != null && typeof Set.prototype.keys === 'function' && isNative(Set.prototype.keys);
 	
+	var setItem;
+	var getItem;
+	var removeItem;
+	var getItemIDs;
+	var addRoot;
+	var removeRoot;
+	var getRootIDs;
+	
 	if (canUseCollections) {
 	  var itemMap = new Map();
 	  var rootIDSet = new Set();
 	
-	  var setItem = function (id, item) {
+	  setItem = function (id, item) {
 	    itemMap.set(id, item);
 	  };
-	  var getItem = function (id) {
+	  getItem = function (id) {
 	    return itemMap.get(id);
 	  };
-	  var removeItem = function (id) {
+	  removeItem = function (id) {
 	    itemMap['delete'](id);
 	  };
-	  var getItemIDs = function () {
+	  getItemIDs = function () {
 	    return Array.from(itemMap.keys());
 	  };
 	
-	  var addRoot = function (id) {
+	  addRoot = function (id) {
 	    rootIDSet.add(id);
 	  };
-	  var removeRoot = function (id) {
+	  removeRoot = function (id) {
 	    rootIDSet['delete'](id);
 	  };
-	  var getRootIDs = function () {
+	  getRootIDs = function () {
 	    return Array.from(rootIDSet.keys());
 	  };
 	} else {
@@ -3343,31 +3351,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return parseInt(key.substr(1), 10);
 	  };
 	
-	  var setItem = function (id, item) {
+	  setItem = function (id, item) {
 	    var key = getKeyFromID(id);
 	    itemByKey[key] = item;
 	  };
-	  var getItem = function (id) {
+	  getItem = function (id) {
 	    var key = getKeyFromID(id);
 	    return itemByKey[key];
 	  };
-	  var removeItem = function (id) {
+	  removeItem = function (id) {
 	    var key = getKeyFromID(id);
 	    delete itemByKey[key];
 	  };
-	  var getItemIDs = function () {
+	  getItemIDs = function () {
 	    return Object.keys(itemByKey).map(getIDFromKey);
 	  };
 	
-	  var addRoot = function (id) {
+	  addRoot = function (id) {
 	    var key = getKeyFromID(id);
 	    rootByKey[key] = true;
 	  };
-	  var removeRoot = function (id) {
+	  removeRoot = function (id) {
 	    var key = getKeyFromID(id);
 	    delete rootByKey[key];
 	  };
-	  var getRootIDs = function () {
+	  getRootIDs = function () {
 	    return Object.keys(rootByKey).map(getIDFromKey);
 	  };
 	}
@@ -4148,7 +4156,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	'use strict';
 	
-	module.exports = '15.4.0';
+	module.exports = '15.4.1';
 
 /***/ },
 /* 33 */
@@ -5553,6 +5561,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return '.' + inst._rootNodeID;
 	};
 	
+	function isInteractive(tag) {
+	  return tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea';
+	}
+	
+	function shouldPreventMouseEvent(name, type, props) {
+	  switch (name) {
+	    case 'onClick':
+	    case 'onClickCapture':
+	    case 'onDoubleClick':
+	    case 'onDoubleClickCapture':
+	    case 'onMouseDown':
+	    case 'onMouseDownCapture':
+	    case 'onMouseMove':
+	    case 'onMouseMoveCapture':
+	    case 'onMouseUp':
+	    case 'onMouseUpCapture':
+	      return !!(props.disabled && isInteractive(type));
+	    default:
+	      return false;
+	  }
+	}
+	
 	/**
 	 * This is a unified interface for event plugins to be installed and configured.
 	 *
@@ -5621,7 +5651,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * @return {?function} The stored callback.
 	   */
 	  getListener: function (inst, registrationName) {
+	    // TODO: shouldPreventMouseEvent is DOM-specific and definitely should not
+	    // live here; needs to be moved to a better place soon
 	    var bankForRegistrationName = listenerBank[registrationName];
+	    if (shouldPreventMouseEvent(registrationName, inst._currentElement.type, inst._currentElement.props)) {
+	      return null;
+	    }
 	    var key = getDictionaryKey(inst);
 	    return bankForRegistrationName && bankForRegistrationName[key];
 	  },
@@ -19711,18 +19746,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea';
 	}
 	
-	function shouldPreventMouseEvent(inst) {
-	  if (inst) {
-	    var disabled = inst._currentElement && inst._currentElement.props.disabled;
-	
-	    if (disabled) {
-	      return isInteractive(inst._tag);
-	    }
-	  }
-	
-	  return false;
-	}
-	
 	var SimpleEventPlugin = {
 	
 	  eventTypes: eventTypes,
@@ -19793,10 +19816,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      case 'topMouseDown':
 	      case 'topMouseMove':
 	      case 'topMouseUp':
-	        // Disabled elements should not respond to mouse events
-	        if (shouldPreventMouseEvent(targetInst)) {
-	          return null;
-	        }
+	      // TODO: Disabled elements should not respond to mouse events
 	      /* falls through */
 	      case 'topMouseOut':
 	      case 'topMouseOver':
@@ -21158,7 +21178,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	'use strict';
 	
-	module.exports = '15.4.0';
+	module.exports = '15.4.1';
 
 /***/ },
 /* 174 */
@@ -39819,13 +39839,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var _this = this;
 	        _super.call(this, props);
 	        this.scrollToBottom = true;
+	        this.atBottomThreshold = 80;
 	        this.autoscroll = function () {
-	            if (_this.scrollToBottom)
+	            if (_this.scrollToBottom && (_this.scrollMe.scrollHeight > _this.scrollMe.offsetHeight))
 	                _this.scrollMe.scrollTop = _this.scrollMe.scrollHeight - _this.scrollMe.offsetHeight;
 	        };
+	        this.scrollEventListener = function () { return _this.checkBottom(); };
+	        this.resizeListener = function () { return _this.checkBottom(); };
 	    }
-	    History.prototype.componentWillUpdate = function () {
-	        this.scrollToBottom = this.scrollMe.scrollTop + this.scrollMe.offsetHeight >= this.scrollMe.scrollHeight;
+	    History.prototype.componentDidMount = function () {
+	        this.scrollMe.addEventListener('scroll', this.scrollEventListener);
+	        window.addEventListener('resize', this.resizeListener);
+	    };
+	    History.prototype.componentWillUnmount = function () {
+	        this.scrollMe.removeEventListener('scroll', this.scrollEventListener);
+	        window.removeEventListener('resize', this.resizeListener);
+	    };
+	    History.prototype.checkBottom = function () {
+	        var offBottom = this.scrollMe.scrollHeight - this.scrollMe.offsetHeight - this.scrollMe.scrollTop;
+	        this.scrollToBottom = offBottom <= this.atBottomThreshold;
 	    };
 	    History.prototype.componentDidUpdate = function () {
 	        this.autoscroll();
@@ -40431,33 +40463,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	    ReactRenderer.prototype.del = function (text) {
 	        return this.addElement(React.createElement("del", {key: this.key++}, this.getElements(text)));
 	    };
-	    ReactRenderer.prototype.link = function (href, title, text) {
-	        if (this.options.sanitize) {
-	            try {
-	                var prot = decodeURIComponent(He.unescape(href)).toLowerCase();
-	                if (!(prot.startsWith('http://') || prot.startsWith('https://'))) {
-	                    return '';
+	    ReactRenderer.prototype.unescapeAndSanitizeLink = function (href) {
+	        try {
+	            href = He.unescape(href);
+	            if (this.options.sanitize) {
+	                var prot = href.toLowerCase();
+	                if (!(prot.startsWith('http:') || prot.startsWith('https:'))) {
+	                    return null;
 	                }
 	            }
-	            catch (e) {
-	                return '';
-	            }
 	        }
+	        catch (e) {
+	            return null;
+	        }
+	        return href;
+	    };
+	    ReactRenderer.prototype.link = function (href, title, text) {
+	        href = this.unescapeAndSanitizeLink(href);
+	        if (!href)
+	            return '';
 	        return this.addElement(React.createElement("a", __assign({key: this.key++}, { href: href, title: title, target: '_blank' }), this.getElements(text)));
 	    };
 	    ReactRenderer.prototype.image = function (href, title, text) {
 	        var _this = this;
-	        if (this.options.sanitize) {
-	            try {
-	                var prot = decodeURIComponent(He.unescape(href)).toLowerCase();
-	                if (!(prot.startsWith('http://') || prot.startsWith('https://'))) {
-	                    return '';
-	                }
-	            }
-	            catch (e) {
-	                return '';
-	            }
-	        }
+	        href = this.unescapeAndSanitizeLink(href);
+	        if (!href)
+	            return '';
 	        return this.addElement(React.createElement("img", __assign({key: this.key++, onLoad: function () { return _this.onImageLoad(); }}, { src: href, title: title, alt: text })));
 	    };
 	    ReactRenderer.prototype.text = function (text) {
@@ -50621,11 +50652,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function DirectLine(secretOrToken, domain) {
 	        if (domain === void 0) { domain = "https://directline.botframework.com/v3/directline"; }
 	        this.domain = domain;
+	        this.connectionStatus$ = new rxjs_1.BehaviorSubject(BotConnection_1.ConnectionStatus.Connecting);
+	        this.activity$ = this.getActivity$();
 	        this.watermark = '';
 	        this.secret = secretOrToken.secret;
 	        this.token = secretOrToken.secret || secretOrToken.token;
-	        this.connectionStatus$ = new rxjs_1.BehaviorSubject(BotConnection_1.ConnectionStatus.Connecting);
-	        this.activity$ = this.getActivity$();
 	    }
 	    DirectLine.prototype.start = function () {
 	        var _this = this;
@@ -50712,28 +50743,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	        formData.append('activity', new Blob([JSON.stringify(Object.assign({}, message, { attachments: undefined }))], { type: 'application/vnd.microsoft.activity' }));
 	        return this.connectionStatus$
 	            .filter(function (connectionStatus) { return connectionStatus === BotConnection_1.ConnectionStatus.Online; })
-	            .flatMap(function (_) { return rxjs_1.Observable.from(message.attachments || []); })
-	            .flatMap(function (media) {
-	            return rxjs_1.Observable.ajax({
-	                method: "GET",
-	                url: media.contentUrl,
-	                responseType: 'arraybuffer'
+	            .flatMap(function (_) {
+	            return rxjs_1.Observable.from(message.attachments || [])
+	                .flatMap(function (media) {
+	                return rxjs_1.Observable.ajax({
+	                    method: "GET",
+	                    url: media.contentUrl,
+	                    responseType: 'arraybuffer'
+	                })
+	                    .do(function (ajaxResponse) {
+	                    return formData.append('file', new Blob([ajaxResponse.response], { type: media.contentType }), media.name);
+	                });
 	            })
-	                .do(function (ajaxResponse) {
-	                return formData.append('file', new Blob([ajaxResponse.response], { type: media.contentType }), media.name);
-	            });
+	                .count();
 	        })
-	            .count()
-	            .flatMap(function (_) { return rxjs_1.Observable.ajax({
-	            method: "POST",
-	            url: _this.domain + "/conversations/" + _this.conversationId + "/upload?userId=" + message.from.id,
-	            body: formData,
-	            timeout: timeout,
-	            headers: {
-	                "Authorization": "Bearer " + _this.token
-	            }
-	        }); })
-	            .map(function (ajaxResponse) { return ajaxResponse.response.id; })
+	            .flatMap(function (_) {
+	            return rxjs_1.Observable.ajax({
+	                method: "POST",
+	                url: _this.domain + "/conversations/" + _this.conversationId + "/upload?userId=" + message.from.id,
+	                body: formData,
+	                timeout: timeout,
+	                headers: {
+	                    "Authorization": "Bearer " + _this.token
+	                }
+	            })
+	                .map(function (ajaxResponse) { return ajaxResponse.response.id; });
+	        })
 	            .catch(function (error) {
 	            Chat_1.konsole.log("postMessageWithAttachments error", error);
 	            return error.status >= 400 && error.status < 500
