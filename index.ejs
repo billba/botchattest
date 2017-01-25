@@ -3,13 +3,14 @@
     <head>
         <meta charset="UTF-8" />
         <title>Bot Chat Embed Test</title>
-        <script>
-            function sendMessage(message) {
-                console.log("Sending backchannel message to botchat", message);
-                window.frames["botchat"].postMessage({ type: 'send', contents: message }, window.location.origin);
+        <link href="https://unpkg.com/botframework-webchat/botchat.css" rel="stylesheet" />
+        <style>
+            .wc-chatview-panel {
+                width: 320px;
+                height: 500px;
+                position: relative;
             }
-        </script>
-
+        </style>
     </head>
     <body>
         <div>
@@ -21,16 +22,6 @@
                         <input id="secret" name="secret" type="text" style="width:300px;" value="<%= secret %>" placeholder="leave blank for TestBotV3"/>
                     </p>
                     <p>
-                        <label for="showHeader">ShowHeader</label>
-                        <input id="showHeader" name="showHeader" type="text" style="width:300px;" value="<%= showHeader %>" placeholder="leave blank for false"/>
-                    </p>
-<!--
-                    <p>
-                        <label for="allowMessagesFrom">Allow messages from websites hosted at: </label>
-                        <input id="allowMessagesFrom" name="allowMessagesFrom" type="text" style="width:300px;" value="<%= allowMessagesFrom %>" placeholder="http://localhost:3000, http://bill.barnacle.org"/>
-                    </p>
--->
-                    <p>
                         <input type="submit"/>
                     </p>
                 </form>
@@ -40,11 +31,19 @@
                 <button onclick="sendMessage(document.getElementById('message').value)">Send Message To Bot</button>
 -->
             </div>
-            <div style="margin-left: 320px;">
-                <iframe id="botchat" src="/botchat/?t=<%= token %>" width="320" height="500"></iframe>
-            </div>
+            <div style="margin-left: 320px" id="BotChatGoesHere"/>
             <div style="clear:both;"/>
         </div>
         <h2>Please report any issues with botchat on <a href="https://github.com/billba/botchat/issues">github</a></h2>
+        <script src="https://unpkg.com/botframework-webchat/botchat.js"></script>
+        <script>
+            BotChat.App({
+                directLine: {
+                    token: "<%= token %>"
+                },
+                user: { id: 'botchattest' },
+                bot: { id: 'yourbot' },
+            }, document.getElementById("BotChatGoesHere"));
+        </script>
     </body>
 </html>
